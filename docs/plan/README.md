@@ -289,8 +289,8 @@ Har phase tugagach shu jadvalni yangilang.
 
 | Phase | Holat | Tugagan sana | Izoh |
 |-------|-------|--------------|------|
-| P0 | ⬜ | | |
-| P1 | ⬜ | | |
+| P0 | ✅ | 2026-10-07 | Akkauntlar, lokal muhit va boshlang'ich kontent tayyorlandi |
+| P1 | 🟨 | | Loyiha poydevori boshlandi |
 | P2 | ⬜ | | |
 | P3 | ⬜ | | |
 | P4 | ⬜ | | |
