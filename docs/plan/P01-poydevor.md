@@ -152,9 +152,9 @@
 
 ## P1.S6 — Asosiy konfiguratsiya va papka tuzilmasi
 
-- [ ] **P1.S6.1** README 5.1 dagi papkalarni yarating (bo'sh papkalarga `.gitkeep` qo'ying).
-- [ ] **P1.S6.2** Payload shablonidagi `src/collections/Users.ts` va `src/collections/Media.ts` saqlanadi. Ular P3 da kengaytiriladi.
-- [ ] **P1.S6.3** `src/lib/payload.ts`:
+- [x] **P1.S6.1** README 5.1 dagi papkalarni yarating (bo'sh papkalarga `.gitkeep` qo'ying).
+- [x] **P1.S6.2** Payload shablonidagi `src/collections/Users.ts` va `src/collections/Media.ts` saqlanadi. Ular P3 da kengaytiriladi.
+- [x] **P1.S6.3** `src/lib/payload.ts`:
   ```ts
   import { getPayload } from 'payload'
   import config from '@payload-config'
@@ -162,7 +162,7 @@
   export const getPayloadClient = () => getPayload({ config })
   ```
   Saytdagi barcha server kodi Payload'ga **faqat shu funksiya orqali** murojaat qiladi.
-- [ ] **P1.S6.4** `payload.config.ts` ga quyidagilarni qo'shing:
+- [x] **P1.S6.4** `payload.config.ts` ga quyidagilarni qo'shing:
   ```ts
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
   cors: [process.env.NEXT_PUBLIC_SERVER_URL!],
@@ -174,7 +174,7 @@
     importMap: { baseDir: path.resolve(dirname) },
   },
   ```
-- [ ] **P1.S6.5** Admin panel tili: `i18n.supportedLanguages` ga `@payloadcms/translations` dagi mavjud tillardan `en` va `ru` ni, `uz` mavjud bo'lsa uni ham qo'shing va standart qilib belgilang. Mavjudligini paketning `languages` papkasidan tekshiring.
+- [x] **P1.S6.5** Admin panel tili: `i18n.supportedLanguages` ga `@payloadcms/translations` dagi mavjud tillardan `en` va `ru` ni, `uz` mavjud bo'lsa uni ham qo'shing va standart qilib belgilang. Mavjudligini paketning `languages` papkasidan tekshiring.
 
 ✅ **Qabul mezonlari:** `pnpm build` muvaffaqiyatli o'tadi.
 
@@ -198,7 +198,7 @@ Erta deploy qilish muhim: muammolar boshidayoq ko'rinadi.
 
 ## P1.S8 — CI (GitHub Actions)
 
-- [ ] **P1.S8.1** `.github/workflows/ci.yml`:
+- [x] **P1.S8.1** `.github/workflows/ci.yml`:
   ```yaml
   name: ci
   on:

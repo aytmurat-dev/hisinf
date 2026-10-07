@@ -7,6 +7,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['tests/int/**/*.int.spec.ts'],
+    include: process.env.DATABASE_URI_TEST
+      ? ['tests/unit/**/*.spec.ts', 'tests/int/**/*.int.spec.ts']
+      : ['tests/unit/**/*.spec.ts'],
   },
 })
