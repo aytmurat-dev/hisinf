@@ -1,0 +1,67 @@
+{
+  "name": "hisinf",
+  "version": "1.0.0",
+  "description": "Tarixiy ma'lumotlar portali (Next.js + Payload CMS 3)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" payload build",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "typecheck": "tsc --noEmit",
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "ci": "payload migrate && pnpm build",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "test": "vitest run",
+    "test:all": "pnpm run test:int && pnpm run test:e2e",
+    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.90.2",
+    "@payloadcms/next": "3.90.2",
+    "@payloadcms/richtext-lexical": "3.90.2",
+    "@payloadcms/ui": "3.90.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.8.1",
+    "next": "15.4.11",
+    "payload": "3.90.2",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "sharp": "0.33.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.49.0",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.4.11",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": "^9 || ^10 || ^11"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild"
+    ]
+  }
+}

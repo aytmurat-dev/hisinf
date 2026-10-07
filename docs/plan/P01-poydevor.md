@@ -7,22 +7,22 @@
 
 ## P1.S1 — Payload loyihasini yaratish
 
-- [ ] **P1.S1.1** Repo papkasi bo'sh emas (`docs/` bor). Shuning uchun loyiha **vaqtinchalik papkada** yaratiladi:
+- [x] **P1.S1.1** Repo papkasi bo'sh emas (`docs/` bor). Shuning uchun loyiha **vaqtinchalik papkada** yaratiladi:
   ```bash
   cd D:/Projects
   pnpm dlx create-payload-app@latest hisinf-tmp
   ```
   Savollarga javoblar: template = **blank**, database = **PostgreSQL**, connection string so'ralsa hozircha `postgres://localhost:5432/tmp` (keyin almashtiriladi), package manager = **pnpm**.
-- [ ] **P1.S1.2** `hisinf-tmp` ichidagi **hamma narsani** (`.git` va `node_modules` dan tashqari) `hisinf` ga ko'chiring. `README.md` to'qnashsa, Payload'nikini `docs/payload-template-readme.md` deb saqlang. Keyin `hisinf-tmp` ni o'chiring.
-- [ ] **P1.S1.3** `cd D:/Projects/hisinf && pnpm install`.
-- [ ] **P1.S1.4** **Ma'lumotnoma loyiha** (faqat o'qish uchun, repo'ga kirmaydi):
+- [x] **P1.S1.2** `hisinf-tmp` ichidagi **hamma narsani** (`.git` va `node_modules` dan tashqari) `hisinf` ga ko'chiring. `README.md` to'qnashsa, Payload'nikini `docs/payload-template-readme.md` deb saqlang. Keyin `hisinf-tmp` ni o'chiring.
+- [x] **P1.S1.3** `cd D:/Projects/hisinf && pnpm install`.
+- [x] **P1.S1.4** **Ma'lumotnoma loyiha** (faqat o'qish uchun, repo'ga kirmaydi):
   ```bash
   cd D:/Projects
   pnpm dlx create-payload-app@latest payload-website-reference -t website
   ```
   O'rnatish xato bersa, uni GitHub'dan klonlang: `https://github.com/payloadcms/payload/tree/main/templates/website`. Bu papkadan live preview, `next/preview` route, `RefreshRouteOnSave`, revalidate hook'lar va Lexical renderer namunalari olinadi.
-- [ ] **P1.S1.5** `package.json` dagi `next`, `payload` va `@payloadcms/*` versiyalarini yozib oling. Bundan keyin **hamma `@payloadcms/*` paketlar bir xil versiyada bo'lishi shart.** Yangi `@payloadcms/*` paket qo'shilganda shu versiya ko'rsatiladi: `pnpm add @payloadcms/storage-s3@<versiya>`.
-- [ ] **P1.S1.6** Next.js versiyasini aniqlang. 16+ bo'lsa, middleware fayli `src/proxy.ts` deb nomlanadi, aks holda `src/middleware.ts`. Reja davomida bu fayl "middleware" deb ataladi.
+- [x] **P1.S1.5** `package.json` dagi `next`, `payload` va `@payloadcms/*` versiyalarini yozib oling. Bundan keyin **hamma `@payloadcms/*` paketlar bir xil versiyada bo'lishi shart.** Yangi `@payloadcms/*` paket qo'shilganda shu versiya ko'rsatiladi: `pnpm add @payloadcms/storage-s3@<versiya>`.
+- [x] **P1.S1.6** Next.js versiyasini aniqlang. 16+ bo'lsa, middleware fayli `src/proxy.ts` deb nomlanadi, aks holda `src/middleware.ts`. Reja davomida bu fayl "middleware" deb ataladi.
 
 ✅ **Qabul mezonlari:** `pnpm dev` ishga tushadi (DB hali ulanmagani uchun xato chiqishi normal). `../payload-website-reference` papkasi mavjud.
 
@@ -30,8 +30,8 @@
 
 ## P1.S2 — Sozlamalar, skriptlar, kod sifati
 
-- [ ] **P1.S2.1** `tsconfig.json` da `"strict": true` ekanini tekshiring. `paths` ichida `"@/*": ["./src/*"]` va `"@payload-config": ["./src/payload.config.ts"]` bor bo'lsin.
-- [ ] **P1.S2.2** `package.json` `scripts` (mavjudlari saqlanadi, yetishmaganlari qo'shiladi):
+- [x] **P1.S2.1** `tsconfig.json` da `"strict": true` ekanini tekshiring. `paths` ichida `"@/*": ["./src/*"]` va `"@payload-config": ["./src/payload.config.ts"]` bor bo'lsin.
+- [x] **P1.S2.2** `package.json` `scripts` (mavjudlari saqlanadi, yetishmaganlari qo'shiladi):
   ```json
   {
     "dev": "next dev",
@@ -50,10 +50,10 @@
   }
   ```
   `next lint` o'rnatilgan Next versiyasida olib tashlangan bo'lsa, `"lint": "eslint ."` qiling.
-- [ ] **P1.S2.3** Prettier: `.prettierrc` → `{ "semi": false, "singleQuote": true, "printWidth": 100, "trailingComma": "all" }`. Payload shablonida boshqacha sozlama bo'lsa, shablonnikini saqlang.
-- [ ] **P1.S2.4** `.gitignore` da `.env`, `.env.local`, `node_modules`, `.next`, `/media`, `test-results`, `playwright-report` bor bo'lsin.
-- [ ] **P1.S2.5** `.env.example` ni README 6-bo'limidagi ro'yxat bilan yarating. `.env` ni undan nusxa qilib to'ldiring.
-- [ ] **P1.S2.6** `AGENTS.md` mavjudligini tekshiring. README dagi 4-bo'lim bilan mos bo'lsin.
+- [x] **P1.S2.3** Prettier: `.prettierrc` → `{ "semi": false, "singleQuote": true, "printWidth": 100, "trailingComma": "all" }`. Payload shablonida boshqacha sozlama bo'lsa, shablonnikini saqlang.
+- [x] **P1.S2.4** `.gitignore` da `.env`, `.env.local`, `node_modules`, `.next`, `/media`, `test-results`, `playwright-report` bor bo'lsin.
+- [x] **P1.S2.5** `.env.example` ni README 6-bo'limidagi ro'yxat bilan yarating. `.env` ni undan nusxa qilib to'ldiring.
+- [x] **P1.S2.6** `AGENTS.md` mavjudligini tekshiring. README dagi 4-bo'lim bilan mos bo'lsin.
 
 ✅ **Qabul mezonlari:** `pnpm lint` va `pnpm typecheck` xatosiz o'tadi.
 
