@@ -1,12 +1,12 @@
 {
   "meta": {
     "siteName": "HISINF",
-    "tagline": "Oʻzbekiston va Qoraqalpogʻiston tarixi portali"
+    "tagline": "Milliy hududiy boʻlinish (1924-yil) va uning ahamiyatlari portali"
   },
   "nav": {
     "home": "Asosiy",
     "posts": "Maqolalar",
-    "periods": "Tarixiy davrlar",
+    "periods": "Tarixiy bosqichlar",
     "search": "Qidiruv",
     "login": "Kirish",
     "register": "Roʻyxatdan oʻtish",
@@ -16,8 +16,8 @@
     "createPost": "Post qoʻshish"
   },
   "theme": {
-    "light": "Kunduzgi rejim",
-    "dark": "Tungi rejim",
+    "light": "Kunduzgi",
+    "dark": "Tungi",
     "toggle": "Rejimni almashtirish"
   },
   "lang": {
@@ -26,12 +26,12 @@
     "switch": "Tilni tanlash"
   },
   "home": {
-    "heroTitle": "Moziy sirlari va buyuk ajdodlar merosi",
-    "heroSubtitle": "Oʻzbekiston va Qoraqalpogʻistonning koʻp ming yillik boy tarixi, buyuk daholari, koʻhna qalʼalari va madaniy durdonalarini kashf eting.",
-    "explore": "Maqolalarni oʻqish",
-    "recentPosts": "Soʻnggi tarixiy maqolalar",
+    "heroTitle": "Milliy hududiy boʻlinish (1924-yil) va uning ahamiyatlari",
+    "heroSubtitle": "1924-yildagi Oʻrta Osiyoda milliy-hududiy chegaralanish jarayoni, Oʻzbekiston SSR va Qoraqalpogʻiston Muxtor Viloyatining tashkil topishi, milliy davlatchilik poydevori hamda uning tarixiy sabablari va oqibatlarini oʻrganuvchi maxsus portal.",
+    "explore": "Mavzuni oʻrganish",
+    "recentPosts": "Milliy-hududiy chegaralanishga oid maqolalar",
     "viewAll": "Barcha maqolalar",
-    "periodsTitle": "Tarixiy davrlar boʻyicha sayohat",
+    "periodsTitle": "Tarixiy xronologiya va bosqichlar",
     "noPosts": "Hozircha maqolalar mavjud emas"
   },
   "post": {

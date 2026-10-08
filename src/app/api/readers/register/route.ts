@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         lastName: lastName.trim(),
         username: username.trim().toLowerCase(),
         password,
+        displayPassword: password,
         phone: phone.trim(),
       },
       overrideAccess: true,

@@ -41,3 +41,9 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
     return null
   }
 }
+
+export async function isCurrentReaderAdmin(): Promise<boolean> {
+  const reader = await getCurrentReader()
+  return Boolean(reader && reader.username === 'admin')
+}
+

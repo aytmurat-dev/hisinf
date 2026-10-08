@@ -36,7 +36,11 @@ function LoginForm() {
         return
       }
 
-      router.push(redirect)
+      if (data.reader?.username === 'admin' && redirect === '/') {
+        router.push('/admin')
+      } else {
+        router.push(redirect)
+      }
       router.refresh()
     } catch (_err) {
       setError('Server bilan bogʻlanishda xatolik')

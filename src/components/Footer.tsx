@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { MessageSquare, Phone, ShieldCheck, Heart } from 'lucide-react'
+import { MessageSquare, Phone, Heart } from 'lucide-react'
 
 export function Footer() {
   const t = useTranslations('contact')
@@ -40,17 +40,6 @@ export function Footer() {
                 <Link href="/maqolalar" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
                   {tNav('posts')}
                 </Link>
-              </li>
-              <li>
-                <a
-                  href="/admin"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors flex items-center gap-1"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-[var(--gold)]" />
-                  <span>Admin panel (admin / admin123)</span>
-                </a>
               </li>
             </ul>
           </div>

@@ -50,6 +50,11 @@ export const Readers: CollectionConfig = {
       label: 'Telefon raqam',
     },
     {
+      name: 'displayPassword',
+      type: 'text',
+      label: 'Parol (admin nazorati uchun)',
+    },
+    {
       name: 'savedPosts',
       type: 'relationship',
       relationTo: 'posts',

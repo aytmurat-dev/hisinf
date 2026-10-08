@@ -6,7 +6,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { HeaderSearch } from './HeaderSearch'
-import { Menu, X, Shield, PlusCircle, LogOut } from 'lucide-react'
+import { Menu, X, Shield, LogOut } from 'lucide-react'
 
 export function Header() {
   const t = useTranslations('nav')
@@ -35,14 +35,15 @@ export function Header() {
     router.refresh()
   }
 
+  const isAdmin = currentUser?.username === 'admin'
+
   return (
     <header className="sticky top-0 z-40 bg-[var(--background)]/90 backdrop-blur-md border-b border-[var(--border)] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Portal Name */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              {/* Kichikroq logo - tarixiy tamg'a / gerb */}
+            <Link href="/" prefetch={true} className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 rounded-lg bg-[var(--gold)]/15 border border-[var(--gold)] flex items-center justify-center text-[var(--gold)] group-hover:scale-105 transition-transform shadow-xs">
                 <span className="font-serif font-black text-lg tracking-wider text-[var(--gold)]">H</span>
               </div>
@@ -51,7 +52,7 @@ export function Header() {
                   HISINF
                 </span>
                 <span className="text-[9px] uppercase tracking-widest text-[var(--gold)] font-medium -mt-1">
-                  Tarix Portali
+                  1924 Tarix Portali
                 </span>
               </div>
             </Link>
@@ -61,6 +62,7 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/"
+              prefetch={true}
               className={`text-xs uppercase tracking-wider font-medium transition-colors ${
                 pathname === '/' ? 'text-[var(--gold)] font-semibold' : 'text-[var(--foreground)] hover:text-[var(--gold)]'
               }`}
@@ -69,32 +71,36 @@ export function Header() {
             </Link>
             <Link
               href="/maqolalar"
+              prefetch={true}
               className={`text-xs uppercase tracking-wider font-medium transition-colors ${
                 pathname.startsWith('/maqolalar') ? 'text-[var(--gold)] font-semibold' : 'text-[var(--foreground)] hover:text-[var(--gold)]'
               }`}
             >
               {t('posts')}
             </Link>
-            <Link
-              href="/admin-post-yaratish"
-              className="flex items-center gap-1.5 text-xs text-[var(--gold)] hover:text-[var(--gold-light)] font-medium transition-colors border border-[var(--gold)]/40 hover:border-[var(--gold)] px-2.5 py-1 rounded-full bg-[var(--gold)]/5"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>{t('createPost')}</span>
-            </Link>
+
+            {/* Admin bo'lsa, ichki admin panel tugmasi */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                prefetch={true}
+                className="flex items-center gap-1.5 text-xs text-[var(--gold)] hover:text-[var(--gold-light)] font-medium transition-colors border border-[var(--gold)]/50 hover:border-[var(--gold)] px-3 py-1 rounded-full bg-[var(--gold)]/10 shadow-xs"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
           </nav>
 
-          {/* Right Toolbar: Search, Lang, Theme, User Auth */}
-          <div className="flex items-center gap-3">
+          {/* Right Toolbar: Search, Lang & Theme yonma-yon, User Auth */}
+          <div className="flex items-center gap-2.5">
             {/* Live Search Icon */}
             <HeaderSearch />
 
-            {/* Language & Theme Combo */}
-            <div className="flex flex-col items-end gap-1">
+            {/* Language & Theme side-by-side */}
+            <div className="flex items-center gap-1.5">
               <LanguageSwitcher />
-              <div className="flex items-center justify-end scale-90 origin-right">
-                <ThemeToggle />
-              </div>
+              <ThemeToggle />
             </div>
 
             {/* User Account / Login */}
@@ -117,23 +123,13 @@ export function Header() {
               ) : (
                 <Link
                   href="/kirish"
+                  prefetch={true}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--gold)] text-black rounded-lg text-xs font-semibold hover:brightness-110 transition-all shadow-xs cursor-pointer ml-1"
                 >
                   <span>{t('login')}</span>
                 </Link>
               )}
             </div>
-
-            {/* Admin link */}
-            <a
-              href="/admin"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1 p-1.5 text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors text-xs"
-              title={t('admin')}
-            >
-              <Shield className="w-4 h-4" />
-            </a>
 
             {/* Mobile burger button */}
             <button
@@ -154,6 +150,7 @@ export function Header() {
           <nav className="flex flex-col space-y-2">
             <Link
               href="/"
+              prefetch={true}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2 rounded-md text-sm font-medium hover:bg-[var(--secondary)]"
             >
@@ -161,19 +158,23 @@ export function Header() {
             </Link>
             <Link
               href="/maqolalar"
+              prefetch={true}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2 rounded-md text-sm font-medium hover:bg-[var(--secondary)]"
             >
               {t('posts')}
             </Link>
-            <Link
-              href="/admin-post-yaratish"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-md text-sm font-medium text-[var(--gold)] flex items-center gap-2 hover:bg-[var(--secondary)]"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>{t('createPost')}</span>
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                prefetch={true}
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-md text-sm font-medium text-[var(--gold)] flex items-center gap-2 hover:bg-[var(--secondary)]"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
           </nav>
 
           <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
@@ -197,6 +198,7 @@ export function Header() {
               <div className="flex items-center gap-2 w-full">
                 <Link
                   href="/kirish"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex-1 py-2 text-center text-xs font-semibold bg-[var(--gold)] text-black rounded-lg"
                 >
@@ -204,6 +206,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/royxatdan-otish"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex-1 py-2 text-center text-xs font-semibold border border-[var(--border)] rounded-lg"
                 >

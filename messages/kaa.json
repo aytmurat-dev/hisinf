@@ -1,12 +1,12 @@
 {
   "meta": {
     "siteName": "HISINF",
-    "tagline": "Qaraqalpaqstan hám Ózbekstan tariyxı portalı"
+    "tagline": "Milliy-aymaqlıq shegaralanıw (1924-jıl) hám onıń áhmiyeti portalı"
   },
   "nav": {
     "home": "Bas bet",
     "posts": "Maqalalar",
-    "periods": "Tariyxıy dáwirler",
+    "periods": "Tariyxıy basqıshlar",
     "search": "Izlew",
     "login": "Kiriw",
     "register": "Dizimnen ótiw",
@@ -16,8 +16,8 @@
     "createPost": "Post qosıw"
   },
   "theme": {
-    "light": "Kúndizgi rejim",
-    "dark": "Túngi rejim",
+    "light": "Kúndizgi",
+    "dark": "Túngi",
     "toggle": "Rejimdi almastırıw"
   },
   "lang": {
@@ -26,12 +26,12 @@
     "switch": "Tildi tańlaw"
   },
   "home": {
-    "heroTitle": "Áyyemgi dáwir sırları hám ullı babalar miyrası",
-    "heroSubtitle": "Qaraqalpaqstan hám Ózbekstannıń mıńlaǵan jıllıq bay tariyxın, ullı danıshpanların, kóniy qalaların hám mádeniy biybahalıqların biliń.",
-    "explore": "Maqalalardı oqıw",
-    "recentPosts": "Sońǵı tariyxıy maqalalar",
+    "heroTitle": "Milliy-aymaqlıq shegaralanıw (1924-jıl) hám onıń áhmiyeti",
+    "heroSubtitle": "1924-jıldaǵı Orta Aziyada milliy-aymaqlıq shegaralanıw procesi, Ózbekstan SSR hám Qaraqalpaqstan Avtonomiyalı Wálayatınıń dúziliwi, milliy mámleketshilik tiykarları hám onıń tariyxıy áhmiyetin izertlewshi arnawlı portal.",
+    "explore": "Temanı úyreniw",
+    "recentPosts": "Milliy-aymaqlıq shegaralanıwǵa baylanıslı maqalalar",
     "viewAll": "Barlıq maqalalar",
-    "periodsTitle": "Tariyxıy dáwirler boyınsha sayaxat",
+    "periodsTitle": "Tariyxıy xronologiya hám basqıshlar",
     "noPosts": "Házirshe maqalalar joq"
   },
   "post": {

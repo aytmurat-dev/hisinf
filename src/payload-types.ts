@@ -214,6 +214,7 @@ export interface Reader {
   firstName: string;
   lastName: string;
   phone: string;
+  displayPassword?: string | null;
   savedPosts?: (number | Post)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -466,6 +467,7 @@ export interface ReadersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   phone?: T;
+  displayPassword?: T;
   savedPosts?: T;
   updatedAt?: T;
   createdAt?: T;
