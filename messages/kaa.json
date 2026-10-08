@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "siteName": "HISINF",
+    "tagline": "Qaraqalpaqstan hám Ózbekstan tariyxı portalı"
+  },
+  "nav": {
+    "home": "Bas bet",
+    "posts": "Maqalalar",
+    "periods": "Tariyxıy dáwirler",
+    "search": "Izlew",
+    "login": "Kiriw",
+    "register": "Dizimnen ótiw",
+    "logout": "Shıǵıw",
+    "profile": "Profil",
+    "admin": "Admin panel",
+    "createPost": "Post qosıw"
+  },
+  "theme": {
+    "light": "Kúndizgi rejim",
+    "dark": "Túngi rejim",
+    "toggle": "Rejimdi almastırıw"
+  },
+  "lang": {
+    "uz": "Oʻzbekcha",
+    "kaa": "Qaraqalpaqsha",
+    "switch": "Tildi tańlaw"
+  },
+  "home": {
+    "heroTitle": "Áyyemgi dáwir sırları hám ullı babalar miyrası",
+    "heroSubtitle": "Qaraqalpaqstan hám Ózbekstannıń mıńlaǵan jıllıq bay tariyxın, ullı danıshpanların, kóniy qalaların hám mádeniy biybahalıqların biliń.",
+    "explore": "Maqalalardı oqıw",
+    "recentPosts": "Sońǵı tariyxıy maqalalar",
+    "viewAll": "Barlıq maqalalar",
+    "periodsTitle": "Tariyxıy dáwirler boyınsha sayaxat",
+    "noPosts": "Házirshe maqalalar joq"
+  },
+  "post": {
+    "details": "Maqala tolıq maǵlıwmatı",
+    "publishedAt": "Baspalangan waqtı",
+    "period": "Dáwir",
+    "comments": "Paydalanıwshılar pikirleri",
+    "noComments": "Házirshe pikirler joq. Birinshi bolıp pikir qaldırıń!",
+    "addComment": "Pikir qaldırıw",
+    "loginRequiredToComment": "Pikir qaldırıw ushın dizimge kiriw májbúriy.",
+    "loginToCommentBtn": "Dizimge kiriw",
+    "commentPlaceholder": "Pikir hám usınıslarıńızdı jazıń...",
+    "submitComment": "Pikirdi jiberiw",
+    "readMore": "Tolıq oqıw",
+    "openFullPost": "Posttı tolıq ashıw"
+  },
+  "search": {
+    "title": "Tariyxıy maǵlıwmatlardı izlew",
+    "placeholder": "Mavzu, shaxs yamasa waqıya atamasın jazıń...",
+    "searching": "Izlenbekte...",
+    "noResults": "Hesh qanday maǵlıwmat tabılmadı",
+    "matchingContext": "Tabılǵan qatar:",
+    "resultsFound": "nátiyje tabıldı",
+    "openFullPost": "Posttı tolıq ashıw"
+  },
+  "auth": {
+    "loginTitle": "Dizimge kiriw",
+    "loginSubtitle": "Username hám parolińiz arqalı profilge kiriń",
+    "registerTitle": "Dizimnen ótiw",
+    "registerSubtitle": "Tariyxıy portalımızda jańa akkaunt jaratıń",
+    "firstName": "Atı",
+    "lastName": "Familiyası",
+    "username": "Username",
+    "password": "Parol",
+    "phone": "Telefon nomeri",
+    "submitLogin": "Kiriw",
+    "submitRegister": "Dizimnen ótiw",
+    "haveAccount": "Akkauntuńız bar ma? Kiriw",
+    "noAccount": "Akkauntuńız joq pa? Dizimnen ótiw",
+    "welcome": "Xosh kelipsiz"
+  },
+  "contact": {
+    "adminContact": "Adminge múrájat",
+    "fromWebsite": "Veb-sayt ózinen xabar jazıw",
+    "callAdmin": "Telefon arqalı baylanısıw",
+    "chatTitle": "Adminge onlayn xabar jiberiw",
+    "chatSubtitle": "Sorawlarıńız yamasa usınıslarıńız bolsa, usı jerde qaldırıń",
+    "name": "Atıńız",
+    "phone": "Telefon nomerińiz",
+    "message": "Xabar teksti",
+    "send": "Xabardı jiberiw",
+    "sending": "Jiberilmekte...",
+    "successMsg": "Xabarıńız tabıslı jetkerildi!"
+  },
+  "createPost": {
+    "pageTitle": "Jańa post qosıw (Admin)",
+    "titleOptional": "Mavzu (Májbúriy emes)",
+    "contentRequired": "Post haqqında (Tekst - Májbúriy)",
+    "coverFromDevice": "Qurılmadan súwret tańlaw (Telefon / Laptop)",
+    "coverFromUrl": "Yamasa Internettegi súwret siltemesi (URL)",
+    "uploadDoc": "Word (.docx) yamasa PDF fayl júklew",
+    "docUploadDesc": "Fayldı tańlasańız, sayt onıń ishindegi tekstti avtomat túrde ajıratıp aladı hám redaktorlaw ushın qoyadı.",
+    "parsingDoc": "Hújjet teksti oqılmaqta...",
+    "submitPost": "Posttı baspalaw",
+    "success": "Post tabıslı baspalandı!"
+  }
+}

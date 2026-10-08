@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Pergament (kunduzgi rejim) */
+    --background: #f6f1e6;
+    --foreground: #2c2219;
+    --card: #fdfbf7;
+    --card-foreground: #2c2219;
+    --popover: #fdfbf7;
+    --popover-foreground: #2c2219;
+    --primary: #94341e;
+    --primary-foreground: #fffaf0;
+    --secondary: #ede3d1;
+    --secondary-foreground: #2c2219;
+    --muted: #ebe2cf;
+    --muted-foreground: #6e5f50;
+    --accent: #e5dac4;
+    --accent-foreground: #2c2219;
+    --destructive: #9f2929;
+    --border: #d8cbb3;
+    --input: #d8cbb3;
+    --ring: #94341e;
+    --radius: 0.75rem;
+
+    --gold: #a67c3b;
+    --gold-light: #d8b878;
+    --gold-glow: rgba(166, 124, 59, 0.25);
+    --dark-surface: #201913;
+  }
+
+  .dark {
+    /* To'q kutubxona / Antik qora (tungi rejim) */
+    --background: #0d0a08;
+    --foreground: #efe7d8;
+    --card: #16120e;
+    --card-foreground: #efe7d8;
+    --popover: #16120e;
+    --popover-foreground: #efe7d8;
+    --primary: #d68369;
+    --primary-foreground: #120e0a;
+    --secondary: #221b15;
+    --secondary-foreground: #efe7d8;
+    --muted: #221b15;
+    --muted-foreground: #a69784;
+    --accent: #2e241c;
+    --accent-foreground: #efe7d8;
+    --destructive: #df6969;
+    --border: #382c21;
+    --input: #382c21;
+    --ring: #cfae74;
+
+    --gold: #cfae74;
+    --gold-light: #ecd6a6;
+    --gold-glow: rgba(207, 174, 116, 0.25);
+    --dark-surface: #0a0806;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: "Georgia", "Cambria", "Times New Roman", serif;
+  letter-spacing: -0.01em;
+}
+
+/* Tarixiy oltin effektlari */
+.gold-text {
+  color: var(--gold);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border {
+  border-color: var(--gold);
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px var(--gold-glow);
+}
+
+.gold-badge {
+  background: rgba(166, 124, 59, 0.12);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+/* Micro-animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+/* Naqshli chiziq */
+.historical-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--gold);
+  margin: 1.5rem 0;
+}
+
+.historical-divider::before,
+.historical-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.historical-divider:not(:empty)::before {
+  margin-right: 1rem;
+}
+
+.historical-divider:not(:empty)::after {
+  margin-left: 1rem;
+}

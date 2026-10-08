@@ -11,6 +11,11 @@ import { fileURLToPath } from 'url'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Readers } from './collections/Readers'
+import { Posts } from './collections/Posts'
+import { Comments } from './collections/Comments'
+import { Inquiries } from './collections/Inquiries'
+import { Periods } from './collections/Periods'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -55,6 +60,14 @@ export default buildConfig({
   serverURL,
   cors: [serverURL],
   csrf: [serverURL],
+  localization: {
+    locales: [
+      { code: 'uz', label: 'Oʻzbekcha' },
+      { code: 'kaa', label: 'Qaraqalpaqsha' },
+    ],
+    defaultLocale: 'uz',
+    fallback: true,
+  },
   graphQL: {
     disable: true,
   },
@@ -70,9 +83,9 @@ export default buildConfig({
   i18n: {
     supportedLanguages: { en, ru },
   },
-  collections: [Users, Media],
+  collections: [Users, Media, Readers, Posts, Comments, Inquiries, Periods],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: process.env.PAYLOAD_SECRET || 'fallback-secret-for-hisinf-2026-development-token',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

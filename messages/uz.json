@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "siteName": "HISINF",
+    "tagline": "Oʻzbekiston va Qoraqalpogʻiston tarixi portali"
+  },
+  "nav": {
+    "home": "Asosiy",
+    "posts": "Maqolalar",
+    "periods": "Tarixiy davrlar",
+    "search": "Qidiruv",
+    "login": "Kirish",
+    "register": "Roʻyxatdan oʻtish",
+    "logout": "Chiqish",
+    "profile": "Profil",
+    "admin": "Admin panel",
+    "createPost": "Post qoʻshish"
+  },
+  "theme": {
+    "light": "Kunduzgi rejim",
+    "dark": "Tungi rejim",
+    "toggle": "Rejimni almashtirish"
+  },
+  "lang": {
+    "uz": "Oʻzbekcha",
+    "kaa": "Qaraqalpaqsha",
+    "switch": "Tilni tanlash"
+  },
+  "home": {
+    "heroTitle": "Moziy sirlari va buyuk ajdodlar merosi",
+    "heroSubtitle": "Oʻzbekiston va Qoraqalpogʻistonning koʻp ming yillik boy tarixi, buyuk daholari, koʻhna qalʼalari va madaniy durdonalarini kashf eting.",
+    "explore": "Maqolalarni oʻqish",
+    "recentPosts": "Soʻnggi tarixiy maqolalar",
+    "viewAll": "Barcha maqolalar",
+    "periodsTitle": "Tarixiy davrlar boʻyicha sayohat",
+    "noPosts": "Hozircha maqolalar mavjud emas"
+  },
+  "post": {
+    "details": "Maqola tafsilotlari",
+    "publishedAt": "Chop etilgan",
+    "period": "Davr",
+    "comments": "Foydalanuvchilar izohlari",
+    "noComments": "Hozircha izohlar yoʻq. Birinchi boʻlib izoh qoldiring!",
+    "addComment": "Izoh qoldirish",
+    "loginRequiredToComment": "Izoh qoldirish uchun tizimga kirish majburiydir.",
+    "loginToCommentBtn": "Tizimga kirish",
+    "commentPlaceholder": "Fikr va mulohazalaringizni yozing...",
+    "submitComment": "Izohni yuborish",
+    "readMore": "Batafsil oʻqish",
+    "openFullPost": "Postni toʻliq ochish"
+  },
+  "search": {
+    "title": "Tarixiy maʼlumotlarni qidirish",
+    "placeholder": "Mavzu, shaxs yoki voqea nomini yozing...",
+    "searching": "Qidirilmoqda...",
+    "noResults": "Hech qanday maʼlumot topilmadi",
+    "matchingContext": "Topilgan jumla:",
+    "resultsFound": "ta natija topildi",
+    "openFullPost": "Postni toʻliq ochish"
+  },
+  "auth": {
+    "loginTitle": "Tizimga kirish",
+    "loginSubtitle": "Username va parolingiz orqali profilingizga kiring",
+    "registerTitle": "Roʻyxatdan oʻtish",
+    "registerSubtitle": "Tarixiy portalimizda yangi akkaunt yarating",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "username": "Username",
+    "password": "Parol",
+    "phone": "Telefon raqam",
+    "submitLogin": "Kirish",
+    "submitRegister": "Roʻyxatdan oʻtish",
+    "haveAccount": "Akkauntingiz bormi? Kirish",
+    "noAccount": "Akkauntingiz yoʻqmi? Roʻyxatdan oʻtish",
+    "welcome": "Xush kelibsiz"
+  },
+  "contact": {
+    "adminContact": "Adminga murojaat",
+    "fromWebsite": "Veb-sayt oʻzidan xabar yozish",
+    "callAdmin": "Telefon orqali bogʻlanish",
+    "chatTitle": "Adminga onlayn xabar yuborish",
+    "chatSubtitle": "Savollaringiz yoki takliflaringiz boʻlsa, shu yerda qoldiring",
+    "name": "Ismingiz",
+    "phone": "Telefon raqamingiz",
+    "message": "Xabar matni",
+    "send": "Xabarni yuborish",
+    "sending": "Yuborilmoqda...",
+    "successMsg": "Xabaringiz muvaffaqiyatli yetkazildi!"
+  },
+  "createPost": {
+    "pageTitle": "Yangi post qoʻshish (Admin)",
+    "titleOptional": "Mavzu (Ixtiyoriy)",
+    "contentRequired": "Post haqida (Matn - Majburiy)",
+    "coverFromDevice": "Qurilmadan rasm tanlash (Telefon / Laptop)",
+    "coverFromUrl": "Yoki Internetdan rasm havolasi (URL)",
+    "uploadDoc": "Word (.docx) yoki PDF fayl yuklash",
+    "docUploadDesc": "Faylni tanlasangiz, sayt uning ichidagi matnni avtomatik ravishda ajratib oladi va tahrirlash uchun matn maydoniga joylaydi.",
+    "parsingDoc": "Hujjat matni oʻqilmoqda...",
+    "submitPost": "Postni chop etish",
+    "success": "Post muvaffaqiyatli chop etildi!"
+  }
+}
