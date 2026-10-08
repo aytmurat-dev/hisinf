@@ -7,6 +7,7 @@ import { MessageSquare, Phone, Heart } from 'lucide-react'
 export function Footer() {
   const t = useTranslations('contact')
   const tNav = useTranslations('nav')
+  const tFooter = useTranslations('footer')
 
   return (
     <footer className="bg-[var(--secondary)]/70 border-t border-[var(--border)] pt-12 pb-8 mt-16 transition-colors">
@@ -21,7 +22,7 @@ export function Footer() {
               <span className="font-serif font-bold text-lg text-[var(--foreground)]">HISINF</span>
             </div>
             <p className="text-xs text-[var(--muted-foreground)] leading-relaxed max-w-sm">
-              Oʻzbekiston va Qoraqalpogʻistonning koʻp asrlik tarixi, madaniyati, nodir meʼmoriy yodgorliklari va buyuk allomalari haqida ishonchli maʼlumotlar portali.
+              {tFooter('about')}
             </p>
           </div>
 
@@ -44,13 +45,13 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Adminga murojaat (Foydalanuvchi talabi) */}
+          {/* Col 3: Adminga murojaat */}
           <div className="space-y-3">
             <h3 className="font-serif font-semibold text-sm text-[var(--gold)] uppercase tracking-wider">
               {t('adminContact')}
             </h3>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Taklif, mulohaza yoki savollaringiz boʻlsa, bizga toʻgʻridan-toʻgʻri murojaat qilishingiz mumkin:
+              {tFooter('callDesc')}
             </p>
 
             <div className="flex flex-col gap-2.5 pt-1">
@@ -76,9 +77,9 @@ export function Footer() {
         </div>
 
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
-          <p>© {new Date().getFullYear()} HISINF — Tarixiy maʼlumotlar portali.</p>
+          <p>© {new Date().getFullYear()} {tFooter('copyright')}</p>
           <p className="flex items-center gap-1 text-[11px]">
-            <span>Oʻzbekiston va Qoraqalpogʻiston tarixi uchun</span>
+            <span>{tFooter('dedication')}</span>
             <Heart className="w-3 h-3 text-[var(--gold)] inline fill-[var(--gold)]" />
           </p>
         </div>

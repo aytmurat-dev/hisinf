@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowLeft, Compass } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
@@ -15,6 +15,7 @@ export default async function PostDetailPage({
 }) {
   const { locale, slug } = await params
   setRequestLocale(locale)
+  const tNav = await getTranslations({ locale, namespace: 'nav' })
 
   const payload = await getPayload({ config })
 
@@ -65,7 +66,7 @@ export default async function PostDetailPage({
           className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors font-medium"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Barcha maqolalar</span>
+          <span>{tNav('allPosts')}</span>
         </Link>
       </div>
 
@@ -86,7 +87,11 @@ export default async function PostDetailPage({
           <div className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" />
             <span>
-              {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Yangi'}
+              {post.publishedAt
+                ? new Date(post.publishedAt).toLocaleDateString()
+                : locale === 'kaa'
+                  ? 'Jańa'
+                  : 'Yangi'}
             </span>
           </div>
         </div>

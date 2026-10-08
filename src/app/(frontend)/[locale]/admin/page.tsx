@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import {
   Shield,
   FileText,
@@ -54,10 +55,14 @@ interface InquiryItem {
   name: string
   phone: string
   message: string
+  reply?: string
+  repliedAt?: string
+  status?: string
   createdAt: string
 }
 
 export default function AdminDashboardPage() {
+  const t = useTranslations('admin')
   const params = useParams()
   const router = useRouter()
   const locale = (params.locale as string) || 'uz'
@@ -104,6 +109,12 @@ export default function AdminDashboardPage() {
   const [userPhone, setUserPhone] = useState('')
   const [userPassword, setUserPassword] = useState('')
   const [savingUser, setSavingUser] = useState(false)
+
+  // Reply modal states
+  const [replyModalOpen, setReplyModalOpen] = useState(false)
+  const [replyingInquiry, setReplyingInquiry] = useState<InquiryItem | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [savingReply, setSavingReply] = useState(false)
 
   const loadAllData = useCallback(async () => {
     setLoadingData(true)
@@ -175,7 +186,7 @@ export default function AdminDashboardPage() {
       const data = await res.json()
 
       if (!res.ok || data.reader?.username !== 'admin') {
-        setLoginError(data.error || 'Faqat administrator hisobi (admin / admin123) bilan kirish mumkin!')
+        setLoginError(data.error || t('authOnlyAdmin'))
         return
       }
 
@@ -216,7 +227,7 @@ export default function AdminDashboardPage() {
   }
 
   const handleDeletePost = async (id: number) => {
-    if (!confirm('Haqiqatan ham ushbu maqolani oʻchirmoqchimisiz?')) return
+    if (!confirm(t('deleteConfirmPost'))) return
 
     try {
       const res = await fetch('/api/admin/posts', {
@@ -226,7 +237,7 @@ export default function AdminDashboardPage() {
       })
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p.id !== id))
-        showNotification('Maqola muvaffaqiyatli oʻchirildi!')
+        showNotification(t('msgPostDeleted'))
       }
     } catch (_e) {
       alert('Maqolani oʻchirishda xatolik')
@@ -236,7 +247,7 @@ export default function AdminDashboardPage() {
   const handleSavePost = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!postContent.trim()) {
-      alert('Post matni toʻldirilishi majburiy!')
+      alert(t('contentLabel'))
       return
     }
 
@@ -274,7 +285,7 @@ export default function AdminDashboardPage() {
             ),
           )
           setPostModalOpen(false)
-          showNotification('Maqola muvaffaqiyatli tahrirlandi!')
+          showNotification(t('msgPostUpdated'))
         } else {
           alert(data.error || 'Tahrirlashda xatolik')
         }
@@ -297,26 +308,26 @@ export default function AdminDashboardPage() {
         const data = await res.json()
         if (res.ok) {
           setPostModalOpen(false)
-          showNotification('Yangi maqola muvaffaqiyatli yaratildi!')
+          showNotification(t('msgPostCreated'))
           loadAllData()
         } else {
           alert(data.error || 'Post yaratishda xatolik')
         }
       }
     } catch (_e) {
-      alert('Saqlashda xatolik')
+      alert('Xatolik yuz berdi')
     } finally {
       setSavingPost(false)
     }
   }
 
-  // Word / PDF doc parser
+  // Word/PDF upload extractor
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setParsingDoc(true)
-    setDocMsg('')
+    setDocMsg(t('docParsing'))
 
     try {
       const formData = new FormData()
@@ -329,33 +340,35 @@ export default function AdminDashboardPage() {
 
       const data = await res.json()
 
-      if (data.text) {
+      if (res.ok && data.text) {
         setPostContent(data.text)
-        setDocMsg(`"${file.name}" faylidan ${data.charCount} ta belgi muvaffaqiyatli ajratib olindi!`)
-        if (!postTitle && file.name) {
-          setPostTitle(file.name.replace(/\.[^/.]+$/, ''))
+        if (data.title && !postTitle) {
+          setPostTitle(data.title)
         }
+        setDocMsg(`✓ ${data.fileName}`)
+      } else {
+        setDocMsg('Faylni oʻqishda xatolik: ' + (data.error || 'Nomaʼlum format'))
       }
     } catch (_err) {
-      alert('Faylni oʻqishda xatolik')
+      setDocMsg('Server bilan ulanishda xatolik')
     } finally {
       setParsingDoc(false)
     }
   }
 
   // --- User Functions ---
-  const handleOpenEditUser = (u: UserItem) => {
-    setEditingUserId(u.id)
-    setUserFirstName(u.firstName)
-    setUserLastName(u.lastName)
-    setUserUsername(u.username)
-    setUserPhone(u.phone)
-    setUserPassword(u.displayPassword || '')
+  const handleOpenEditUser = (user: UserItem) => {
+    setEditingUserId(user.id)
+    setUserFirstName(user.firstName)
+    setUserLastName(user.lastName)
+    setUserUsername(user.username)
+    setUserPhone(user.phone)
+    setUserPassword(user.displayPassword && user.displayPassword !== '******' ? user.displayPassword : '')
     setUserModalOpen(true)
   }
 
   const handleDeleteUser = async (id: number) => {
-    if (!confirm('Haqiqatan ham ushbu foydalanuvchini oʻchirmoqchimisiz?')) return
+    if (!confirm(t('deleteConfirmUser'))) return
 
     try {
       const res = await fetch('/api/admin/users', {
@@ -365,7 +378,7 @@ export default function AdminDashboardPage() {
       })
       if (res.ok) {
         setUsers((prev) => prev.filter((u) => u.id !== id))
-        showNotification('Foydalanuvchi oʻchirildi!')
+        showNotification(t('msgUserDeleted'))
       }
     } catch (_e) {
       alert('Foydalanuvchini oʻchirishda xatolik')
@@ -374,10 +387,7 @@ export default function AdminDashboardPage() {
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!userUsername.trim()) {
-      alert('Username kiritilishi shart!')
-      return
-    }
+    if (!editingUserId) return
 
     setSavingUser(true)
 
@@ -414,7 +424,7 @@ export default function AdminDashboardPage() {
           ),
         )
         setUserModalOpen(false)
-        showNotification('Foydalanuvchi maʼlumotlari va paroli muvaffaqiyatli yangilandi!')
+        showNotification(t('msgUserUpdated'))
       } else {
         alert(data.error || 'Foydalanuvchini yangilashda xatolik')
       }
@@ -427,7 +437,7 @@ export default function AdminDashboardPage() {
 
   // --- Comment Functions ---
   const handleDeleteComment = async (id: number) => {
-    if (!confirm('Ushbu izohni oʻchirmoqchimisiz?')) return
+    if (!confirm(t('deleteConfirmComment'))) return
 
     try {
       const res = await fetch('/api/admin/comments', {
@@ -437,7 +447,7 @@ export default function AdminDashboardPage() {
       })
       if (res.ok) {
         setComments((prev) => prev.filter((c) => c.id !== id))
-        showNotification('Izoh oʻchirildi!')
+        showNotification(t('msgCommentDeleted'))
       }
     } catch (_e) {
       alert('Izohni oʻchirishda xatolik')
@@ -446,27 +456,69 @@ export default function AdminDashboardPage() {
 
   // --- Inquiry Functions ---
   const handleDeleteInquiry = async (id: number) => {
-    if (!confirm('Ushbu xabarni oʻchirmoqchimisiz?')) return
+    if (!confirm(t('deleteConfirmInquiry'))) return
 
     try {
       const res = await fetch('/api/admin/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ action: 'delete', id }),
       })
       if (res.ok) {
         setInquiries((prev) => prev.filter((i) => i.id !== id))
-        showNotification('Xabar oʻchirildi!')
+        showNotification(t('msgInquiryDeleted'))
       }
     } catch (_e) {
       alert('Xabarni oʻchirishda xatolik')
     }
   }
 
+  const handleSendReply = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!replyingInquiry || !replyText.trim()) return
+
+    setSavingReply(true)
+    try {
+      const res = await fetch('/api/admin/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reply',
+          id: replyingInquiry.id,
+          replyText: replyText.trim(),
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        setInquiries((prev) =>
+          prev.map((i) =>
+            i.id === replyingInquiry.id
+              ? {
+                  ...i,
+                  reply: replyText.trim(),
+                  repliedAt: new Date().toISOString(),
+                  status: 'replied',
+                }
+              : i,
+          ),
+        )
+        setReplyModalOpen(false)
+        showNotification(t('msgReplySent'))
+      } else {
+        alert(data.error || 'Javob yuborishda xatolik')
+      }
+    } catch (_e) {
+      alert('Server bilan aloqada xatolik')
+    } finally {
+      setSavingReply(false)
+    }
+  }
+
   if (checkingAuth) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 text-center">
-        <p className="text-sm text-[var(--muted-foreground)]">Administrator tekshirilmoqda...</p>
+        <p className="text-sm text-[var(--muted-foreground)]">{t('checkingAuth')}</p>
       </div>
     )
   }
@@ -481,10 +533,10 @@ export default function AdminDashboardPage() {
               <Shield className="w-6 h-6" />
             </div>
             <h1 className="text-2xl font-serif font-black text-[var(--foreground)]">
-              Admin Boshqaruv Paneli
+              {t('loginTitle')}
             </h1>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Tizimga administrator hisobi bilan kiring (username: <span className="text-[var(--gold)] font-mono">admin</span>, parol: <span className="text-[var(--gold)] font-mono">admin123</span>)
+              {t('loginSubtitle')} (username: <span className="text-[var(--gold)] font-mono">admin</span>, parol: <span className="text-[var(--gold)] font-mono">admin123</span>)
             </p>
           </div>
 
@@ -498,7 +550,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-[var(--gold)]" />
-                <span>Foydalanuvchi nomi</span>
+                <span>{t('colUsername')}</span>
               </label>
               <input
                 type="text"
@@ -506,14 +558,14 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setLoginUsername(e.target.value)}
                 placeholder="admin"
                 required
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
+                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-[var(--gold)]" />
-                <span>Parol</span>
+                <span>{t('colPassword')}</span>
               </label>
               <input
                 type="password"
@@ -521,7 +573,7 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="admin123"
                 required
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
+                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors font-mono"
               />
             </div>
 
@@ -530,7 +582,7 @@ export default function AdminDashboardPage() {
               disabled={loginLoading}
               className="w-full py-3 bg-[var(--gold)] text-black font-semibold text-sm rounded-xl hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-md"
             >
-              <span>{loginLoading ? 'Kirilmoqda...' : 'Admin panelga kirish'}</span>
+              <span>{loginLoading ? t('loading') : t('enterAdmin')}</span>
             </button>
           </form>
         </div>
@@ -548,18 +600,18 @@ export default function AdminDashboardPage() {
               <Shield className="w-5 h-5" />
             </div>
             <h1 className="text-2xl font-serif font-black text-[var(--foreground)]">
-              Admin Boshqaruv Paneli
+              {t('title')}
             </h1>
           </div>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            Maqolalarni yaratish, tahrirlash, oʻchirish hamda foydalanuvchilar va izohlarni boshqarish
+            {t('subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {loadingData && (
             <span className="text-xs text-[var(--gold)] font-mono animate-pulse">
-              Yuklanmoqda...
+              {t('loading')}
             </span>
           )}
           <button
@@ -568,7 +620,7 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-2 px-4 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Yangi post qoʻshish</span>
+            <span>{t('newPost')}</span>
           </button>
         </div>
       </div>
@@ -589,7 +641,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="text-2xl font-serif font-bold text-[var(--foreground)]">{posts.length}</div>
-            <div className="text-[11px] text-[var(--muted-foreground)]">Jami postlar</div>
+            <div className="text-[11px] text-[var(--muted-foreground)]">{t('statsPosts')}</div>
           </div>
         </div>
 
@@ -599,7 +651,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="text-2xl font-serif font-bold text-[var(--foreground)]">{users.length}</div>
-            <div className="text-[11px] text-[var(--muted-foreground)]">Foydalanuvchilar</div>
+            <div className="text-[11px] text-[var(--muted-foreground)]">{t('statsUsers')}</div>
           </div>
         </div>
 
@@ -609,7 +661,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="text-2xl font-serif font-bold text-[var(--foreground)]">{comments.length}</div>
-            <div className="text-[11px] text-[var(--muted-foreground)]">Jami izohlar</div>
+            <div className="text-[11px] text-[var(--muted-foreground)]">{t('statsComments')}</div>
           </div>
         </div>
 
@@ -619,7 +671,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="text-2xl font-serif font-bold text-[var(--foreground)]">{inquiries.length}</div>
-            <div className="text-[11px] text-[var(--muted-foreground)]">Murojaatlar (Chat)</div>
+            <div className="text-[11px] text-[var(--muted-foreground)]">{t('statsInquiries')}</div>
           </div>
         </div>
       </div>
@@ -636,7 +688,7 @@ export default function AdminDashboardPage() {
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Maqolalar ({posts.length})</span>
+          <span>{t('tabPosts')} ({posts.length})</span>
         </button>
 
         <button
@@ -649,7 +701,7 @@ export default function AdminDashboardPage() {
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Foydalanuvchilar va Parollar ({users.length})</span>
+          <span>{t('tabUsers')} ({users.length})</span>
         </button>
 
         <button
@@ -662,7 +714,7 @@ export default function AdminDashboardPage() {
           }`}
         >
           <MessageSquare className="w-4 h-4" />
-          <span>Izohlar ({comments.length})</span>
+          <span>{t('tabComments')} ({comments.length})</span>
         </button>
 
         <button
@@ -675,42 +727,31 @@ export default function AdminDashboardPage() {
           }`}
         >
           <Mail className="w-4 h-4" />
-          <span>Adminga Xabarlar ({inquiries.length})</span>
+          <span>{t('tabInquiries')} ({inquiries.length})</span>
         </button>
       </div>
 
       {/* Tab 1: Posts Management */}
       {activeTab === 'posts' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[var(--foreground)]">
-              Barcha maqolalar roʻyxati
-            </h2>
-            <button
-              type="button"
-              onClick={handleOpenNewPost}
-              className="flex items-center gap-1.5 text-xs text-[var(--gold)] hover:underline font-medium cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Yangi post qoʻshish</span>
-            </button>
-          </div>
-
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm">
             <div className="divide-y divide-[var(--border)]">
               {posts.length === 0 ? (
                 <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
-                  Maqolalar mavjud emas.
+                  {t('noComments')}
                 </div>
               ) : (
                 posts.map((post) => (
-                  <div key={post.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[var(--secondary)]/40 transition-colors">
-                    <div className="flex items-start gap-4">
+                  <div
+                    key={post.id}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[var(--secondary)]/30 transition-colors"
+                  >
+                    <div className="flex items-start gap-4 flex-1">
                       {post.coverImageUrl && (
-                        <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[var(--border)] bg-black/10">
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shrink-0 border border-[var(--border)] bg-[var(--secondary)]">
                           <Image
                             src={post.coverImageUrl}
-                            alt=""
+                            alt={post.title}
                             fill
                             className="object-cover"
                             unoptimized
@@ -737,7 +778,7 @@ export default function AdminDashboardPage() {
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--border)] hover:border-[var(--gold)] hover:text-[var(--gold)] text-xs font-medium transition-colors cursor-pointer"
                       >
                         <Pencil className="w-3.5 h-3.5" />
-                        <span>Tahrirlash</span>
+                        <span>{t('edit')}</span>
                       </button>
                       <button
                         type="button"
@@ -745,7 +786,7 @@ export default function AdminDashboardPage() {
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--destructive)]/30 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 text-xs font-medium transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>Oʻchirish</span>
+                        <span>{t('delete')}</span>
                       </button>
                     </div>
                   </div>
@@ -759,12 +800,12 @@ export default function AdminDashboardPage() {
       {/* Tab 2: Users Management with Passwords & Timestamps */}
       {activeTab === 'users' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-[var(--foreground)]">
-              Barcha foydalanuvchilar (Username va Parollar)
+              {t('usersTitle')}
             </h2>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Admin va boshqa barcha aʼzolarning parollarini shu yerdan koʻrish va oʻzgartirish mumkin
+              {t('usersSubtitle')}
             </p>
           </div>
 
@@ -773,13 +814,13 @@ export default function AdminDashboardPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-[var(--secondary)]/60 text-[var(--foreground)] font-semibold border-b border-[var(--border)]">
                   <tr>
-                    <th className="p-3.5">ID</th>
-                    <th className="p-3.5">Ism & Familiya</th>
-                    <th className="p-3.5">Username</th>
-                    <th className="p-3.5 text-[var(--gold)]">Parol</th>
-                    <th className="p-3.5">Telefon</th>
-                    <th className="p-3.5">Roʻyxatdan oʻtgan vaqti</th>
-                    <th className="p-3.5 text-right">Amallar</th>
+                    <th className="p-3.5">{t('colId')}</th>
+                    <th className="p-3.5">{t('colName')}</th>
+                    <th className="p-3.5">{t('colUsername')}</th>
+                    <th className="p-3.5 text-[var(--gold)]">{t('colPassword')}</th>
+                    <th className="p-3.5">{t('colPhone')}</th>
+                    <th className="p-3.5">{t('colRegistered')}</th>
+                    <th className="p-3.5 text-right">{t('colActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
@@ -798,7 +839,7 @@ export default function AdminDashboardPage() {
                       <td className="p-3.5 font-mono font-bold text-[var(--gold)] bg-[var(--gold)]/5 px-2.5 py-1 rounded">
                         {u.displayPassword || '******'}
                       </td>
-                      <td className="p-3.5 text-[var(--muted-foreground)]">{u.phone}</td>
+                      <td className="p-3.5 text-[var(--muted-foreground)] font-mono">{u.phone}</td>
                       <td className="p-3.5 text-[var(--muted-foreground)]">
                         {new Date(u.createdAt).toLocaleString()}
                       </td>
@@ -808,7 +849,7 @@ export default function AdminDashboardPage() {
                           onClick={() => handleOpenEditUser(u)}
                           className="px-2.5 py-1 rounded bg-[var(--secondary)] hover:text-[var(--gold)] border border-[var(--border)] transition-colors cursor-pointer"
                         >
-                          Tahrirlash
+                          {t('edit')}
                         </button>
                         {u.username !== 'admin' && (
                           <button
@@ -816,7 +857,7 @@ export default function AdminDashboardPage() {
                             onClick={() => handleDeleteUser(u.id)}
                             className="px-2.5 py-1 rounded text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors cursor-pointer"
                           >
-                            Oʻchirish
+                            {t('delete')}
                           </button>
                         )}
                       </td>
@@ -833,13 +874,13 @@ export default function AdminDashboardPage() {
       {activeTab === 'comments' && (
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">
-            Foydalanuvchilar qoldirgan barcha izohlar
+            {t('tabComments')}
           </h2>
 
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm divide-y divide-[var(--border)]">
             {comments.length === 0 ? (
               <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
-                Izohlar mavjud emas.
+                {t('noComments')}
               </div>
             ) : (
               comments.map((comment) => (
@@ -850,7 +891,7 @@ export default function AdminDashboardPage() {
                         {comment.authorName}
                       </span>
                       <span className="text-[10px] text-[var(--gold)]">
-                        maqola: «{comment.postTitle}»
+                        «{comment.postTitle}»
                       </span>
                       <span className="text-[10px] text-[var(--muted-foreground)]">
                         • {new Date(comment.createdAt).toLocaleString()}
@@ -863,7 +904,7 @@ export default function AdminDashboardPage() {
                     type="button"
                     onClick={() => handleDeleteComment(comment.id)}
                     className="p-1.5 rounded-lg text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors cursor-pointer"
-                    title="Izohni oʻchirish"
+                    title={t('delete')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -874,23 +915,23 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Tab 4: Inquiries (Chat with Admin) */}
+      {/* Tab 4: Inquiries (Chat with Admin + Replies) */}
       {activeTab === 'inquiries' && (
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">
-            Sayt orqali adminga yuborilgan murojaatlar (Chat)
+            {t('tabInquiries')}
           </h2>
 
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm divide-y divide-[var(--border)]">
             {inquiries.length === 0 ? (
               <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
-                Hozircha hech qanday murojaat kelib tushmagan.
+                {t('noInquiries')}
               </div>
             ) : (
               inquiries.map((inq) => (
-                <div key={inq.id} className="p-4 flex items-start justify-between gap-4 hover:bg-[var(--secondary)]/40 transition-colors">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-3">
+                <div key={inq.id} className="p-4 flex flex-col sm:flex-row items-start justify-between gap-4 hover:bg-[var(--secondary)]/40 transition-colors">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="font-bold text-xs text-[var(--foreground)]">{inq.name}</span>
                       <a
                         href={`tel:${inq.phone}`}
@@ -902,23 +943,115 @@ export default function AdminDashboardPage() {
                       <span className="text-[10px] text-[var(--muted-foreground)]">
                         {new Date(inq.createdAt).toLocaleString()}
                       </span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        inq.status === 'replied' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-amber-500/15 text-amber-500'
+                      }`}>
+                        {inq.status === 'replied' ? t('repliedStatus') : t('waitingStatus')}
+                      </span>
                     </div>
+
                     <p className="text-xs text-[var(--foreground)] leading-relaxed whitespace-pre-wrap bg-[var(--background)] p-3 rounded-lg border border-[var(--border)]">
                       {inq.message}
                     </p>
+
+                    {inq.reply && (
+                      <div className="mt-2 p-3 rounded-lg bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1 text-xs">
+                        <div className="text-[11px] font-bold text-[var(--gold)] flex items-center justify-between">
+                          <span>{t('adminReply')}</span>
+                          {inq.repliedAt && (
+                            <span className="font-normal text-[10px] text-[var(--muted-foreground)]">
+                              {new Date(inq.repliedAt).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[var(--foreground)] whitespace-pre-wrap leading-relaxed">{inq.reply}</p>
+                      </div>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteInquiry(inq.id)}
-                    className="p-1.5 rounded-lg text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors cursor-pointer"
-                    title="Xabarni oʻchirish"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReplyingInquiry(inq)
+                        setReplyText(inq.reply || '')
+                        setReplyModalOpen(true)
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--gold)]/50 text-[var(--gold)] hover:bg-[var(--gold)]/10 text-xs font-medium transition-colors cursor-pointer"
+                      title={t('reply')}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>{t('reply')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteInquiry(inq.id)}
+                      className="p-1.5 rounded-lg text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors cursor-pointer"
+                      title={t('delete')}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {replyModalOpen && replyingInquiry && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="text-base font-serif font-bold text-[var(--foreground)]">
+                {t('reply')} — {replyingInquiry.name} ({replyingInquiry.phone})
+              </h3>
+              <button
+                type="button"
+                onClick={() => setReplyModalOpen(false)}
+                className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
+              >
+                ✕ {t('cancel')}
+              </button>
+            </div>
+
+            <div className="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+              <p className="whitespace-pre-wrap">{replyingInquiry.message}</p>
+            </div>
+
+            <form onSubmit={handleSendReply} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--gold)]">
+                  {t('adminReply')}
+                </label>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder={t('replyPlaceholder')}
+                  rows={4}
+                  required
+                  className="w-full bg-[var(--background)] border border-[var(--gold)]/40 rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[var(--border)]">
+                <button
+                  type="button"
+                  onClick={() => setReplyModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium hover:bg-[var(--secondary)] cursor-pointer"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingReply}
+                  className="px-5 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  {savingReply ? t('saving') : t('sendReply')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -929,14 +1062,14 @@ export default function AdminDashboardPage() {
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <h3 className="text-lg font-serif font-bold text-[var(--foreground)]">
-                {editingPostId ? 'Maqolani tahrirlash' : 'Yangi maqola qoʻshish'}
+                {editingPostId ? t('postEditTitle') : t('postCreateTitle')}
               </h3>
               <button
                 type="button"
                 onClick={() => setPostModalOpen(false)}
                 className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
               >
-                ✕ Yopish
+                ✕ {t('cancel')}
               </button>
             </div>
 
@@ -947,9 +1080,9 @@ export default function AdminDashboardPage() {
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                       <FileUp className="w-4 h-4 text-[var(--gold)]" />
-                      <span>Word (.docx) yoki PDF (.pdf) dan matn ajratib olish</span>
+                      <span>{t('docUploadLabel')}</span>
                     </label>
-                    {parsingDoc && <span className="text-[10px] text-[var(--gold)] animate-pulse">Oʻqilmoqda...</span>}
+                    {parsingDoc && <span className="text-[10px] text-[var(--gold)] animate-pulse">{t('docParsing')}</span>}
                   </div>
                   <input
                     type="file"
@@ -964,21 +1097,21 @@ export default function AdminDashboardPage() {
               {/* Title (Optional) */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--foreground)] flex items-center justify-between">
-                  <span>Mavzu (Sarlavha)</span>
-                  <span className="text-[10px] text-[var(--muted-foreground)]">Ixtiyoriy</span>
+                  <span>{t('postTitleLabel')}</span>
+                  <span className="text-[10px] text-[var(--muted-foreground)]">{t('optional')}</span>
                 </label>
                 <input
                   type="text"
                   value={postTitle}
                   onChange={(e) => setPostTitle(e.target.value)}
-                  placeholder="Masalan: Milliy hududiy boʻlinish (1924 yil)"
+                  placeholder="Milliy hududiy boʻlinish (1924 yil)"
                   className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
                 />
               </div>
 
               {/* Cover Image */}
               <div className="space-y-2">
-                <label className="text-xs font-medium text-[var(--foreground)]">Muqova rasmi (URL)</label>
+                <label className="text-xs font-medium text-[var(--foreground)]">{t('coverUrlLabel')}</label>
                 <input
                   type="url"
                   value={postCoverUrl}
@@ -990,12 +1123,12 @@ export default function AdminDashboardPage() {
 
               {/* Excerpt */}
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">Qisqacha mazmuni</label>
+                <label className="text-xs font-medium text-[var(--foreground)]">{t('excerptLabel')}</label>
                 <textarea
                   rows={2}
                   value={postExcerpt}
                   onChange={(e) => setPostExcerpt(e.target.value)}
-                  placeholder="Maqola haqida 1-2 jumlada..."
+                  placeholder="..."
                   className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)] resize-none"
                 />
               </div>
@@ -1003,15 +1136,15 @@ export default function AdminDashboardPage() {
               {/* Content (Required) */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--foreground)] flex items-center justify-between">
-                  <span className="text-[var(--gold)] font-semibold">Post haqida (Toʻliq matn) *</span>
-                  <span className="text-[10px] text-[var(--gold)]">Majburiy</span>
+                  <span className="text-[var(--gold)] font-semibold">{t('contentLabel')}</span>
+                  <span className="text-[10px] text-[var(--gold)]">{t('required')}</span>
                 </label>
                 <textarea
                   rows={7}
                   required
                   value={postContent}
                   onChange={(e) => setPostContent(e.target.value)}
-                  placeholder="Tarixiy maqola matnini bu yerga yozing yoki yuqoridagi Word/PDF yuklagich orqali yuklang..."
+                  placeholder="..."
                   className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)] leading-relaxed"
                 />
               </div>
@@ -1022,14 +1155,14 @@ export default function AdminDashboardPage() {
                   onClick={() => setPostModalOpen(false)}
                   className="px-4 py-2 rounded-xl text-xs font-medium hover:bg-[var(--secondary)] cursor-pointer"
                 >
-                  Bekor qilish
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={savingPost}
                   className="px-5 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-md disabled:opacity-50"
                 >
-                  {savingPost ? 'Saqlanmoqda...' : 'Saqlash'}
+                  {savingPost ? t('saving') : t('save')}
                 </button>
               </div>
             </form>
@@ -1043,21 +1176,21 @@ export default function AdminDashboardPage() {
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <h3 className="text-base font-serif font-bold text-[var(--foreground)]">
-                Foydalanuvchini tahrirlash (#{editingUserId})
+                {t('userEditTitle')} (#{editingUserId})
               </h3>
               <button
                 type="button"
                 onClick={() => setUserModalOpen(false)}
                 className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
               >
-                ✕ Yopish
+                ✕ {t('cancel')}
               </button>
             </div>
 
             <form onSubmit={handleSaveUser} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-[var(--foreground)]">Ism</label>
+                  <label className="text-xs font-medium text-[var(--foreground)]">{t('firstName')}</label>
                   <input
                     type="text"
                     value={userFirstName}
@@ -1067,7 +1200,7 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-[var(--foreground)]">Familiya</label>
+                  <label className="text-xs font-medium text-[var(--foreground)]">{t('lastName')}</label>
                   <input
                     type="text"
                     value={userLastName}
@@ -1079,7 +1212,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">Foydalanuvchi nomi (Username)</label>
+                <label className="text-xs font-medium text-[var(--foreground)]">{t('colUsername')}</label>
                 <input
                   type="text"
                   value={userUsername}
@@ -1091,7 +1224,7 @@ export default function AdminDashboardPage() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--gold)] flex items-center justify-between">
-                  <span>Parol (Yangi parol oʻrnatish)</span>
+                  <span>{t('passwordLabel')}</span>
                   <KeyRound className="w-3.5 h-3.5" />
                 </label>
                 <input
@@ -1099,13 +1232,13 @@ export default function AdminDashboardPage() {
                   value={userPassword}
                   onChange={(e) => setUserPassword(e.target.value)}
                   required
-                  placeholder="Yangi parol kiriting"
+                  placeholder="Yangi parol"
                   className="w-full bg-[var(--background)] border border-[var(--gold)]/50 rounded-lg p-2.5 text-xs text-[var(--foreground)] font-mono outline-none focus:border-[var(--gold)]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">Telefon raqam</label>
+                <label className="text-xs font-medium text-[var(--foreground)]">{t('colPhone')}</label>
                 <input
                   type="text"
                   value={userPhone}
@@ -1121,14 +1254,14 @@ export default function AdminDashboardPage() {
                   onClick={() => setUserModalOpen(false)}
                   className="px-4 py-2 rounded-xl text-xs font-medium hover:bg-[var(--secondary)] cursor-pointer"
                 >
-                  Bekor qilish
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={savingUser}
                   className="px-5 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-md disabled:opacity-50"
                 >
-                  {savingUser ? 'Saqlanmoqda...' : 'Oʻzgarishlarni saqlash'}
+                  {savingUser ? t('saving') : t('saveChanges')}
                 </button>
               </div>
             </form>

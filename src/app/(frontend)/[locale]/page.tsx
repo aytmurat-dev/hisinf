@@ -6,6 +6,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { BookOpen, Calendar, ArrowRight, Compass, Sparkles, MessageSquare } from 'lucide-react'
+import { PostComments } from '@/components/PostComments'
 
 export default async function HomePage({
   params,
@@ -16,13 +17,18 @@ export default async function HomePage({
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'home' })
   const tPost = await getTranslations({ locale, namespace: 'post' })
+  const tContact = await getTranslations({ locale, namespace: 'contact' })
+  const tNav = await getTranslations({ locale, namespace: 'nav' })
 
   const payload = await getPayload({ config })
 
-  // Fetch posts for current locale
+  // Fetch posts for current locale (excluding internal discussion post)
   const { docs: posts } = await payload.find({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
+    where: {
+      slug: { not_equals: 'bosh-sahifa-izohlari' },
+    },
     limit: 6,
     sort: '-publishedAt',
     overrideAccess: true,
@@ -36,6 +42,37 @@ export default async function HomePage({
     overrideAccess: true,
   })
 
+  // Fetch home discussion post and comments
+  const { docs: homePosts } = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: 'bosh-sahifa-izohlari' } },
+    overrideAccess: true,
+  })
+
+  const homePost = homePosts[0] || null
+
+  let homeComments: Array<{
+    id: number
+    authorName: string
+    body: string
+    createdAt: string
+  }> = []
+
+  if (homePost) {
+    const { docs: commentDocs } = await payload.find({
+      collection: 'comments',
+      where: { post: { equals: homePost.id } },
+      sort: '-createdAt',
+      overrideAccess: true,
+    })
+    homeComments = commentDocs.map((c) => ({
+      id: c.id,
+      authorName: c.authorName,
+      body: c.body,
+      createdAt: c.createdAt || new Date().toISOString(),
+    }))
+  }
+
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section */}
@@ -44,7 +81,7 @@ export default async function HomePage({
           {/* Historical Ornament Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full gold-badge text-xs font-serif font-medium mb-6 animate-fade-in shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Tarixiy maʼlumotlar portali</span>
+            <span>{tNav('portalTagline')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight text-[var(--foreground)] max-w-4xl mx-auto leading-tight sm:leading-tight">
@@ -69,7 +106,7 @@ export default async function HomePage({
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[var(--card)] border border-[var(--gold)]/40 text-[var(--foreground)] hover:border-[var(--gold)] font-medium text-sm transition-all shadow-xs"
             >
               <MessageSquare className="w-4 h-4 text-[var(--gold)]" />
-              <span>Adminga murojaat</span>
+              <span>{tContact('adminContact')}</span>
             </Link>
           </div>
         </div>
@@ -94,15 +131,15 @@ export default async function HomePage({
                 className="p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--gold)] hover:shadow-md transition-all group relative overflow-hidden"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-semibold tracking-wider uppercase text-[var(--gold)]">
-                    {period.startYear ? `${period.startYear} — ${period.endYear || 'hozir'}` : 'Tarix'}
+                  <span className="text-[11px] font-semibold tracking-wider uppercase text-[var(--gold)] font-mono">
+                    {period.startYear ? `${period.startYear} — ${period.endYear || (locale === 'kaa' ? 'házir' : 'hozir')}` : '1924'}
                   </span>
                 </div>
                 <h3 className="font-serif font-bold text-base text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors">
                   {period.title}
                 </h3>
                 {period.description && (
-                  <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-2">
+                  <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-2 leading-relaxed">
                     {period.description}
                   </p>
                 )}
@@ -164,12 +201,16 @@ export default async function HomePage({
                       <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground)] mb-2">
                         <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" />
                         <span>
-                          {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Yangi'}
+                          {post.publishedAt
+                            ? new Date(post.publishedAt).toLocaleDateString()
+                            : locale === 'kaa'
+                              ? 'Jańa'
+                              : 'Yangi'}
                         </span>
                       </div>
 
                       <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
-                        {post.title || 'Nomsiz maqola'}
+                        {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
                       </h3>
 
                       <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-3 leading-relaxed">
@@ -193,6 +234,26 @@ export default async function HomePage({
           </div>
         )}
       </section>
+
+      {/* Asosiy sahifa fikr-mulohazalar (Comments) bo'limi - Faqat ro'yxatdan o'tganlar yoza oladi */}
+      {homePost && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="text-center space-y-2 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full gold-badge text-xs font-serif font-medium">
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{t('homeCommentsTitle')}</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--foreground)]">
+              {t('homeCommentsTitle')}
+            </h2>
+            <p className="text-xs sm:text-sm text-[var(--muted-foreground)] max-w-xl mx-auto">
+              {t('homeCommentsSubtitle')}
+            </p>
+          </div>
+
+          <PostComments postId={homePost.id} initialComments={homeComments} />
+        </section>
+      )}
     </div>
   )
 }

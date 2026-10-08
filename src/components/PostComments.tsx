@@ -20,6 +20,7 @@ export function PostComments({
   initialComments: CommentItem[]
 }) {
   const t = useTranslations('post')
+  const tNav = useTranslations('nav')
   const pathname = usePathname()
 
   const [comments, setComments] = useState<CommentItem[]>(initialComments)
@@ -91,7 +92,7 @@ export function PostComments({
           <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
             <UserCheck className="w-4 h-4 text-[var(--gold)]" />
             <span>
-              Siz: <strong className="text-[var(--foreground)]">{currentUser.firstName}</strong> sifatida izoh qoldiryapsiz
+              {t('youAs')} <strong className="text-[var(--foreground)]">{currentUser.firstName}</strong> {t('postingAs')}
             </span>
           </div>
 
@@ -113,7 +114,7 @@ export function PostComments({
               className="flex items-center gap-2 px-4 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-lg hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer shadow-xs"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>{submitting ? 'Yuborilmoqda...' : t('submitComment')}</span>
+              <span>{t('submitComment')}</span>
             </button>
           </div>
         </form>
@@ -134,7 +135,7 @@ export function PostComments({
               href="/royxatdan-otish"
               className="inline-flex items-center gap-2 px-4 py-2 border border-[var(--border)] hover:border-[var(--gold)] text-xs font-semibold rounded-lg transition-all"
             >
-              <span>Roʻyxatdan oʻtish</span>
+              <span>{tNav('register')}</span>
             </Link>
           </div>
         </div>

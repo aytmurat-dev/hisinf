@@ -52,7 +52,7 @@ export function Header() {
                   HISINF
                 </span>
                 <span className="text-[9px] uppercase tracking-widest text-[var(--gold)] font-medium -mt-1">
-                  1924 Tarix Portali
+                  {t('portalTagline')}
                 </span>
               </div>
             </Link>
@@ -87,7 +87,7 @@ export function Header() {
                 className="flex items-center gap-1.5 text-xs text-[var(--gold)] hover:text-[var(--gold-light)] font-medium transition-colors border border-[var(--gold)]/50 hover:border-[var(--gold)] px-3 py-1 rounded-full bg-[var(--gold)]/10 shadow-xs"
               >
                 <Shield className="w-3.5 h-3.5" />
-                <span>Admin Panel</span>
+                <span>{t('admin')}</span>
               </Link>
             )}
           </nav>
@@ -172,7 +172,7 @@ export function Header() {
                 className="px-3 py-2 rounded-md text-sm font-medium text-[var(--gold)] flex items-center gap-2 hover:bg-[var(--secondary)]"
               >
                 <Shield className="w-4 h-4" />
-                <span>Admin Panel</span>
+                <span>{t('admin')}</span>
               </Link>
             )}
           </nav>

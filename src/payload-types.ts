@@ -308,6 +308,9 @@ export interface Inquiry {
   message: string;
   status?: ('new' | 'read' | 'replied') | null;
   createdAt: string;
+  reply?: string | null;
+  repliedAt?: string | null;
+  repliedBy?: string | null;
   updatedAt: string;
 }
 /**
@@ -529,6 +532,9 @@ export interface InquiriesSelect<T extends boolean = true> {
   message?: T;
   status?: T;
   createdAt?: T;
+  reply?: T;
+  repliedAt?: T;
+  repliedBy?: T;
   updatedAt?: T;
 }
 /**

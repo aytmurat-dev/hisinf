@@ -1,7 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import config from '@/payload.config'
 import { getCurrentReader } from '@/lib/reader-auth'
+
+export async function GET(req: NextRequest) {
+  try {
+    const reader = await getCurrentReader()
+    const { searchParams } = new URL(req.url)
+    const phone = searchParams.get('phone')
+
+    const payload = await getPayload({ config })
+
+    let whereClause: Where = {}
+    if (reader && reader.phone) {
+      whereClause = { phone: { equals: reader.phone } }
+    } else if (phone) {
+      whereClause = { phone: { equals: phone.trim() } }
+    } else {
+      return NextResponse.json({ inquiries: [] })
+    }
+
+    const { docs: inquiries } = await payload.find({
+      collection: 'inquiries',
+      where: whereClause,
+      sort: '-createdAt',
+      limit: 20,
+      overrideAccess: true,
+    })
+
+    return NextResponse.json({ inquiries })
+  } catch (error) {
+    console.error('Fetch user inquiries error:', error)
+    return NextResponse.json({ inquiries: [] })
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {

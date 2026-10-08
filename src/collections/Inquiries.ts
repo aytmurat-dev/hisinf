@@ -52,5 +52,20 @@ export const Inquiries: CollectionConfig = {
       label: 'Yuborilgan sana',
       defaultValue: () => new Date().toISOString(),
     },
+    {
+      name: 'reply',
+      type: 'textarea',
+      label: 'Admin javobi',
+    },
+    {
+      name: 'repliedAt',
+      type: 'date',
+      label: 'Javob berilgan sana',
+    },
+    {
+      name: 'repliedBy',
+      type: 'text',
+      label: 'Javob bergan admin',
+    },
   ],
 }

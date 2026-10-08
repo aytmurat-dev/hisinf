@@ -21,26 +21,39 @@ export default async function ArticlesListPage({
   const { docs: posts } = await payload.find({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
+    where: {
+      slug: { not_equals: 'bosh-sahifa-izohlari' },
+    },
     sort: '-publishedAt',
     limit: 50,
     overrideAccess: true,
   })
 
+  const subtitleText =
+    locale === 'kaa'
+      ? 'Ózbekstan hám Qaraqalpaqstan tariyxı boyınsha barlıq maqalalar toplamı'
+      : 'Oʻzbekiston va Qoraqalpogʻiston tarixi boʻyicha barcha maqolalar toʻplami'
+
+  const noPostsText =
+    locale === 'kaa'
+      ? 'Házirshe maqalalar joq'
+      : 'Hozircha maqolalar mavjud emas'
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fade-in">
       <div className="border-b border-[var(--border)] pb-6">
         <h1 className="text-3xl sm:text-4xl font-serif font-black text-[var(--foreground)]">
           {tNav('posts')}
         </h1>
         <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-          Oʻzbekiston va Qoraqalpogʻiston tarixi boʻyicha barcha maqolalar toʻplami
+          {subtitleText}
         </p>
       </div>
 
       {posts.length === 0 ? (
         <div className="py-16 text-center text-sm text-[var(--muted-foreground)] bg-[var(--card)] rounded-xl border border-[var(--border)]">
           <BookOpen className="w-8 h-8 text-[var(--muted-foreground)] mx-auto mb-2 opacity-50" />
-          <p>Hozircha maqolalar mavjud emas</p>
+          <p>{noPostsText}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -70,12 +83,16 @@ export default async function ArticlesListPage({
                     <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground)] mb-2">
                       <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" />
                       <span>
-                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Yangi'}
+                        {post.publishedAt
+                          ? new Date(post.publishedAt).toLocaleDateString()
+                          : locale === 'kaa'
+                            ? 'Jańa'
+                            : 'Yangi'}
                       </span>
                     </div>
 
                     <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
-                      {post.title || 'Nomsiz maqola'}
+                      {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
                     </h3>
 
                     <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-3 leading-relaxed">
