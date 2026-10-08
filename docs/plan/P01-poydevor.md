@@ -61,23 +61,23 @@
 
 ## P1.S3 — Ma'lumotlar bazasi (Neon)
 
-- [ ] **P1.S3.1** Vercel'da loyiha hali yo'q bo'lsa, Neon'ni to'g'ridan-to'g'ri https://neon.tech da yarating. Region: **Frankfurt (eu-central-1)** — O'zbekistonga eng yaqini. Loyiha nomi `hisinf`.
-- [ ] **P1.S3.2** Neon'da branch'lar: `main` (production), `dev` (lokal ishlab chiqish), `test` (integratsion testlar). Har biri uchun **pooled** va **unpooled (direct)** connection string'larni oling.
-- [ ] **P1.S3.3** Lokal `.env`: `DATABASE_URI` = `dev` branch pooled URL, `DATABASE_URI_UNPOOLED` = `dev` branch direct URL.
-- [ ] **P1.S3.4** `src/payload.config.ts` da adapter:
+- [x] **P1.S3.1** Vercel'da loyiha hali yo'q bo'lsa, Neon'ni to'g'ridan-to'g'ri https://neon.tech da yarating. Region: **Frankfurt (eu-central-1)** — O'zbekistonga eng yaqini. Loyiha nomi `hisinf`.
+- [x] **P1.S3.2** Neon'da branch'lar: `main` (production), `dev` (lokal ishlab chiqish), `test` (integratsion testlar). Har biri uchun **pooled** va **unpooled (direct)** connection string'larni oling.
+- [x] **P1.S3.3** Lokal `.env`: `DATABASE_URI` = `dev` branch pooled URL, `DATABASE_URI_UNPOOLED` = `dev` branch direct URL.
+- [x] **P1.S3.4** `src/payload.config.ts` da adapter:
   ```ts
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI },
     // dev'da sxema avtomatik "push" qilinadi; prod'da faqat migratsiyalar
   }),
   ```
-- [ ] **P1.S3.5** **Qoida:** lokal `pnpm dev` hech qachon `main` (prod) branch'ga ulanmaydi. Dev'da Payload sxemani avtomatik `push` qiladi, prod esa faqat migratsiyalar bilan yangilanadi.
-- [ ] **P1.S3.6** **Migratsiya ish jarayoni** (har safar kolleksiya o'zgarganda, prod'ga chiqishdan oldin):
+- [x] **P1.S3.5** **Qoida:** lokal `pnpm dev` hech qachon `main` (prod) branch'ga ulanmaydi. Dev'da Payload sxemani avtomatik `push` qiladi, prod esa faqat migratsiyalar bilan yangilanadi.
+- [x] **P1.S3.6** **Migratsiya ish jarayoni** (har safar kolleksiya o'zgarganda, prod'ga chiqishdan oldin):
   1. Lokal: `pnpm migrate:create <qisqa-nom>` → `src/migrations/` da fayl paydo bo'ladi.
   2. Fayl commit qilinadi.
   3. Vercel build buyrug'i `pnpm ci` bo'lgani uchun `payload migrate` avtomatik ishlaydi.
   4. Pooled ulanishda migratsiya xato bersa, Vercel'da build uchun `DATABASE_URI` ni unpooled URL'ga almashtiring.
-- [ ] **P1.S3.7** `pnpm dev` → http://localhost:3000/admin → birinchi admin foydalanuvchini yarating.
+- [x] **P1.S3.7** `pnpm dev` → http://localhost:3000/admin → birinchi admin foydalanuvchini yarating.
 
 ✅ **Qabul mezonlari:** Admin panelga kirish mumkin. Neon konsolida `users` jadvali paydo bo'lgan.
 
@@ -188,7 +188,7 @@ Erta deploy qilish muhim: muammolar boshidayoq ko'rinadi.
 - [ ] **P1.S7.2** Vercel → **Add New Project** → `aytmurat-dev/hisinf` → Framework: Next.js.
 - [ ] **P1.S7.3** Build command: `pnpm ci`. Install command: `pnpm install`.
 - [ ] **P1.S7.4** Environment Variables: `.env` dagi barcha kalitlarni kiriting. **Production** uchun `DATABASE_URI` = Neon `main` branch. **Preview** uchun alohida Neon branch (masalan `preview`) yoki `dev`.
-- [ ] **P1.S7.5** Birinchi deploy'dan oldin lokalda `pnpm migrate:create initial` qiling va migratsiya faylini commit qiling.
+- [x] **P1.S7.5** Birinchi deploy'dan oldin lokalda `pnpm migrate:create initial` qiling va migratsiya faylini commit qiling.
 - [ ] **P1.S7.6** Deploy → `https://<loyiha>.vercel.app/admin` → prod admin foydalanuvchini yarating (kuchli parol).
 - [ ] **P1.S7.7** R2 CORS ro'yxatiga Vercel manzilini qo'shing (P1.S4.4) va prod'da rasm yuklashni tekshiring.
 
