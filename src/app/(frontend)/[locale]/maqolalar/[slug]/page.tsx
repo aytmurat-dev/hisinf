@@ -8,8 +8,11 @@ import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowLeft, Compass } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 3600
+
+export async function generateStaticParams() {
+  return []
+}
 
 export default async function PostDetailPage({
   params,

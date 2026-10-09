@@ -2,12 +2,16 @@ import type { CollectionConfig } from 'payload'
 import { anyone, isEditorOrAdmin, isAdmin } from '@/access'
 import { slugField } from '../fields/slug'
 import { yearField } from '../fields/years'
+import { revalidateSite } from '../hooks/revalidateSite'
 
 export const Periods: CollectionConfig = {
   slug: 'periods',
   labels: {
     singular: 'Tarixiy davr',
     plural: 'Tarixiy davrlar',
+  },
+  hooks: {
+    afterChange: [revalidateSite],
   },
   defaultSort: 'order',
   admin: {

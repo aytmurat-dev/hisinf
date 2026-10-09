@@ -6,8 +6,6 @@ import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export default async function ArticlesListPage({
   params,

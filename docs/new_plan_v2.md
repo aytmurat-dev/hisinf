@@ -1648,7 +1648,7 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
 
 ## V2-P6.S1 — Ma'lumot qatlami va kesh
 
-- [ ] **V2-P6.S1.1** `src/lib/queries/` fayllari (har biri `import 'server-only'`):
+- [x] **V2-P6.S1.1** `src/lib/queries/` fayllari (har biri `import 'server-only'`):
   - `posts.ts`: `getPosts({ locale, page, limit, q, category, period, sort })`, `getPostBySlug(slug, locale, { draft })`, `getAdjacentPosts(post, locale)`, `getRelatedPosts(post, locale, 3)`, `getPostsStats()` → `{ total, authors }`.
   - `periods.ts`: `getPeriods(locale)` (sort `order`, `posts`/`persons` join'lari bo'yicha sonlar bilan).
   - `events.ts`: `getEventsByPeriod(periodId, locale)`, `getOnThisDay(locale)`.
@@ -1658,14 +1658,14 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
   - `comments.ts`: `getApprovedComments({ context, postId })` → daraxt (`replies` bilan). Qaytariladigan maydonlar: `id, authorName, body, createdAt, likesCount, parent, isStaff`. Reader ID va email **qaytarilmaydi**.
   - `globals.ts`: `getHeader`, `getFooter`, `getSiteSettings`, `getHomePage` (locale bilan).
   - `authors.ts`: `getAuthorPublic(idOrSlug)` → faqat `displayName, slug, avatar, bio` (`overrideAccess: true` + `select` — **izoh bilan**).
-- [ ] **V2-P6.S1.2** Standart parametrlar: `locale`, `fallbackLocale: 'uz'`, `overrideAccess: false`. Ro'yxatlarda `select` bilan **faqat kerakli maydonlar** olinadi (`body` olinmaydi!), `depth: 1`.
-- [ ] **V2-P6.S1.3** **Kesh:** barcha sahifalardagi `export const dynamic = 'force-dynamic'` va `revalidate = 0` **olib tashlanadi**. O'rniga:
+- [x] **V2-P6.S1.2** Standart parametrlar: `locale`, `fallbackLocale: 'uz'`, `overrideAccess: false`. Ro'yxatlarda `select` bilan **faqat kerakli maydonlar** olinadi (`body` olinmaydi!), `depth: 1`.
+- [x] **V2-P6.S1.3** **Kesh:** barcha sahifalardagi `export const dynamic = 'force-dynamic'` va `revalidate = 0` **olib tashlanadi**. O'rniga:
   - Kontent sahifalari: `export const revalidate = 3600`.
   - Slug'li sahifalar: `generateStaticParams` → `[]` (birinchi so'rovda render bo'lib keshlanadi).
   - `searchParams` ishlatadigan sahifalar (maqolalar, qidiruv, arxiv filtri) dinamik qoladi — bu normal.
   - **Kontent sahifalarida `headers()`, `cookies()` va `payload.auth()` chaqirilmaydi.** O'quvchiga xos qismlar (saqlash, like, izoh formasi, header'dagi akkaunt) client komponent sifatida mount bo'lgandan keyin `/api/readers/me` yoki server action orqali yuklanadi.
-- [ ] **V2-P6.S1.4** `src/hooks/revalidateSite.ts` — eski rejadagi `docs/plan/P07-sayt-sahifalari.md` P7.S1.6 bo'yicha (`revalidatePath('/[locale]', 'layout')`, `req.context.disableRevalidate` tekshiruvi, `try/catch`). Barcha ommaviy kolleksiya va globallarga ulanadi.
-- [ ] **V2-P6.S1.5** `src/lib/has-translation.ts` — kaa'da tarjima bormi (eski reja P2.S1.4). Maqola, shaxs, voqea sahifalarida ishlatiladi.
+- [x] **V2-P6.S1.4** `src/hooks/revalidateSite.ts` — eski rejadagi `docs/plan/P07-sayt-sahifalari.md` P7.S1.6 bo'yicha (`revalidatePath('/[locale]', 'layout')`, `req.context.disableRevalidate` tekshiruvi, `try/catch`). Barcha ommaviy kolleksiya va globallarga ulanadi.
+- [x] **V2-P6.S1.5** `src/lib/has-translation.ts` — kaa'da tarjima bormi (eski reja P2.S1.4). Maqola, shaxs, voqea sahifalarida ishlatiladi.
 
 ✅ **Qabul mezonlari:** prod'da maqola sahifasining ikkinchi so'rovida `x-vercel-cache: HIT`. Admin'da chop etilgan o'zgarish 5 soniya ichida saytda ko'rinadi.
 

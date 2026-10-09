@@ -13,7 +13,7 @@ import { literata, plexSans, plexMono } from '../fonts'
 import { cn } from '@/lib/cn'
 
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }))
+  return []
 }
 
 export const metadata = {

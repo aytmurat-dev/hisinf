@@ -1,12 +1,16 @@
 import type { CollectionConfig } from 'payload'
 import { anyone, isEditorOrAdmin, isAdmin } from '@/access'
 import { slugField } from '../fields/slug'
+import { revalidateSite } from '../hooks/revalidateSite'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
   labels: {
     singular: 'Mavzu / Kategoriya',
     plural: 'Kategoriyalar',
+  },
+  hooks: {
+    afterChange: [revalidateSite],
   },
   admin: {
     useAsTitle: 'title',

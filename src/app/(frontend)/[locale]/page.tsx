@@ -8,8 +8,7 @@ import { Link } from '@/i18n/navigation'
 import { BookOpen, Calendar, ArrowRight, Compass, Sparkles, MessageSquare } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 3600
 
 export default async function HomePage({
   params,
