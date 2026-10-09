@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { randomBytes } from 'crypto'
 import config from '@/payload.config'
-import { isCurrentReaderAdmin, isCurrentReaderSuperAdmin } from '@/lib/reader-auth'
+import { isCurrentReaderAdmin, isCurrentReaderSuperAdmin } from '@/lib/current-reader'
 
 export async function GET() {
   try {

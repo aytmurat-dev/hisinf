@@ -1165,7 +1165,7 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
 | `subscribers`, `daily-stats` | admin (stats: xodim) | ❌ | ❌ | admin |
 | globals | hamma | — | editor/admin | — |
 
-- [ ] **V2-P4.S1.1** Jadvalni barcha kolleksiyalarda tekshiring. `grep -L "access:" src/collections/*.ts` bo'sh natija berishi kerak.
+- [x] **V2-P4.S1.1** Jadvalni barcha kolleksiyalarda tekshiring. `grep -L "access:" src/collections/*.ts` bo'sh natija berishi kerak.
 
 ## V2-P4.S2 — Workflow (holatlar mashinasi)
 
@@ -1175,7 +1175,7 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
    └──(muallif tuzatadi)── changes_requested ◀──(muharrir: qaytarish)──┘ (approved'dan ham qaytarish mumkin)
 ```
 
-- [ ] **V2-P4.S2.1** `src/lib/workflow.ts`:
+- [x] **V2-P4.S2.1** `src/lib/workflow.ts`:
   ```ts
   export type WorkflowStatus = 'draft' | 'in_review' | 'changes_requested' | 'approved' | 'published'
   export type StaffRole = 'admin' | 'editor' | 'author'
@@ -1208,7 +1208,7 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   }
   ```
   Unit testlar: author `draft→in_review` ✅, `draft→published` ❌, `in_review→draft` ❌; editor hammasi ✅; bo'sh hujjat → 7 ta muammo.
-- [ ] **V2-P4.S2.2** `src/hooks/enforcePostWorkflow.ts` (`beforeChange`, Posts):
+- [x] **V2-P4.S2.2** `src/hooks/enforcePostWorkflow.ts` (`beforeChange`, Posts):
   ```ts
   export const enforcePostWorkflow: CollectionBeforeChangeHook = ({ data, originalDoc, req, operation }) => {
     if (req.context?.skipWorkflow) return data
@@ -1245,18 +1245,18 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
     return data
   }
   ```
-- [ ] **V2-P4.S2.3** `reviewNotes` uchun `beforeChange`: yangi qatorlarga `by = req.user.id`, `at = now`.
-- [ ] **V2-P4.S2.4** `src/hooks/preventAuthorPublish.ts` — tarixiy kolleksiyalar uchun: `hasRole(req.user,'author') && data._status === 'published'` → 403.
+- [x] **V2-P4.S2.3** `reviewNotes` uchun `beforeChange`: yangi qatorlarga `by = req.user.id`, `at = now`.
+- [x] **V2-P4.S2.4** `src/hooks/preventAuthorPublish.ts` — tarixiy kolleksiyalar uchun: `hasRole(req.user,'author') && data._status === 'published'` → 403.
 
 ## V2-P4.S3 — Bildirishnomalar
 
-- [ ] **V2-P4.S3.1** `src/emails/layout.ts` → `emailLayout({ title, bodyHtml, locale })`: inline style'li HTML. Fon `#f5efe3`, sarlavha Georgia serif, qizil `#8c2f1b` tugma, pastda "hisinf.uz".
-- [ ] **V2-P4.S3.2** `src/hooks/notifyWorkflow.ts` (`afterChange`, Posts). `workflowStatus` o'zgarganda: `→ in_review` bo'lsa faol editor/admin'larga; `→ changes_requested` bo'lsa muallifga (oxirgi izoh bilan); `→ approved` va `→ published` bo'lsa muallifga. Hammasi `try/catch` ichida, `req.context.disableNotifications` bo'lsa yuborilmaydi.
+- [x] **V2-P4.S3.1** `src/emails/layout.ts` → `emailLayout({ title, bodyHtml, locale })`: inline style'li HTML. Fon `#f5efe3`, sarlavha Georgia serif, qizil `#8c2f1b` tugma, pastda "hisinf.uz".
+- [x] **V2-P4.S3.2** `src/hooks/notifyWorkflow.ts` (`afterChange`, Posts). `workflowStatus` o'zgarganda: `→ in_review` bo'lsa faol editor/admin'larga; `→ changes_requested` bo'lsa muallifga (oxirgi izoh bilan); `→ approved` va `→ published` bo'lsa muallifga. Hammasi `try/catch` ichida, `req.context.disableNotifications` bo'lsa yuborilmaydi.
 
 ## V2-P4.S4 — O'quvchi auth'ini Payload'ga ko'chirish
 
-- [ ] **V2-P4.S4.1** **O'chiring:** `src/app/api/readers/login/route.ts`, `register/route.ts`, `me/route.ts`, `logout/route.ts` (va bo'sh qolgan papkalar). Ular Payload'ning `/api/readers/login`, `/api/readers/me`, `/api/readers/logout` endpoint'larini to'sib qo'yayotgan edi. O'chirilgach, Payload REST endpoint'lari ishlaydi.
-- [ ] **V2-P4.S4.2** `src/lib/reader-auth.ts` va `src/lib/session.ts` ni o'chiring. O'rniga `src/lib/current-reader.ts`:
+- [x] **V2-P4.S4.1** **O'chiring:** `src/app/api/readers/login/route.ts`, `register/route.ts`, `me/route.ts`, `logout/route.ts` (va bo'sh qolgan papkalar). Ular Payload'ning `/api/readers/login`, `/api/readers/me`, `/api/readers/logout` endpoint'larini to'sib qo'yayotgan edi. O'chirilgach, Payload REST endpoint'lari ishlaydi.
+- [x] **V2-P4.S4.2** `src/lib/reader-auth.ts` va `src/lib/session.ts` ni o'chiring. O'rniga `src/lib/current-reader.ts`:
   ```ts
   import 'server-only'
   import { headers } from 'next/headers'
@@ -1271,22 +1271,22 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   }
   ```
   `server-only` paketi o'rnatilmagan bo'lsa, `import 'server-only'` qatorini olib tashlang (`server-only` Next bilan keladi, tekshiring).
-- [ ] **V2-P4.S4.3** `hisinf_reader_session` cookie'si endi ishlatilmaydi. Logout vaqtida uni ham o'chiring (`cookies().delete('hisinf_reader_session')`). Eski foydalanuvchilar bir marta qayta kiradi.
-- [ ] **V2-P4.S4.4** **Email shablonlari** (`src/emails/verify.ts`, `src/emails/reset-password.ts`) — ikki tilda, `user.locale` bo'yicha:
+- [x] **V2-P4.S4.3** `hisinf_reader_session` cookie'si endi ishlatilmaydi. Logout vaqtida uni ham o'chiring (`cookies().delete('hisinf_reader_session')`). Eski foydalanuvchilar bir marta qayta kiradi.
+- [x] **V2-P4.S4.4** **Email shablonlari** (`src/emails/verify.ts`, `src/emails/reset-password.ts`) — ikki tilda, `user.locale` bo'yicha:
   - verify havolasi: `${SERVER_URL}/${user.locale ?? 'uz'}/tasdiqlash?token=${token}`
   - reset havolasi: `${SERVER_URL}/${user.locale ?? 'uz'}/parolni-tiklash/yangi?token=${token}`
   `Readers.auth.verify.generateEmailHTML` va `forgotPassword.generateEmailHTML` ga ulang.
-- [ ] **V2-P4.S4.5** **Muhim cheklov:** Payload barcha auth kolleksiyalari uchun bitta `payload-token` cookie'sini ishlatadi. Bitta brauzerda xodim va o'quvchi bir vaqtda kira olmaydi — oxirgi kirgan qoladi. Buni `docs/EDITOR_GUIDE.md` ga yozing.
+- [x] **V2-P4.S4.5** **Muhim cheklov:** Payload barcha auth kolleksiyalari uchun bitta `payload-token` cookie'sini ishlatadi. Bitta brauzerda xodim va o'quvchi bir vaqtda kira olmaydi — oxirgi kirgan qoladi. Buni `docs/EDITOR_GUIDE.md` ga yozing.
 
 ## V2-P4.S5 — Himoya: Turnstile va rate limit
 
-- [ ] **V2-P4.S5.1** `src/lib/turnstile.ts` va `src/lib/rate-limit.ts` — eski rejadagi `docs/plan/P10-oquvchilar.md` P10.S2.4–S2.5 kodi **aynan**. Limitlar: `register` 3/1 soat (IP), `login` 10/10 daqiqa (IP), `comment` 5/10 daqiqa (reader), `like` 60/1 daqiqa (reader), `contact` 3/1 soat (IP yoki reader), `subscribe` 3/1 soat (IP), `search` 60/1 daqiqa (IP), `track` 120/1 daqiqa (IP).
-- [ ] **V2-P4.S5.2** Upstash env'lari bo'lmasa (lokal dev), `rate-limit.ts` "har doim ruxsat" qaytaruvchi stub ishlatadi va ogohlantirish yozadi. Turnstile kaliti bo'lmasa — dev'da tekshiruv o'tkazib yuboriladi, **prod'da** esa xato beriladi.
-- [ ] **V2-P4.S5.3** Test muhiti uchun Cloudflare test kalitlari: site `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`.
+- [x] **V2-P4.S5.1** `src/lib/turnstile.ts` va `src/lib/rate-limit.ts` — eski rejadagi `docs/plan/P10-oquvchilar.md` P10.S2.4–S2.5 kodi **aynan**. Limitlar: `register` 3/1 soat (IP), `login` 10/10 daqiqa (IP), `comment` 5/10 daqiqa (reader), `like` 60/1 daqiqa (reader), `contact` 3/1 soat (IP yoki reader), `subscribe` 3/1 soat (IP), `search` 60/1 daqiqa (IP), `track` 120/1 daqiqa (IP).
+- [x] **V2-P4.S5.2** Upstash env'lari bo'lmasa (lokal dev), `rate-limit.ts` "har doim ruxsat" qaytaruvchi stub ishlatadi va ogohlantirish yozadi. Turnstile kaliti bo'lmasa — dev'da tekshiruv o'tkazib yuboriladi, **prod'da** esa xato beriladi.
+- [x] **V2-P4.S5.3** Test muhiti uchun Cloudflare test kalitlari: site `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`.
 
 ## V2-P4.S6 — Xodimlarni taklif qilish (invite)
 
-- [ ] **V2-P4.S6.1** `Users` kolleksiyasiga endpoint:
+- [x] **V2-P4.S6.1** `Users` kolleksiyasiga endpoint:
   ```ts
   endpoints: [{
     path: '/invite',
@@ -1311,13 +1311,13 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
 
 ## V2-P4.S7 — Draft va Live preview
 
-- [ ] **V2-P4.S7.1** `src/app/(frontend)/next/preview/route.ts` va `exit-preview/route.ts` — eski rejadagi `docs/plan/P04-rollar-workflow.md` P4.S6.1–S6.2 bo'yicha (`PREVIEW_SECRET` + `payload.auth` → faqat xodim).
-- [ ] **V2-P4.S7.2** Posts va Pages: `admin.livePreview.url` va `admin.preview` → `/next/preview?path=/${locale}/maqolalar/${slug}&previewSecret=…`. Breakpoints: 390×844, 768×1024, 1440×900.
-- [ ] **V2-P4.S7.3** Sayt sahifalarida `draftMode().isEnabled` bo'lsa: `draft: true, overrideAccess: true` (`// overrideAccess: preview faqat xodimga yoqiladi`) va `<RefreshRouteOnSave />` (`@payloadcms/live-preview-react`). Tepada qora panel: "Qoralama koʻrinishi · Chiqish".
+- [x] **V2-P4.S7.1** `src/app/(frontend)/next/preview/route.ts` va `exit-preview/route.ts` — eski rejadagi `docs/plan/P04-rollar-workflow.md` P4.S6.1–S6.2 bo'yicha (`PREVIEW_SECRET` + `payload.auth` → faqat xodim).
+- [x] **V2-P4.S7.2** Posts va Pages: `admin.livePreview.url` va `admin.preview` → `/next/preview?path=/${locale}/maqolalar/${slug}&previewSecret=…`. Breakpoints: 390×844, 768×1024, 1440×900.
+- [x] **V2-P4.S7.3** Sayt sahifalarida `draftMode().isEnabled` bo'lsa: `draft: true, overrideAccess: true` (`// overrideAccess: preview faqat xodimga yoqiladi`) va `<RefreshRouteOnSave />` (`@payloadcms/live-preview-react`). Tepada qora panel: "Qoralama koʻrinishi · Chiqish".
 
 ## V2-P4.S8 — Integratsion testlar (`tests/int/access.int.spec.ts`)
 
-- [ ] **V2-P4.S8.1** Neon `test` branch'ida, Local API `overrideAccess: false, user` bilan:
+- [x] **V2-P4.S8.1** Neon `test` branch'ida, Local API `overrideAccess: false, user` bilan:
   1. Mehmon faqat `published` postlarni oladi.
   2. Author A author B ning qoralamasini o'qiy olmaydi.
   3. Author `_status: 'published'` bilan saqlay olmaydi (403).
@@ -2495,8 +2495,8 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 | V2-P1 | Poydevor | ✅ | 2026-10-09 | S1–S4 to'liq bajarildi, paketlar, layout, cn.ts, env |
 | V2-P2 | Dizayn tizimi | ✅ | 2026-10-09 | S1–S7 to'liq bajarildi: tokenlar, shriftlar, tema, UI primitivlar, effektlar, dev sahifalar |
 | V2-P3 | Ma'lumotlar modeli va ko'chirish | ✅ | 2026-10-09 | S1–S13 to'liq bajarildi: yangi modellar, globallar, migratsiya va seed skriptlari |
-| V2-P4 | Auth, rollar, workflow | 🟨 | 2026-10-09 | S1–S8 ustida ish olib borilmoqda |
-| V2-P5 | Tahririyat (admin) | ⬜ | | |
+| V2-P4 | Auth, rollar, workflow | ✅ | 2026-10-09 | S1–S8 to'liq bajarildi: Payload auth, turnstile, rate-limit, invite, preview, email shablonlari |
+| V2-P5 | Tahririyat (admin) | 🟨 | 2026-10-09 | Boshlanmoqda |
 | V2-P6 | Ommaviy sayt | ⬜ | | |
 | V2-P7 | Interaktiv funksiyalar | ⬜ | | |
 | V2-P8 | i18n, SEO, tezlik, a11y | ⬜ | | |

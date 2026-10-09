@@ -234,6 +234,7 @@ export interface User {
   avatar?: (number | null) | Media;
   bio?: string | null;
   classInfo?: string | null;
+  lastLoginAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -1041,6 +1042,7 @@ export interface UsersSelect<T extends boolean = true> {
   avatar?: T;
   bio?: T;
   classInfo?: T;
+  lastLoginAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

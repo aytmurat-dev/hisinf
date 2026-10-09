@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { isStaffUser, fieldStaffOnly } from '../access'
+import { generateVerifyEmailSubject, generateVerifyEmailHTML } from '../emails/verify'
+import { generateResetPasswordEmailSubject, generateResetPasswordEmailHTML } from '../emails/reset-password'
 
 export const Readers: CollectionConfig = {
   slug: 'readers',
@@ -19,23 +21,21 @@ export const Readers: CollectionConfig = {
       requireUsername: false,
     },
     verify: {
-      generateEmailSubject: () => 'hisinf.uz — Akkauntingizni tasdiqlang',
-      generateEmailHTML: (args) => {
-        const token = args?.token || ''
-        const user = args?.user as { displayName?: string } | undefined
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-        const verifyUrl = `${serverUrl}/uz/kirish?tasdiq=${token}`
-        return `<p>Salom ${user?.displayName || ''}!</p><p>Akkauntingizni tasdiqlash uchun quyidagi havolani bosing:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p>`
-      },
+      generateEmailSubject: (args) => generateVerifyEmailSubject(args as { user?: { locale?: string } }),
+      generateEmailHTML: (args) =>
+        generateVerifyEmailHTML({
+          user: args?.user as { locale?: string; displayName?: string; email?: string },
+          token: args?.token || '',
+        }),
     },
     forgotPassword: {
-      generateEmailSubject: () => 'hisinf.uz — Parolni tiklash',
-      generateEmailHTML: (args) => {
-        const token = args?.token || ''
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-        const resetUrl = `${serverUrl}/uz/kirish?parol-tiklash=${token}`
-        return `<p>Parolni tiklash havolasi:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
-      },
+      generateEmailSubject: (args) =>
+        generateResetPasswordEmailSubject(args as { user?: { locale?: string } }),
+      generateEmailHTML: (args) =>
+        generateResetPasswordEmailHTML({
+          user: args?.user as { locale?: string; displayName?: string; email?: string },
+          token: args?.token || '',
+        }),
     },
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,

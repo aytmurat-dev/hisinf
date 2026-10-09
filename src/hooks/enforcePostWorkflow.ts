@@ -37,6 +37,14 @@ export const enforcePostWorkflow: CollectionBeforeChangeHook = ({ data, original
       throw new APIError('Qaytarishdan oldin izoh yozing', 400)
     }
   }
+  if (Array.isArray(data.reviewNotes)) {
+    const now = new Date().toISOString()
+    data.reviewNotes = data.reviewNotes.map((item: Record<string, unknown>) => ({
+      ...item,
+      by: item.by ?? user.id,
+      at: item.at ?? now,
+    }))
+  }
   if (data._status === 'published') {
     to = 'published'
     data.reviewedBy = user.id

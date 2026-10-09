@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { getCurrentReader } from '@/lib/reader-auth'
+import { getCurrentReader } from '@/lib/current-reader'
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         status: 'pending',
         post: Number(postId),
         reader: reader.id,
-        authorName: `${reader.firstName} ${reader.lastName}`.trim() || reader.username,
+        authorName: reader.displayName || reader.username || 'Oʻquvchi',
         body: text,
         createdAt: new Date().toISOString(),
       },

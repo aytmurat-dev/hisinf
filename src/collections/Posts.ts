@@ -19,6 +19,27 @@ export const Posts: CollectionConfig = {
     group: 'Kontent',
     defaultColumns: ['title', 'workflowStatus', 'author', 'period', 'updatedAt'],
     listSearchableFields: ['title', 'slug'],
+    livePreview: {
+      url: ({ data, locale }) => {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        const secret = process.env.PREVIEW_SECRET || ''
+        const code = locale?.code ?? 'uz'
+        const path = `/${code}/maqolalar/${data?.slug || ''}`
+        return `${serverUrl}/next/preview?path=${encodeURIComponent(path)}&previewSecret=${secret}`
+      },
+      breakpoints: [
+        { label: 'Mobil', name: 'mobile', width: 390, height: 844 },
+        { label: 'Planshet', name: 'tablet', width: 768, height: 1024 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+      ],
+    },
+    preview: (data, { locale }) => {
+      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+      const secret = process.env.PREVIEW_SECRET || ''
+      const code = locale ?? 'uz'
+      const path = `/${code}/maqolalar/${(data as { slug?: string })?.slug || ''}`
+      return `${serverUrl}/next/preview?path=${encodeURIComponent(path)}&previewSecret=${secret}`
+    },
   },
   versions: {
     drafts: {

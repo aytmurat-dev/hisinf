@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { getCurrentReader } from '@/lib/reader-auth'
+import { getCurrentReader } from '@/lib/current-reader'
 
 // Faqat kirgan o'quvchi o'z murojaatlarini ko'radi (P3 da `reader` bog'lanishiga o'tkaziladi)
 export async function GET() {

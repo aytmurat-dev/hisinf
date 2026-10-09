@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { slugify } from '@/lib/slugify'
 import { normalizeSearch } from '@/lib/normalize-search'
-import { isCurrentReaderAdmin } from '@/lib/reader-auth'
+import { isCurrentReaderAdmin } from '@/lib/current-reader'
 
 export async function POST(req: NextRequest) {
   if (!(await isCurrentReaderAdmin())) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import mammoth from 'mammoth'
-import { isCurrentReaderAdmin } from '@/lib/reader-auth'
+import { isCurrentReaderAdmin } from '@/lib/current-reader'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
