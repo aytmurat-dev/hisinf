@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+  <section style="padding:80px 48px 32px;max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:26px">
+    <span style="font:500 12px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--primary)">{{ t.kicker }}</span>
+    <div style="display:flex;align-items:center;gap:18px;border-bottom:2px solid var(--line);padding-bottom:14px">
+      <span style="position:relative;width:30px;height:30px;flex:none;border:2.4px solid var(--fg);border-radius:50%"><span style="position:absolute;width:14px;height:2.4px;background:var(--fg);right:-12px;bottom:-5px;transform:rotate(45deg)"></span></span>
+      <input value="{{ q }}" onInput="{{ onQ }}" placeholder="{{ t.ph }}" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:400 56px/1.1 Literata,serif;letter-spacing:-.025em;color:var(--fg);padding:0 0 0 12px">
+      <sc-if value="{{ hasQ }}" hint-placeholder-val="{{ true }}"><button onClick="{{ clear }}" style="border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:999px;padding:8px 14px;font:500 12px 'IBM Plex Mono';cursor:pointer">ESC</button></sc-if>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5"><button onClick="{{ tb.pick }}" style="display:flex;gap:8px;align-items:center;padding:9px 15px;border:1px solid {{ tb.bd }};border-radius:999px;background:{{ tb.bg }};color:{{ tb.fg }};font:500 13.5px 'IBM Plex Sans';cursor:pointer;transition:all .2s">{{ tb.label }}<span style="font:500 11px 'IBM Plex Mono';opacity:.65">{{ tb.n }}</span></button></sc-for>
+    </div>
+  </section>
+  <section style="padding:8px 48px 112px;max-width:1040px;margin:0 auto;min-height:520px">
+    <sc-if value="{{ noQ }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:16px;padding-top:24px">
+        <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">{{ t.popular }}</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <sc-for list="{{ popular }}" as="p" hint-placeholder-count="6"><button onClick="{{ p.pick }}" style="padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--fg);font:italic 400 18px Literata,serif;cursor:pointer;transition:all .2s" style-hover="background-color:var(--fg);color:var(--bg)">{{ p.label }}</button></sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ none }}" hint-placeholder-val="{{ false }}"><div style="padding:64px 0;font:italic 400 30px Literata,serif;color:var(--muted)">«{{ q }}» {{ t.none }}</div></sc-if>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{ results }}" as="r" hint-placeholder-count="5">
+        <a href="{{ r.href }}" style="display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:24px;align-items:baseline;padding:22px 0;border-bottom:1px solid var(--border);color:var(--fg);animation:hf-up .35s {{ r.d }}ms both;transition:padding .25s,background-color .25s" style-hover="color:var(--fg);padding-left:14px;background-color:var(--card)">
+          <span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:{{ r.c }}">{{ r.type }}</span>
+          <span style="display:flex;flex-direction:column;gap:6px">
+            <span style="font:500 24px/1.25 Literata,serif"><sc-for list="{{ r.parts }}" as="pt" hint-placeholder-count="1"><sc-if value="{{ pt.m }}" hint-placeholder-val="{{ false }}"><mark style="background:var(--primary);color:var(--primary-fg);padding:0 3px">{{ pt.s }}</mark></sc-if><sc-if value="{{ pt.n }}" hint-placeholder-val="{{ true }}">{{ pt.s }}</sc-if></sc-for></span>
+            <span style="font:400 15px/1.5 Literata,serif;color:var(--muted)">{{ r.sub }}</span>
+          </span>
+          <span style="font:500 14px 'IBM Plex Mono';color:var(--muted)">→</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const DATA = [
+  ['Maqola','1924-yilgi chegaralanish: Qoraqalpoq avtonom viloyati qanday tuzildi','Sovet davri · A. Qurbonov','#maqola'],
+  ['Maqola','Amir Temur saltanatida Samarqand meʼmorchiligi','Temuriylar · Sh. Yusupov','#maqola'],
+  ['Maqola','Xiva xonligi va Rossiya: Gandimiyon shartnomasi','Xonliklar · A. Qurbonov','#maqola'],
+  ['Maqola','Tuproqqalʼa: qadimgi Xorazm podsholari saroyi','Antik davr · G. Saidova','#maqola'],
+  ['Shaxs','Amir Temur','1336–1405 · Hukmdor','#shaxslar'],['Shaxs','Abu Rayhon Beruniy','973–1048 · Olim','#shaxslar'],['Shaxs','Berdaq','1827–1900 · Shoir','#shaxslar'],
+  ['Davr','Temuriylar davri','1370 – 1507','#xronologiya'],['Davr','Xonliklar davri','1508 – 1873','#xronologiya'],['Davr','Sovet davri','1917 – 1991','#xronologiya'],
+  ['Media','Xiva xonligi xaritasi, 1873','Xarita · RGVIA','#arxiv'],['Media','Samarqand, Registon gravyurasi','Gravyura · 1872','#arxiv'],['Joy','Ichan qalʼa','Qalʼa · XVII asr','#xarita'],['Joy','Toʻrtkoʻl','Shahar · 1873','#xarita'],
+];
+const C = { Maqola: 'var(--primary)', Shaxs: 'var(--p-indigo)', Davr: 'var(--teal)', Media: 'var(--p-ochre)', Joy: 'var(--p-olive)' };
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', q: 'Xiva', tab: 'all' };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.cursor(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa', q = s.q.trim().toLowerCase();
+    const t = kaa ? { kicker:'Izlew', ph:'Ne izleysiz?', popular:'Kóp izlenetuǵın', none:'boyınsha hesh nárse tabılmadı' } : { kicker:'Qidiruv', ph:'Nimani qidiryapsiz?', popular:'Koʻp qidiriladi', none:'boʻyicha hech narsa topilmadi' };
+    const hits = q ? DATA.filter(d => (d[1] + ' ' + d[2]).toLowerCase().includes(q)) : [];
+    const shown = hits.filter(d => s.tab === 'all' || d[0] === s.tab);
+    const split = str => { if (!q) return [{ s: str, m: false, n: true }]; const out = []; const low = str.toLowerCase(); let i = 0; while (true) { const j = low.indexOf(q, i); if (j < 0) { out.push({ s: str.slice(i), m: false, n: true }); break; } if (j > i) out.push({ s: str.slice(i, j), m: false, n: true }); out.push({ s: str.slice(j, j + q.length), m: true, n: false }); i = j + q.length; } return out; };
+    return {
+      root: this.root, t, q: s.q, hasQ: !!q, noQ: !q, none: !!q && !hits.length,
+      theme: s.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      onQ: e => this.setState({ q: e.target.value }), clear: () => this.setState({ q: '' }),
+      tabs: ['all', 'Maqola', 'Shaxs', 'Davr', 'Media', 'Joy'].map(k => ({ label: k === 'all' ? 'Barchasi' : k, n: k === 'all' ? hits.length : hits.filter(d => d[0] === k).length, bd: s.tab === k ? 'var(--fg)' : 'var(--border)', bg: s.tab === k ? 'var(--fg)' : 'transparent', fg: s.tab === k ? 'var(--bg)' : 'var(--fg)', pick: () => this.setState({ tab: k }) })),
+      popular: ['Amir Temur', 'Xiva', 'Beruniy', 'Orol', '1924', 'Tuproqqalʼa'].map(label => ({ label, pick: () => this.setState({ q: label }) })),
+      results: shown.map((d, i) => ({ type: d[0], c: C[d[0]], parts: split(d[1]), sub: d[2], href: d[3], d: i * 40 })),
+    };
+  }
+}
+</script>
+</body>
+</html>

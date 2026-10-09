@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="home" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+
+  <section style="display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:64px;padding:80px 48px 96px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <span style="display:flex;align-items:center;gap:12px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);animation:hf-up .7s both">
+        <span style="width:28px;height:1px;background:currentColor"></span>{{ kicker }}
+      </span>
+      <h1 style="margin:0;font:400 clamp(52px,6.4vw,92px)/.98 Literata,serif;letter-spacing:-.035em;text-wrap:balance;animation:hf-up .8s .1s both">{{ h1a }} <em style="font-style:italic;color:var(--primary)">{{ h1b }}</em></h1>
+      <p style="margin:0;max-width:46ch;font:400 20px/1.55 Literata,serif;color:var(--muted);text-wrap:pretty;animation:hf-up .8s .2s both">{{ sub }}</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;animation:hf-up .8s .3s both">
+        <a href="#maqolalar" style="display:flex;align-items:center;gap:10px;padding:16px 26px;background:var(--primary);color:var(--primary-fg);border-radius:999px;font-weight:500;font-size:15.5px;box-shadow:0 4px 0 var(--fg);transition:transform .2s,box-shadow .2s" style-hover="color:var(--primary-fg);transform:translateY(2px);box-shadow:0 2px 0 var(--fg)">{{ cta1 }} <span style="font-family:'IBM Plex Mono'">→</span></a>
+        <a href="#xronologiya" style="display:flex;align-items:center;gap:10px;padding:16px 26px;border:1px solid var(--line);color:var(--fg);border-radius:999px;font-weight:500;font-size:15.5px;transition:background-color .2s" style-hover="background-color:var(--fg);color:var(--bg)">{{ cta2 }}</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:8px;padding:6px 6px 6px 20px;max-width:520px;border:1px solid var(--border);background:var(--card);border-radius:999px;animation:hf-up .8s .4s both">
+        <span style="width:13px;height:13px;border:1.6px solid var(--muted);border-radius:50%"></span>
+        <input placeholder="{{ searchPh }}" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:400 15px 'IBM Plex Sans';color:var(--fg);padding:10px 0">
+        <span style="font:500 11px 'IBM Plex Mono';color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:9px 14px">⌘ K</span>
+      </div>
+    </div>
+    <div style="position:relative;height:620px;animation:hf-up 1s .2s both">
+      <div style="position:absolute;inset:0 0 0 40px;border:1px solid var(--line);padding:10px;background:var(--card)">
+        <div style="height:100%;box-sizing:border-box;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center">
+          <span style="font:500 11px/1.5 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:8px 12px;text-align:center">chiziqli gravyura illyustratsiya<br>Xiva · Ichan qalʼa, Kalta minor</span>
+        </div>
+      </div>
+      <div style="position:absolute;right:-18px;top:-22px;width:132px;height:132px;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;animation:hf-float 5s ease-in-out infinite">
+        <div style="position:absolute;inset:8px;border-radius:50%;border:1px dashed var(--primary);animation:hf-spin 30s linear infinite"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center">
+          <span style="font:500 9.5px/1 'IBM Plex Mono';letter-spacing:.14em;color:var(--primary)">MUHR</span>
+          <span style="font:600 28px/1 Literata,serif">10</span>
+          <span style="font:500 9.5px/1.2 'IBM Plex Mono';letter-spacing:.1em;color:var(--muted)">TARIXIY<br>DAVR</span>
+        </div>
+      </div>
+      <div data-hot="1" style="position:absolute;left:0;bottom:42px;width:300px;background:var(--card);border:1px solid var(--line);box-shadow:8px 8px 0 var(--fg);padding:20px 22px;display:flex;flex-direction:column;gap:10px;transition:transform .3s" style-hover="transform:translate(-4px,-4px)">
+        <span style="display:flex;justify-content:space-between;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--teal)"><span>Bugun tarixda</span><span>9 · X</span></span>
+        <span style="font:500 21px/1.25 Literata,serif">1924-yil — Oʻrta Osiyoda milliy-hududiy chegaralanish yakunlandi</span>
+        <a href="#maqola" style="font-size:13.5px;font-weight:500">Maqolani oʻqish →</a>
+      </div>
+    </div>
+  </section>
+
+  <div style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--fg);color:var(--bg);overflow:hidden;padding:16px 0">
+    <div style="display:flex;width:max-content;animation:hf-marquee 48s linear infinite">
+      <sc-for list="{{ marquee }}" as="p" hint-placeholder-count="20">
+        <span style="display:flex;align-items:center;gap:18px;padding:0 18px;white-space:nowrap;font:400 19px/1 Literata,serif"><em>{{ p.name }}</em><span style="font:500 12px 'IBM Plex Mono';opacity:.6">{{ p.yrs }}</span><span style="width:7px;height:7px;background:var(--primary);transform:rotate(45deg)"></span></span>
+      </sc-for>
+    </div>
+  </div>
+
+  <section style="padding:112px 48px 96px">
+    <div data-reveal="0" style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:32px;align-items:end;padding-bottom:28px;border-bottom:1px solid var(--line)">
+      <span style="font:400 64px/1 Literata,serif;color:var(--primary)">II</span>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Davrlar</span>
+        <h2 style="margin:0;font:400 52px/1.05 Literata,serif;letter-spacing:-.02em">Tosh davridan mustaqillikkacha</h2>
+      </div>
+      <a href="#xronologiya" style="font-weight:500;font-size:15px;border-bottom:1px solid currentColor;padding-bottom:3px">Xronologiyani ochish →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-left:1px solid var(--line)">
+      <sc-for list="{{ periods }}" as="p" hint-placeholder-count="10">
+        <a href="#xronologiya" data-reveal="{{ p.delay }}" style="position:relative;display:flex;flex-direction:column;gap:14px;padding:28px 24px 30px;min-height:200px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--fg);transition:background-color .3s" style-hover="background-color:var(--card);color:var(--fg)">
+          <span style="display:flex;justify-content:space-between;align-items:center"><span style="font:500 12px 'IBM Plex Mono';color:var(--muted)">{{ p.n }}</span><span style="width:12px;height:12px;transform:rotate(45deg);background:{{ p.color }}"></span></span>
+          <span style="font:500 23px/1.2 Literata,serif;text-wrap:balance">{{ p.name }}</span>
+          <span style="margin-top:auto;font:500 12.5px/1.4 'IBM Plex Mono';color:{{ p.color }}">{{ p.yrs }}</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:0 48px 112px">
+    <div data-reveal="0" style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:32px;align-items:end;padding-bottom:28px;margin-bottom:40px;border-bottom:1px solid var(--line)">
+      <span style="font:400 64px/1 Literata,serif;color:var(--primary)">III</span>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Tanlangan maqolalar</span>
+        <h2 style="margin:0;font:400 52px/1.05 Literata,serif;letter-spacing:-.02em">Muharrir tavsiyasi</h2>
+      </div>
+      <a href="#maqolalar" style="font-weight:500;font-size:15px;border-bottom:1px solid currentColor;padding-bottom:3px">Barcha maqolalar →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px">
+      <a href="#maqola" data-tilt="1" data-reveal="0" style="display:flex;flex-direction:column;gap:20px;color:var(--fg);background:var(--card);border:1px solid var(--line);padding:14px 14px 28px" style-hover="color:var(--fg)">
+        <div style="height:400px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:8px 12px">arxiv fotosurati · 1924</span></div>
+        <div style="display:flex;flex-direction:column;gap:14px;padding:0 14px">
+          <span style="display:flex;gap:10px;align-items:center;font:500 11px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase"><span style="padding:5px 10px;border:1px solid var(--p-indigo);color:var(--p-indigo);border-radius:999px">Sovet davri</span><span style="color:var(--muted)">Siyosiy tarix · 14 daq</span></span>
+          <span style="font:500 38px/1.12 Literata,serif;letter-spacing:-.015em;text-wrap:balance">1924-yilgi chegaralanish: Qoraqalpoq avtonom viloyati qanday tuzildi</span>
+          <span style="font:400 17px/1.55 Literata,serif;color:var(--muted);max-width:60ch">Arxiv hujjatlari, xaritalar va oʻsha davr matbuoti asosida chegaralanish jarayonining bosqichlari.</span>
+        </div>
+      </a>
+      <div style="display:flex;flex-direction:column;gap:32px">
+        <sc-for list="{{ picks }}" as="a" hint-placeholder-count="2">
+          <a href="#maqola" data-tilt="1" data-reveal="{{ a.delay }}" style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;flex:1;color:var(--fg);background:var(--card);border:1px solid var(--line);padding:14px" style-hover="color:var(--fg)">
+            <div style="border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center"><span style="font:500 9.5px 'IBM Plex Mono';color:var(--muted);text-transform:uppercase;text-align:center;padding:4px">{{ a.ph }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:6px 6px 6px 0">
+              <span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:{{ a.color }}">{{ a.period }}</span>
+              <span style="font:500 22px/1.22 Literata,serif;text-wrap:balance">{{ a.title }}</span>
+              <span style="margin-top:auto;font:400 12.5px 'IBM Plex Mono';color:var(--muted)">{{ a.meta }}</span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:112px 48px;background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div data-reveal="0" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:64px;align-items:start;margin-bottom:72px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)"><span style="color:var(--primary)">IV</span> · Platforma haqida</span>
+        <h2 style="margin:0;font:400 52px/1.05 Literata,serif;letter-spacing:-.02em;text-wrap:balance">Har bir maqola uch qoʻldan oʻtadi</h2>
+      </div>
+      <p style="margin:0;font:400 19px/1.65 Literata,serif;color:var(--muted);text-wrap:pretty;padding-top:28px">hisinf.uz — maktab oʻquvchilari va oʻqituvchilar uchun oʻzbek va qoraqalpoq tillaridagi tarixiy maʼlumotlar portali. Maqolalarni mualliflar yozadi, muharrir manbalar boʻyicha tekshiradi, shundan keyingina ular saytda chop etiladi.</p>
+    </div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px">
+      <div style="position:absolute;left:12.5%;right:12.5%;top:36px;border-top:1.5px dashed var(--line)"></div>
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+        <div data-reveal="{{ s.delay }}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+          <span style="width:72px;height:72px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;font:400 28px/1 Literata,serif;color:var(--primary);transition:transform .3s,background-color .3s" style-hover="transform:scale(1.08);background-color:var(--primary);color:var(--primary-fg)">{{ s.n }}</span>
+          <span style="font:500 22px/1.2 Literata,serif">{{ s.t }}</span>
+          <span style="max-width:28ch;font-size:15px;line-height:1.55;color:var(--muted)">{{ s.d }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:112px 48px">
+    <div data-reveal="0" style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:32px;align-items:end;padding-bottom:28px;margin-bottom:48px;border-bottom:1px solid var(--line)">
+      <span style="font:400 64px/1 Literata,serif;color:var(--primary)">V</span>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Tarixiy shaxslar</span>
+        <h2 style="margin:0;font:400 52px/1.05 Literata,serif;letter-spacing:-.02em">Tarixni yaratganlar</h2>
+      </div>
+      <a href="#shaxslar" style="font-weight:500;font-size:15px;border-bottom:1px solid currentColor;padding-bottom:3px">Barcha shaxslar →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px">
+      <sc-for list="{{ persons }}" as="p" hint-placeholder-count="4">
+        <a href="#shaxslar" data-reveal="{{ p.delay }}" style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;color:var(--fg)" style-hover="color:var(--primary)">
+          <div style="width:200px;height:200px;border-radius:50%;border:1px solid var(--line);padding:8px;box-sizing:border-box;transition:transform .4s" style-hover="transform:rotate(-4deg) scale(1.03)">
+            <div style="width:100%;height:100%;border-radius:50%;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 7px),var(--surface-2);display:grid;place-items:center"><span style="font:500 9.5px 'IBM Plex Mono';color:var(--muted);text-transform:uppercase">gravyura portret</span></div>
+          </div>
+          <span style="font:500 23px/1.2 Literata,serif">{{ p.name }}</span>
+          <span style="font:500 12.5px 'IBM Plex Mono';color:var(--muted)">{{ p.yrs }} · {{ p.role }}</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="margin:0 48px 112px;display:grid;grid-template-columns:minmax(0,1fr) 420px;border:1px solid var(--line);background:var(--primary);color:var(--primary-fg)">
+    <div data-reveal="0" style="padding:64px;display:flex;flex-direction:column;gap:22px">
+      <span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;opacity:.8">Muallif boʻlish</span>
+      <h2 style="margin:0;font:400 56px/1.04 Literata,serif;letter-spacing:-.02em;max-width:16ch;text-wrap:balance">Oʻz hududingiz tarixini yozing</h2>
+      <p style="margin:0;font:400 18px/1.6 Literata,serif;max-width:52ch;opacity:.9">Maktab oʻquvchilari va oʻqituvchilar muallif boʻlishi mumkin. Maqolangizni muharrir tekshiradi va manbalar boʻyicha maslahat beradi.</p>
+      <a href="#kirish" style="align-self:flex-start;display:flex;gap:10px;padding:16px 26px;background:var(--primary-fg);color:var(--primary);border-radius:999px;font-weight:500;font-size:15.5px;transition:transform .2s" style-hover="color:var(--primary);transform:translateX(4px)">Ariza qoldirish →</a>
+    </div>
+    <div style="border-left:1px solid var(--line);background:repeating-linear-gradient(135deg,rgba(255,255,255,.12) 0 1px,transparent 1px 8px);display:grid;place-items:center"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;padding:8px 12px">gravyura · siyohdon va pero</span></div>
+  </section>
+
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz' };
+  root = React.createRef();
+  componentDidMount() {
+    const go = (t = 0) => window.HFX ? window.HFX.all(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100);
+    go();
+  }
+  renderVals() {
+    const kaa = this.state.lang === 'kaa';
+    const P = [
+      ['Qadimgi davr','mil. avv. 100 000 – 600','var(--p-sand)'],['Antik davr','mil. avv. 600 – 400','var(--p-ochre)'],
+      ['Ilk oʻrta asrlar','401 – 850','var(--p-olive)'],['Musulmon renessansi va Xorazmshohlar','851 – 1220','var(--p-teal)'],
+      ['Moʻgʻullar va Oltin Oʻrda','1221 – 1370','var(--p-brick)'],['Temuriylar davri','1370 – 1507','var(--p-indigo)'],
+      ['Xonliklar davri','1508 – 1873','var(--p-ochre)'],['Rossiya imperiyasi davri','1873 – 1917','var(--p-sand)'],
+      ['Sovet davri','1917 – 1991','var(--p-brick)'],['Mustaqillik davri','1991 – 2026','var(--p-teal)'],
+    ];
+    const periods = P.map(([name, yrs, color], i) => ({ name, yrs, color, n: String(i + 1).padStart(2, '0'), delay: (i % 5) * 80 }));
+    return {
+      root: this.root,
+      theme: this.state.theme || this.props.theme || 'light',
+      lang: this.state.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(s => ({ theme: (s.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      kicker: kaa ? 'I · Tariyxıy maǵlıwmatlar portalı' : 'I · Tarixiy maʼlumotlar portali',
+      h1a: kaa ? 'Mıń jıllıq tariyx,' : 'Ming yillik tarix,',
+      h1b: kaa ? 'bet-betten.' : 'sahifama-sahifa.',
+      sub: kaa ? 'Mektep oqıwshıları hám oqıtıwshılar ushın Ózbekstan hám Qaraqalpaqstan tariyxı boyınsha redaktor tekserilgen maqalalar, dáwirler hám arxiv hújjetleri.' : 'Maktab oʻquvchilari va oʻqituvchilar uchun Oʻzbekiston va Qoraqalpogʻiston tarixi boʻyicha muharrir tekshirgan maqolalar, davrlar va arxiv hujjatlari.',
+      cta1: kaa ? 'Maqalalardı oqıw' : 'Maqolalarni oʻqish',
+      cta2: kaa ? 'Xronologiya' : 'Xronologiya',
+      searchPh: kaa ? 'Shaxs, waqıya yamasa dáwirdi izleń' : 'Shaxs, voqea yoki davrni qidiring',
+      marquee: [...periods, ...periods].map(p => ({ name: p.name, yrs: p.yrs })),
+      periods,
+      picks: [
+        { title:'Amir Temur saltanatida Samarqand meʼmorchiligi', period:'Temuriylar davri', color:'var(--p-indigo)', meta:'Madaniyat · 9 daq', ph:'Registon gravyurasi', delay:120 },
+        { title:'Tuproqqalʼa: qadimgi Xorazm podsholari saroyi', period:'Antik davr', color:'var(--p-ochre)', meta:'Arxeologiya · 11 daq', ph:'qazishma fotosurati', delay:240 },
+      ],
+      steps: [
+        { n:'I', t:'Muallif yozadi', d:'Ochiq manbalar va arxiv hujjatlari asosida maqola tayyorlanadi.', delay:0 },
+        { n:'II', t:'Muharrir tekshiradi', d:'Faktlar, sanalar va manbalar havolasi birma-bir koʻrib chiqiladi.', delay:120 },
+        { n:'III', t:'Chop etiladi', d:'Maqola oʻzbek va qoraqalpoq tillarida saytga joylanadi.', delay:240 },
+        { n:'IV', t:'Oʻquvchi muhokama qiladi', d:'Izohlar moderatsiyadan oʻtib, maqola ostida koʻrinadi.', delay:360 },
+      ],
+      persons: [
+        { name:'Abu Rayhon Beruniy', yrs:'973–1048', role:'Olim', delay:0 },
+        { name:'Amir Temur', yrs:'1336–1405', role:'Hukmdor', delay:100 },
+        { name:'Ajiniyoz', yrs:'1824–1878', role:'Shoir', delay:200 },
+        { name:'Berdaq', yrs:'1827–1900', role:'Shoir', delay:300 },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

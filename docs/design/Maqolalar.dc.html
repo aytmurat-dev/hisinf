@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="posts" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+
+  <section style="padding:72px 48px 40px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:48px;align-items:end;border-bottom:1px solid var(--line)">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <span style="display:flex;align-items:center;gap:12px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);animation:hf-up .6s both"><span style="width:28px;height:1px;background:currentColor"></span>{{ t.kicker }}</span>
+      <h1 style="margin:0;font:400 clamp(56px,7vw,104px)/.95 Literata,serif;letter-spacing:-.04em;animation:hf-up .7s .08s both">{{ t.title }}</h1>
+    </div>
+    <div style="display:flex;gap:40px;animation:hf-up .7s .16s both">
+      <div style="display:flex;flex-direction:column;gap:6px;text-align:right"><span style="font:400 44px/1 Literata,serif">248</span><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">{{ t.total }}</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;text-align:right"><span style="font:400 44px/1 Literata,serif;color:var(--teal)">36</span><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">{{ t.authors }}</span></div>
+    </div>
+  </section>
+
+  <section style="position:sticky;top:0;z-index:10;padding:18px 48px;display:flex;flex-direction:column;gap:14px;background:var(--bg);border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:260px;max-width:420px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--card)">
+        <span style="width:12px;height:12px;border:1.5px solid var(--muted);border-radius:50%"></span>
+        <input value="{{ q }}" onInput="{{ onQ }}" placeholder="{{ t.search }}" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:400 14.5px 'IBM Plex Sans';color:var(--fg);padding:12px 0">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+          <button onClick="{{ c.pick }}" style="border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};padding:9px 15px;border-radius:999px;font:500 13px 'IBM Plex Sans';cursor:pointer;transition:all .2s" style-hover="border-color:var(--line)">{{ c.label }}</button>
+        </sc-for>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <select onChange="{{ onSort }}" style="border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:6px;padding:9px 10px;font:500 13px 'IBM Plex Sans'"><option value="new">{{ t.sNew }}</option><option value="pop">{{ t.sPop }}</option><option value="old">{{ t.sOld }}</option></select>
+        <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+          <button onClick="{{ setGrid }}" aria-label="Grid" style="width:38px;height:36px;border:0;cursor:pointer;background:{{ gridBg }};display:grid;place-items:center"><span style="width:14px;height:14px;background:linear-gradient(var(--fg),var(--fg)) 0 0/6px 6px no-repeat,linear-gradient(var(--fg),var(--fg)) 100% 0/6px 6px no-repeat,linear-gradient(var(--fg),var(--fg)) 0 100%/6px 6px no-repeat,linear-gradient(var(--fg),var(--fg)) 100% 100%/6px 6px no-repeat"></span></button>
+          <button onClick="{{ setList }}" aria-label="List" style="width:38px;height:36px;border:0;border-left:1px solid var(--border);cursor:pointer;background:{{ listBg }};display:grid;place-items:center"><span style="width:14px;height:12px;background:linear-gradient(var(--fg),var(--fg)) 0 0/100% 2px no-repeat,linear-gradient(var(--fg),var(--fg)) 0 50%/100% 2px no-repeat,linear-gradient(var(--fg),var(--fg)) 0 100%/100% 2px no-repeat"></span></button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:2px">
+      <sc-for list="{{ periods }}" as="p" hint-placeholder-count="11">
+        <button onClick="{{ p.pick }}" style="flex:none;display:flex;align-items:center;gap:8px;border:0;border-bottom:2px solid {{ p.ul }};background:transparent;color:{{ p.fg }};padding:8px 10px;font:500 12px 'IBM Plex Mono';letter-spacing:.04em;cursor:pointer;transition:color .2s,border-color .3s" style-hover="color:var(--fg)"><span style="width:7px;height:7px;transform:rotate(45deg);background:{{ p.color }}"></span>{{ p.name }}</button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:40px 48px 24px;min-height:600px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;font:500 12px 'IBM Plex Mono';letter-spacing:.06em;color:var(--muted)">
+      <span>{{ countLabel }}</span>
+      <sc-if value="{{ filtered }}" hint-placeholder-val="{{ false }}"><button onClick="{{ reset }}" style="border:0;background:transparent;color:var(--primary);font:inherit;cursor:pointer;text-decoration:underline">{{ t.reset }}</button></sc-if>
+    </div>
+
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:96px 0;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;border:1px dashed var(--border)">
+        <span style="font:italic 400 34px/1.2 Literata,serif">{{ t.emptyT }}</span>
+        <span style="color:var(--muted);font-size:15px">{{ t.emptyD }}</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px">
+        <sc-for list="{{ items }}" as="a" hint-placeholder-count="6">
+          <a href="#maqola" data-curl="1" style="grid-column:span {{ a.span }};display:flex;flex-direction:column;gap:16px;padding:12px 12px 22px;background:var(--card);border:1px solid var(--line);color:var(--fg);animation:hf-up .5s {{ a.d }}ms both;transition:transform .3s,box-shadow .3s" style-hover="color:var(--fg);transform:translateY(-4px);box-shadow:6px 6px 0 var(--fg)">
+            <div style="height:{{ a.h }}px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center;position:relative">
+              <span style="font:500 10px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 10px">{{ a.ph }}</span>
+              <span style="position:absolute;left:10px;top:10px;font:500 10px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--bg);border:1px solid {{ a.color }};color:{{ a.color }}">{{ a.period }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:0 10px">
+              <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">{{ a.cat }} · {{ a.min }} {{ t.min }}</span>
+              <span style="font:500 {{ a.fs }}px/1.18 Literata,serif;letter-spacing:-.01em;text-wrap:balance">{{ a.title }}</span>
+              <span style="font:400 15px/1.55 Literata,serif;color:var(--muted);text-wrap:pretty">{{ a.ex }}</span>
+              <span style="display:flex;align-items:center;gap:10px;margin-top:6px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)">
+                <span style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);display:grid;place-items:center;font:600 10px Literata,serif;color:var(--fg)">{{ a.ini }}</span>
+                <span style="flex:1;color:var(--fg)">{{ a.author }}</span>
+                <span style="font:400 12px 'IBM Plex Mono'">◷ {{ a.cm }}</span>
+                <span style="font:400 12px 'IBM Plex Mono'">{{ a.date }}</span>
+              </span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+        <sc-for list="{{ items }}" as="a" hint-placeholder-count="6">
+          <a href="#maqola" style="display:grid;grid-template-columns:60px 180px minmax(0,1fr) 160px;gap:28px;align-items:center;padding:22px 8px;border-bottom:1px solid var(--line);color:var(--fg);animation:hf-up .45s {{ a.d }}ms both;transition:background-color .2s,padding .3s" style-hover="color:var(--fg);background-color:var(--card);padding-left:20px">
+            <span style="font:400 30px/1 Literata,serif;color:var(--ornament)">{{ a.no }}</span>
+            <div style="height:110px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2)"></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:{{ a.color }}">{{ a.period }} · <span style="color:var(--muted)">{{ a.cat }}</span></span>
+              <span style="font:500 25px/1.2 Literata,serif;text-wrap:balance">{{ a.title }}</span>
+              <span style="font:400 15px/1.5 Literata,serif;color:var(--muted)">{{ a.ex }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;font:400 12px 'IBM Plex Mono';color:var(--muted)"><span style="color:var(--fg);font-family:'IBM Plex Sans';font-size:13.5px">{{ a.author }}</span><span>{{ a.date }}</span><span>{{ a.min }} {{ t.min }} · ◷ {{ a.cm }}</span></div>
+          </a>
+        </sc-for>
+      </div>
+    </sc-if>
+  </section>
+
+  <section style="padding:24px 48px 112px;display:flex;justify-content:space-between;align-items:center;gap:16px">
+    <a href="#" style="font-weight:500;color:var(--muted)">← {{ t.prev }}</a>
+    <div style="display:flex;gap:6px">
+      <sc-for list="{{ pages }}" as="p" hint-placeholder-count="6">
+        <button onClick="{{ p.pick }}" style="width:42px;height:42px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};border-radius:50%;font:500 13px 'IBM Plex Mono';cursor:pointer;transition:all .2s" style-hover="border-color:var(--line)">{{ p.n }}</button>
+      </sc-for>
+    </div>
+    <a href="#" style="font-weight:500">{{ t.next }} →</a>
+  </section>
+
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', q: '', cat: 'all', period: -1, sort: 'new', view: 'grid', page: 1 };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.all(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); }
+  componentDidUpdate() { window.HFX && window.HFX.curl(this.root.current); }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa';
+    const t = kaa ? { kicker:'Arxiv · Barlıq maqalalar', title:'Maqalalar', total:'maqala', authors:'avtor', search:'Maqala atı yamasa avtor…', sNew:'Eń jańa', sPop:'Eń kóp oqılǵan', sOld:'Eń eski', reset:'Filtrdi tazalaw', emptyT:'Hesh nárse tabılmadı', emptyD:'Basqa dáwir yamasa sózdi saylap kóriń.', min:'min', prev:'Aldıńǵı', next:'Keyingi', all:'Barlıǵı', allP:'Barlıq dáwirler' }
+      : { kicker:'Arxiv · Barcha maqolalar', title:'Maqolalar', total:'maqola', authors:'muallif', search:'Maqola nomi yoki muallif…', sNew:'Eng yangi', sPop:'Eng koʻp oʻqilgan', sOld:'Eng eski', reset:'Filtrni tozalash', emptyT:'Hech narsa topilmadi', emptyD:'Boshqa davr yoki soʻzni tanlab koʻring.', min:'daq', prev:'Oldingi', next:'Keyingi', all:'Barchasi', allP:'Barcha davrlar' };
+    const P = [['Qadimgi davr','var(--p-sand)'],['Antik davr','var(--p-ochre)'],['Ilk oʻrta asrlar','var(--p-olive)'],['Xorazmshohlar','var(--p-teal)'],['Moʻgʻullar','var(--p-brick)'],['Temuriylar','var(--p-indigo)'],['Xonliklar','var(--p-ochre)'],['Rossiya imperiyasi','var(--p-sand)'],['Sovet davri','var(--p-brick)'],['Mustaqillik','var(--p-teal)']];
+    const A = [
+      ['1924-yilgi chegaralanish: Qoraqalpoq avtonom viloyati qanday tuzildi',8,'Siyosiy tarix','Arxiv hujjatlari va oʻsha davr matbuoti asosida chegaralanish bosqichlari.','Aytmurat Qurbonov',14,23,'02.10.2026','arxiv fotosurati'],
+      ['Tuproqqalʼa: qadimgi Xorazm podsholari saroyi',1,'Arxeologiya','Sovet-Xorazm ekspeditsiyasi topilmalari va saroy devoriy suratlari.','Gulnora Saidova',11,9,'28.09.2026','qazishma'],
+      ['Amir Temur saltanatida Samarqand meʼmorchiligi',5,'Madaniyat','Registon, Bibixonim va Goʻri Amir qurilishi tarixi.','Sherzod Yusupov',9,17,'25.09.2026','Registon gravyurasi'],
+      ['Beruniy va Maʼmun akademiyasi',3,'Ilm-fan','Xorazmda ilm markazining shakllanishi va uning olimlari.','Dilnoza Rahimova',12,6,'21.09.2026','qoʻlyozma'],
+      ['Xiva xonligi va Rossiya: 1873-yilgi Gandimiyon shartnomasi',6,'Siyosiy tarix','Shartnoma shartlari va uning xonlik hayotiga taʼsiri.','Aytmurat Qurbonov',10,31,'18.09.2026','shartnoma matni'],
+      ['Ajiniyoz ijodida xalq hayoti',6,'Adabiyot','Qoraqalpoq shoirining dostonlari tarixiy manba sifatida.','Berdaq Jumabayev',8,12,'14.09.2026','gravyura portret'],
+      ['Chingizxon yurishi va Urganch mudofaasi',4,'Harbiy tarix','1221-yildagi qamal: manbalardagi guvohliklar.','Sherzod Yusupov',13,8,'10.09.2026','miniatyura'],
+      ['Jadidlar maktablari: usuli savtiya',7,'Taʼlim','Turkistonda yangi usul maktablarining paydo boʻlishi.','Gulnora Saidova',10,19,'06.09.2026','maktab fotosi'],
+      ['Mustaqillikning dastlabki yillari: 1991–1995',9,'Siyosiy tarix','Davlat ramzlari, Konstitutsiya va milliy valyuta.','Dilnoza Rahimova',9,27,'01.09.2026','hujjat'],
+      ['Ilk oʻrta asrlarda Ipak yoʻli shaharlari',2,'Iqtisod','Sugʻd savdogarlari va karvon yoʻllari.','Berdaq Jumabayev',11,5,'27.08.2026','karvon gravyurasi'],
+    ];
+    const cats = ['all','Siyosiy tarix','Madaniyat','Arxeologiya','Adabiyot'];
+    let list = A.map((a, i) => ({ i, title:a[0], p:a[1], cat:a[2], ex:a[3], author:a[4], min:a[5], cm:a[6], date:a[7], ph:a[8] }))
+      .filter(a => (s.cat === 'all' || a.cat === s.cat) && (s.period < 0 || a.p === s.period) && (!s.q || (a.title + a.author).toLowerCase().includes(s.q.toLowerCase())));
+    if (s.sort === 'pop') list = [...list].sort((a, b) => b.cm - a.cm); else if (s.sort === 'old') list = [...list].reverse();
+    const items = list.map((a, k) => {
+      const big = s.view === 'grid' && k === 0 && list.length > 2;
+      return { ...a, period: P[a.p][0], color: P[a.p][1], ini: a.author.split(' ').map(w => w[0]).join(''), d: k * 60, no: String(k + 1).padStart(2, '0'), span: big ? 2 : 1, h: big ? 340 : 200, fs: big ? 34 : 23 };
+    });
+    const sel = (on) => ({ bd: on ? 'var(--fg)' : 'var(--border)', bg: on ? 'var(--fg)' : 'var(--card)', fg: on ? 'var(--bg)' : 'var(--fg)' });
+    const filtered = s.cat !== 'all' || s.period >= 0 || !!s.q;
+    return {
+      root: this.root, t, q: s.q,
+      theme: this.state.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      onQ: e => this.setState({ q: e.target.value }),
+      onSort: e => this.setState({ sort: e.target.value }),
+      cats: cats.map(c => ({ label: c === 'all' ? t.all : c, pick: () => this.setState({ cat: c }), ...sel(s.cat === c) })),
+      periods: [{ name: t.allP, color: 'var(--fg)', i: -1 }, ...P.map(([name, color], i) => ({ name, color, i }))].map(p => ({ ...p, ul: s.period === p.i ? p.color : 'transparent', fg: s.period === p.i ? 'var(--fg)' : 'var(--muted)', pick: () => this.setState({ period: p.i }) })),
+      items, empty: items.length === 0, filtered,
+      isGrid: s.view === 'grid', isList: s.view === 'list',
+      gridBg: s.view === 'grid' ? 'var(--surface-2)' : 'var(--card)', listBg: s.view === 'list' ? 'var(--surface-2)' : 'var(--card)',
+      setGrid: () => this.setState({ view: 'grid' }), setList: () => this.setState({ view: 'list' }),
+      reset: () => this.setState({ q: '', cat: 'all', period: -1 }),
+      countLabel: (kaa ? 'Kórsetilgen: ' : 'Koʻrsatilmoqda: ') + items.length + ' / 248',
+      pages: [1, 2, 3, 4, '…', 25].map(n => ({ n, pick: () => typeof n === 'number' && this.setState({ page: n }), ...sel(s.page === n) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

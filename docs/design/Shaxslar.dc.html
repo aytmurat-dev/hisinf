@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="persons" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+  <section style="padding:72px 48px 32px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:end;border-bottom:1px solid var(--line)">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <span style="display:flex;align-items:center;gap:12px;font:500 12px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--primary);animation:hf-up .6s both"><span style="width:28px;height:1px;background:currentColor"></span>{{ t.kicker }}</span>
+      <h1 style="margin:0;font:400 clamp(56px,7vw,100px)/.95 Literata,serif;letter-spacing:-.04em;animation:hf-up .7s .08s both">{{ t.title }}</h1>
+    </div>
+    <p style="margin:0;font:400 19px/1.55 Literata,serif;color:var(--muted);max-width:46ch;justify-self:end;animation:hf-up .7s .16s both">{{ t.sub }}</p>
+  </section>
+  <section style="padding:20px 48px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ roles }}" as="r" hint-placeholder-count="6"><button onClick="{{ r.pick }}" style="padding:8px 14px;border:1px solid {{ r.bd }};border-radius:999px;background:{{ r.bg }};color:{{ r.fg }};font:500 13px 'IBM Plex Sans';cursor:pointer;transition:all .2s">{{ r.label }}</button></sc-for>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:2px;font:500 13px Literata,serif">
+      <sc-for list="{{ letters }}" as="l" hint-placeholder-count="12"><button onClick="{{ l.pick }}" style="width:28px;height:30px;border:0;border-radius:4px;background:{{ l.bg }};color:{{ l.fg }};font:inherit;cursor:pointer;opacity:{{ l.op }};transition:all .2s" style-hover="background-color:var(--surface-2)">{{ l.ch }}</button></sc-for>
+    </div>
+  </section>
+  <section style="padding:48px 48px 112px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:48px 32px">
+    <sc-for list="{{ people }}" as="p" hint-placeholder-count="8">
+      <button onClick="{{ p.open }}" style="display:flex;flex-direction:column;align-items:center;gap:14px;border:0;background:transparent;color:var(--fg);text-align:center;cursor:pointer;animation:hf-up .5s {{ p.d }}ms both" style-hover="color:var(--primary)">
+        <span style="position:relative;width:220px;height:260px;border:1px solid var(--line);border-radius:110px 110px 4px 4px;padding:8px;box-sizing:border-box;background:var(--card);transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s" style-hover="transform:translateY(-6px) rotate(-1.5deg);box-shadow:8px 10px 0 var(--fg)">
+          <span style="display:grid;place-items:center;width:100%;height:100%;border-radius:102px 102px 2px 2px;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 7px),var(--surface-2)"><span style="font:500 9.5px 'IBM Plex Mono';color:var(--muted);text-transform:uppercase">gravyura portret</span></span>
+          <span style="position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);padding:4px 10px;background:var(--bg);border:1px solid {{ p.c }};color:{{ p.c }};border-radius:999px;font:500 10px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;white-space:nowrap">{{ p.role }}</span>
+        </span>
+        <span style="font:500 23px/1.2 Literata,serif;margin-top:8px">{{ p.name }}</span>
+        <span style="font:500 12.5px 'IBM Plex Mono';color:var(--muted)">{{ p.yrs }} · {{ p.place }}</span>
+      </button>
+    </sc-for>
+  </section>
+  <sc-if value="{{ sel }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:absolute;inset:0;z-index:50;background:rgba(20,14,8,.45);animation:hf-pop .25s both">
+      <aside onClick="{{ stop }}" style="position:absolute;right:0;top:0;bottom:0;width:560px;background:var(--bg);background-image:var(--paper);border-left:1px solid var(--line);padding:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px;overflow:auto;animation:hf-slide .45s cubic-bezier(.2,.7,.2,1) both">
+        <button onClick="{{ close }}" style="align-self:flex-end;width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--fg);cursor:pointer;font-size:16px">✕</button>
+        <div style="height:300px;border:1px solid var(--line);padding:8px;background:var(--card)"><div style="height:100%;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2)"></div></div>
+        <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:{{ sel.c }}">{{ sel.role }} · {{ sel.era }}</span>
+        <h2 style="margin:0;font:400 46px/1.05 Literata,serif;letter-spacing:-.02em">{{ sel.name }}</h2>
+        <span style="font:500 14px 'IBM Plex Mono';color:var(--muted)">{{ sel.yrs }} · {{ sel.place }}</span>
+        <p style="margin:0;font:400 18px/1.65 Literata,serif">{{ sel.bio }}</p>
+        <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)">
+          <span style="padding:14px 0 6px;font:500 11px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Maqolalar</span>
+          <a href="#maqola" style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);color:var(--fg);font:500 17px Literata,serif" style-hover="color:var(--primary)">{{ sel.name }}: hayoti va merosi <span>→</span></a>
+          <a href="#maqola" style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);color:var(--fg);font:500 17px Literata,serif" style-hover="color:var(--primary)">{{ sel.era }} manbalarida <span>→</span></a>
+        </div>
+      </aside>
+    </div>
+  </sc-if>
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const PEOPLE = [
+  ['Abu Rayhon Beruniy','973–1048','Kat','Olim','Xorazmshohlar','var(--p-teal)','Qomusiy olim, astronom va tarixchi. «Qadimgi xalqlardan qolgan yodgorliklar» asari muallifi.'],
+  ['Ibn Sino','980–1037','Afshona','Olim','Xorazmshohlar','var(--p-teal)','Tabib va faylasuf. «Tib qonunlari» asari asrlar davomida asosiy darslik boʻlgan.'],
+  ['Muhammad al-Xorazmiy','783–850','Xorazm','Olim','Ilk oʻrta asrlar','var(--p-olive)','Algebra fanining asoschisi, Bagʻdoddagi «Bayt ul-hikma» olimi.'],
+  ['Amir Temur','1336–1405','Kesh','Hukmdor','Temuriylar','var(--p-indigo)','Temuriylar saltanatining asoschisi, Samarqandni poytaxtga aylantirgan.'],
+  ['Mirzo Ulugʻbek','1394–1449','Sultoniya','Hukmdor','Temuriylar','var(--p-indigo)','Astronom-hukmdor, Samarqand rasadxonasi va madrasasi asoschisi.'],
+  ['Alisher Navoiy','1441–1501','Hirot','Shoir','Temuriylar','var(--p-indigo)','Oʻzbek mumtoz adabiyotining asoschisi, «Xamsa» muallifi.'],
+  ['Ajiniyoz','1824–1878','Moʻynoq','Shoir','Xonliklar','var(--p-ochre)','Qoraqalpoq shoiri, «Boʻzatov» dostoni muallifi.'],
+  ['Berdaq','1827–1900','Quyi Amudaryo','Shoir','Xonliklar','var(--p-ochre)','Qoraqalpoq xalq shoiri, «Shajara» va «Xalq uchun» asarlari muallifi.'],
+  ['Spitamen','? – mil. avv. 328','Sugʻd','Sarkarda','Antik davr','var(--p-ochre)','Aleksandr Makedonskiyga qarshi Sugʻd qoʻzgʻolonining yetakchisi.'],
+  ['Jaloliddin Manguberdi','1199–1231','Urganch','Sarkarda','Moʻgʻullar','var(--p-brick)','Xorazmshohlarning soʻnggi hukmdori, moʻgʻullarga qarshi kurash ramzi.'],
+  ['Mahmudxoʻja Behbudiy','1875–1919','Samarqand','Maʼrifatparvar','Rossiya imp.','var(--p-sand)','Turkiston jadidlarining yetakchisi, «Padarkush» dramasi muallifi.'],
+  ['Allayor Doʻstnazarov','1897–1938','Chimboy','Davlat arbobi','Sovet davri','var(--p-brick)','Qoraqalpoq avtonomiyasi tuzilishida ishtirok etgan davlat arbobi.'],
+];
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', role: 'all', letter: null, sel: null };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.cursor(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa';
+    const t = kaa ? { kicker:'Tariyxıy shaxslar', title:'Shaxslar', sub:'Alımlar, húkimdarlar, shayırlar hám sarkardalar — tariyxtı jaratqanlar.' } : { kicker:'Tarixiy shaxslar', title:'Shaxslar', sub:'Olimlar, hukmdorlar, shoirlar va sarkardalar — tarixni yaratganlar haqida qisqa maʼlumot va maqolalar.' };
+    const roles = ['all', 'Olim', 'Hukmdor', 'Shoir', 'Sarkarda', 'Maʼrifatparvar'];
+    const firsts = new Set(PEOPLE.map(p => p[0][0]));
+    const L = 'ABDHIJMNOQSTUXYZ'.split('');
+    const list = PEOPLE.filter(p => (s.role === 'all' || p[3] === s.role) && (!s.letter || p[0][0] === s.letter));
+    const sel = s.sel != null ? PEOPLE[s.sel] : null;
+    return {
+      root: this.root, t, theme: s.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      roles: roles.map(r => ({ label: r === 'all' ? 'Barchasi' : r, bd: s.role === r ? 'var(--fg)' : 'var(--border)', bg: s.role === r ? 'var(--fg)' : 'transparent', fg: s.role === r ? 'var(--bg)' : 'var(--fg)', pick: () => this.setState({ role: r }) })),
+      letters: L.map(ch => ({ ch, op: firsts.has(ch) ? 1 : .3, bg: s.letter === ch ? 'var(--primary)' : 'transparent', fg: s.letter === ch ? 'var(--primary-fg)' : 'var(--fg)', pick: () => firsts.has(ch) && this.setState({ letter: s.letter === ch ? null : ch }) })),
+      people: list.map((p, i) => ({ name: p[0], yrs: p[1], place: p[2], role: p[3], c: p[5], d: i * 60, open: () => this.setState({ sel: PEOPLE.indexOf(p) }) })),
+      sel: sel && { name: sel[0], yrs: sel[1], place: sel[2], role: sel[3], era: sel[4], c: sel[5], bio: sel[6] },
+      close: () => this.setState({ sel: null }), stop: e => e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>

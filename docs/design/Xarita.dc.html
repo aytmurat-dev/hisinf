@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="map" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+  <section style="display:grid;grid-template-columns:400px minmax(0,1fr);height:820px;border-bottom:1px solid var(--line)">
+    <aside style="display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--bg);min-height:0">
+      <div style="padding:32px 28px 20px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--border)">
+        <span style="font:500 12px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--primary)">{{ t.kicker }}</span>
+        <h1 style="margin:0;font:400 54px/1 Literata,serif;letter-spacing:-.03em">{{ t.title }}</h1>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+          <span style="display:flex;justify-content:space-between;font:500 11px 'IBM Plex Mono';color:var(--muted)"><span>{{ t.year }}</span><span style="color:var(--fg);font-size:14px">{{ yearLbl }}</span></span>
+          <input type="range" min="0" max="9" value="{{ era }}" onInput="{{ onEra }}" style="width:100%;accent-color:var(--primary)">
+          <span style="font:500 13px Literata,serif;color:{{ eraC }}">{{ eraName }}</span>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;padding:8px 0">
+        <sc-for list="{{ sites }}" as="p" hint-placeholder-count="6">
+          <button onClick="{{ p.pick }}" style="width:100%;display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:14px 28px;border:0;border-left:3px solid {{ p.bl }};background:{{ p.bg }};color:var(--fg);text-align:left;cursor:pointer;opacity:{{ p.op }};transition:all .25s" style-hover="background-color:var(--card)">
+            <span style="font:500 12px 'IBM Plex Mono';color:var(--muted);padding-top:3px">{{ p.n }}</span>
+            <span style="display:flex;flex-direction:column;gap:4px"><span style="font:500 18px/1.2 Literata,serif">{{ p.name }}</span><span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ p.kind }} · {{ p.from }}</span></span>
+          </button>
+        </sc-for>
+      </div>
+    </aside>
+    <div style="position:relative;overflow:hidden;background:repeating-linear-gradient(0deg,transparent 0 79px,var(--border) 79px 80px),repeating-linear-gradient(90deg,transparent 0 79px,var(--border) 79px 80px),var(--surface-2)">
+      <div style="position:absolute;inset:40px;border:1px solid var(--line);display:grid;place-items:center"><span style="font:500 11px/1.6 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:8px 12px;text-align:center">tarixiy xarita qatlami<br>MapLibre + gravyura uslubidagi tile</span></div>
+      <sc-for list="{{ pins }}" as="p" hint-placeholder-count="6">
+        <button onClick="{{ p.pick }}" style="position:absolute;left:{{ p.x }}%;top:{{ p.y }}%;transform:translate(-50%,-100%);border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;animation:hf-drop .6s {{ p.d }}ms both;z-index:{{ p.z }}">
+          <span style="padding:5px 10px;background:{{ p.lbg }};color:{{ p.lfg }};border:1px solid var(--line);font:500 12px Literata,serif;white-space:nowrap;transition:all .25s">{{ p.name }}</span>
+          <span style="position:relative;width:14px;height:14px;transform:rotate(45deg);background:{{ p.c }};border:2px solid var(--bg);box-shadow:0 0 0 1px var(--line)">
+            <sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:-2px;border:2px solid var(--primary);animation:hf-ping 1.4s infinite"></span></sc-if>
+          </span>
+        </button>
+      </sc-for>
+      <div style="position:absolute;right:64px;bottom:64px;width:340px;padding:20px;background:var(--card);border:1px solid var(--line);box-shadow:8px 8px 0 var(--fg);display:flex;flex-direction:column;gap:12px;animation:hf-up .4s both">
+        <div style="height:140px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2)"></div>
+        <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--teal)">{{ sel.kind }} · {{ sel.from }}</span>
+        <span style="font:500 26px/1.15 Literata,serif">{{ sel.name }}</span>
+        <span style="font:400 15px/1.55 Literata,serif;color:var(--muted)">{{ sel.d }}</span>
+        <a href="#maqola" style="font-weight:500;font-size:14px">{{ sel.posts }} ta maqola →</a>
+      </div>
+      <div style="position:absolute;right:64px;top:64px;display:flex;flex-direction:column;border:1px solid var(--line);background:var(--card)"><button style="width:40px;height:40px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);font-size:18px;cursor:pointer">+</button><button style="width:40px;height:40px;border:0;background:transparent;color:var(--fg);font-size:18px;cursor:pointer">−</button></div>
+      <span style="position:absolute;left:64px;bottom:56px;font:italic 400 15px Literata,serif;color:var(--muted)">Amudaryo · Orol boʻyi · Movarounnahr</span>
+    </div>
+  </section>
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const SITES = [
+  ['Tuproqqalʼa','Saroy','mil. avv. I asr',1,30,38,'Qadimgi Xorazm podsholari qarorgohi, devoriy suratlar bilan mashhur.',6],
+  ['Ayozqalʼa','Qalʼa','mil. avv. IV asr',1,36,32,'Choʻl ichidagi qadimgi Xorazm qalʼalari tizimining bir qismi.',3],
+  ['Mizdahkon','Shahar','mil. avv. IV asr',1,22,30,'Xoʻjayli yaqinidagi qadimiy shahar va qabriston majmuasi.',4],
+  ['Koʻhna Urganch','Shahar','X asr',3,18,24,'Xorazmshohlar poytaxti, 1221-yilda moʻgʻullar vayron qilgan.',8],
+  ['Afrosiyob','Shahar','mil. avv. VII asr',1,62,66,'Qadimgi Samarqand, mashhur elchilar devoriy surati topilgan.',7],
+  ['Registon','Maydon','XV asr',5,64,70,'Ulugʻbek, Sherdor va Tillakori madrasalari majmuasi.',11],
+  ['Ichan qalʼa','Qalʼa','XVII asr',6,32,46,'Xiva xonligining ichki shahri, UNESCO roʻyxatida.',9],
+  ['Toʻrtkoʻl','Shahar','1873',7,38,50,'Qoraqalpoq avtonom viloyatining birinchi poytaxti (1925–1932).',5],
+  ['Nukus','Shahar','1932',8,26,36,'Qoraqalpogʻiston poytaxti, Savitskiy muzeyi joylashgan.',12],
+  ['Moʻynoq','Port','XIX asr',8,20,14,'Orol dengizining sobiq porti, ekologik fojia ramzi.',4],
+];
+const ERAS = [['Qadimgi davr','mil. avv. 3000'],['Antik davr','mil. avv. 300'],['Ilk oʻrta asrlar','700'],['Xorazmshohlar','1100'],['Moʻgʻullar','1250'],['Temuriylar','1420'],['Xonliklar','1700'],['Rossiya imperiyasi','1890'],['Sovet davri','1950'],['Mustaqillik','2026']];
+const EC = ['var(--p-sand)','var(--p-ochre)','var(--p-olive)','var(--p-teal)','var(--p-brick)','var(--p-indigo)','var(--p-ochre)','var(--p-sand)','var(--p-brick)','var(--p-teal)'];
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', era: 9, sel: 7 };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.cursor(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa';
+    const t = kaa ? { kicker:'Tariyxıy orınlar', title:'Karta', year:'Dáwir boyınsha' } : { kicker:'Tarixiy joylar', title:'Xarita', year:'Davr boʻyicha' };
+    const vis = i => SITES[i][3] <= s.era;
+    const sel = SITES[s.sel];
+    return {
+      root: this.root, t, theme: s.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      era: s.era, onEra: e => this.setState({ era: +e.target.value }),
+      yearLbl: ERAS[s.era][1], eraName: ERAS[s.era][0], eraC: EC[s.era],
+      sites: SITES.map((x, i) => ({ name: x[0], kind: x[1], from: x[2], n: String(i + 1).padStart(2, '0'), bl: s.sel === i ? 'var(--primary)' : 'transparent', bg: s.sel === i ? 'var(--card)' : 'transparent', op: vis(i) ? 1 : .35, pick: () => this.setState({ sel: i, era: Math.max(s.era, x[3]) }) })),
+      pins: SITES.map((x, i) => ({ i, x: x[4] + 10, y: x[5] + 20, name: x[0], c: EC[x[3]], on: s.sel === i, z: s.sel === i ? 5 : 1, d: i * 70, lbg: s.sel === i ? 'var(--fg)' : 'var(--card)', lfg: s.sel === i ? 'var(--bg)' : 'var(--fg)', pick: () => this.setState({ sel: i }) })).filter(p => vis(p.i)),
+      sel: { name: sel[0], kind: sel[1], from: sel[2], d: sel[6], posts: sel[7] },
+    };
+  }
+}
+</script>
+</body>
+</html>

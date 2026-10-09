@@ -50,3 +50,7 @@ node_modules/
 /playwright/.cache/
 .swc_cache
 .env*
+
+# Design archive (reference copy lives in docs/design)
+*.zip
+/docs/design/uploads/

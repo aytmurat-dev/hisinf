@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="hisinf.css">
+</helmet>
+<aside style="width:248px;flex:none;min-height:100%;box-sizing:border-box;background:var(--surface-2);border-right:1px solid var(--border);display:flex;flex-direction:column;font-family:'IBM Plex Sans',sans-serif;color:var(--fg)">
+  <div style="display:flex;align-items:center;gap:10px;padding:18px 18px 16px">
+    <span style="position:relative;width:30px;height:30px;display:grid;place-items:center"><span style="position:absolute;inset:4px;border:1.5px solid var(--primary);transform:rotate(45deg)"></span><span style="position:relative;font:700 12px/1 Literata,serif;color:var(--primary)">H</span></span>
+    <div style="display:flex;flex-direction:column;gap:3px;flex:1">
+      <span style="font:600 16px/1 Literata,serif">hisinf<span style="color:var(--primary)">.uz</span></span>
+      <span style="font:500 9.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Tahririyat</span>
+    </div>
+    <button onClick="{{ onTheme }}" aria-label="Tema" style="width:28px;height:28px;border:1px solid var(--border);border-radius:6px;background:var(--card);display:grid;place-items:center;cursor:pointer"><span style="width:12px;height:12px;border-radius:50%;border:1.3px solid var(--fg);background:linear-gradient(90deg,var(--fg) 50%,transparent 50%)"></span></button>
+  </div>
+  <div style="margin:0 12px 10px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:13px;color:var(--muted)">
+    <span style="width:11px;height:11px;border:1.4px solid currentColor;border-radius:50%"></span>Qidirish…<span style="margin-left:auto;font:500 10.5px 'IBM Plex Mono';border:1px solid var(--border);border-radius:4px;padding:2px 5px">⌘K</span>
+  </div>
+  <nav style="display:flex;flex-direction:column;gap:1px;padding:4px 10px;font-size:13.5px">
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="8">
+      <sc-if value="{{ it.head }}" hint-placeholder-val="{{ false }}"><span style="padding:16px 10px 6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">{{ it.label }}</span></sc-if>
+      <sc-if value="{{ it.link }}" hint-placeholder-val="{{ true }}">
+        <a href="{{ it.href }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:var(--fg);background:{{ it.bg }};font-weight:{{ it.fw }};transition:background-color .15s" style-hover="background-color:var(--card);color:var(--fg)">
+          <span style="width:7px;height:7px;transform:rotate(45deg);border:1.3px solid {{ it.dot }};background:{{ it.fill }}"></span>
+          <span style="flex:1">{{ it.label }}</span>
+          <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}"><span style="font:500 10.5px/1 'IBM Plex Mono';padding:3px 6px;border-radius:999px;background:var(--primary);color:var(--primary-fg)">{{ it.badge }}</span></sc-if>
+        </a>
+      </sc-if>
+    </sc-for>
+  </nav>
+  <div style="margin-top:auto;padding:14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">
+    <span style="width:34px;height:34px;border-radius:50%;background:var(--teal);color:var(--bg);display:grid;place-items:center;font:600 13px Literata,serif">AQ</span>
+    <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+      <span style="font-size:13px;font-weight:600">Aytmurat Q.</span>
+      <span style="font:500 10px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--teal)">Admin</span>
+    </div>
+    <span style="font:500 14px 'IBM Plex Mono';color:var(--muted)">⋯</span>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:248,&quot;height&quot;:900},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dash&quot;,&quot;review&quot;,&quot;comments&quot;,&quot;posts&quot;,&quot;new&quot;,&quot;users&quot;],&quot;default&quot;:&quot;dash&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onTheme&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;()=&gt;void&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const a = this.props.active;
+    const raw = [
+      { head:true, label:'Ish stoli' },
+      { k:'dash', label:'Boshqaruv paneli', href:'#admin' },
+      { k:'review', label:'Tekshiruv navbati', badge:'7', href:'#admin' },
+      { k:'comments', label:'Izohlar', badge:'12', href:'#admin' },
+      { head:true, label:'Kontent' },
+      { k:'posts', label:'Maqolalar', href:'#editor' },
+      { k:'new', label:'Yangi maqola', href:'#editor' },
+      { k:'periods', label:'Davrlar va shaxslar', href:'#' },
+      { k:'media', label:'Media arxiv', href:'#' },
+      { head:true, label:'Tizim' },
+      { k:'users', label:'Foydalanuvchilar', href:'#users' },
+      { k:'settings', label:'Sozlamalar', href:'#' },
+    ];
+    return {
+      items: raw.map(i => {
+        const on = i.k === a;
+        return { ...i, link: !i.head, bg: on ? 'var(--card)' : 'transparent', fw: on ? 600 : 400, dot: on ? 'var(--primary)' : 'var(--ornament)', fill: on ? 'var(--primary)' : 'transparent' };
+      }),
+      onTheme: () => this.props.onTheme && this.props.onTheme(),
+    };
+  }
+}
+</script>
+</body>
+</html>

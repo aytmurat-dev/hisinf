@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>body{margin:0;background:#e6dcc8}a{color:#8c2f1b;text-decoration:none}a:hover{color:#2f5d62}</style>
+</helmet>
+<section style="padding:80px;display:flex;flex-direction:column;gap:32px;font-family:'IBM Plex Sans',sans-serif;color:#2b2118">
+  <div style="display:flex;align-items:end;gap:40px;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font:500 14px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:#8c2f1b">hisinf.uz · dizayn</span>
+      <span style="font:400 88px/1 Literata,serif;letter-spacing:-.03em">Barcha sahifalar</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:760px;font-size:17px;line-height:1.55;color:#6b5d4f">
+      <span>Iliq pergament, chiziqli gravyura uchun joylar, Literata + IBM Plex. Har bir sahifada UZ/KAA va kunduz/tun almashtirgichi ishlaydi. Header’dagi havolalar shu kanvasdagi sahifalarga olib boradi.</span>
+      <span style="font:500 13px 'IBM Plex Mono';color:#2b2118">Sayt: <a href="#home">01</a> <a href="#maqolalar">02</a> <a href="#maqola">03</a> <a href="#xronologiya">04</a> <a href="#shaxslar">05</a> <a href="#arxiv">06</a> <a href="#xarita">07</a> <a href="#qidiruv">08</a> · Kirish: <a href="#kirish">09</a> · Admin: <a href="#admin">10</a> <a href="#editor">11</a> <a href="#users">12</a> · <a href="#logo">Logo</a></span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font:500 13px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:#6b5d4f">I · Ommaviy sayt</span>
+    <div style="display:flex;gap:64px;align-items:flex-start">
+      <div id="home" data-screen-label="01 Bosh sahifa" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">01</span>Bosh sahifa</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Home" hint-size="1440px,4200px"></dc-import></div>
+      </div>
+      <div id="maqolalar" data-screen-label="02 Maqolalar" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">02</span>Maqolalar roʻyxati</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Maqolalar" hint-size="1440px,2600px"></dc-import></div>
+      </div>
+      <div id="maqola" data-screen-label="03 Maqola" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">03</span>Maqola + izohlar</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Maqola" hint-size="1440px,4400px"></dc-import></div>
+      </div>
+      <div id="xronologiya" data-screen-label="04 Xronologiya" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">04</span>Davrlar / Xronologiya</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Xronologiya" hint-size="1440px,2000px"></dc-import></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:64px;align-items:flex-start;margin-top:64px">
+      <div id="shaxslar" data-screen-label="05 Shaxslar" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">05</span>Shaxslar</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Shaxslar" hint-size="1440px,2200px"></dc-import></div>
+      </div>
+      <div id="arxiv" data-screen-label="06 Media arxiv" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">06</span>Media arxiv</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Media Arxiv" hint-size="1440px,2000px"></dc-import></div>
+      </div>
+      <div id="xarita" data-screen-label="07 Xarita" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">07</span>Xarita</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Xarita" hint-size="1440px,1400px"></dc-import></div>
+      </div>
+      <div id="qidiruv" data-screen-label="08 Qidiruv" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">08</span>Qidiruv</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Qidiruv" hint-size="1440px,1400px"></dc-import></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px;margin-top:64px">
+    <span style="font:500 13px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:#6b5d4f">II · Kirish va admin panel</span>
+    <div style="display:flex;gap:64px;align-items:flex-start">
+      <div id="kirish" data-screen-label="09 Kirish" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2b2118;color:#f5efe3;border-radius:4px">09</span>Kirish / Roʻyxatdan oʻtish</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Kirish" hint-size="1440px,900px"></dc-import></div>
+      </div>
+      <div id="admin" data-screen-label="10 Admin dashboard" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#8c2f1b;color:#fff8ee;border-radius:4px">10</span>Admin · Boshqaruv paneli</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Admin Dashboard" hint-size="1440px,960px"></dc-import></div>
+      </div>
+      <div id="editor" data-screen-label="11 Muharrir" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#8c2f1b;color:#fff8ee;border-radius:4px">11</span>Admin · Maqola muharriri</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Admin Muharrir" hint-size="1440px,960px"></dc-import></div>
+      </div>
+      <div id="users" data-screen-label="12 Foydalanuvchilar" style="display:flex;flex-direction:column;gap:14px;width:1440px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#8c2f1b;color:#fff8ee;border-radius:4px">12</span>Admin · Foydalanuvchilar</span>
+        <div style="border:1px solid #2b2118;box-shadow:0 30px 60px rgba(60,40,20,.18)"><dc-import name="Admin Foydalanuvchilar" hint-size="1440px,900px"></dc-import></div>
+      </div>
+      <div id="logo" data-screen-label="Logo prompt" style="display:flex;flex-direction:column;gap:14px;width:820px;flex:none">
+        <span style="display:flex;align-items:center;gap:12px;font:500 22px Literata,serif"><span style="font:500 14px 'IBM Plex Mono';padding:5px 10px;background:#2f5d62;color:#f5efe3;border-radius:4px">L</span>Logo uchun prompt</span>
+        <div style="padding:48px;background:#fbf7ee;border:1px solid #2b2118;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;gap:28px;align-items:center">
+            <span style="position:relative;width:96px;height:96px;flex:none;display:grid;place-items:center"><span style="position:absolute;inset:12px;border:2.5px solid #8c2f1b;transform:rotate(45deg)"></span><span style="position:absolute;inset:24px;border:1.5px solid #8c2f1b;transform:rotate(45deg)"></span><span style="position:relative;font:700 30px/1 Literata,serif;color:#8c2f1b">H</span></span>
+            <span style="display:flex;flex-direction:column;gap:6px"><span style="font:600 54px/1 Literata,serif">hisinf<span style="color:#8c2f1b">.uz</span></span><span style="font:500 13px 'IBM Plex Mono';letter-spacing:.18em;text-transform:uppercase;color:#6b5d4f">vaqtinchalik belgi</span></span>
+          </div>
+          <p style="margin:0;padding:20px;background:#efe6d4;border:1px solid #dccfb8;font:400 15px/1.65 'IBM Plex Mono';color:#2b2118">Minimal logo for "hisinf.uz", a historical articles platform about Uzbekistan and Karakalpakstan. Monoline engraving style, single fine ink line weight. Emblem: a diamond (rotated square) seal containing a serif letter "H" whose crossbar is formed by an open book / scroll; subtle Khorezmian girih ornament in the diamond corners; hint of a minaret silhouette (Kalta Minor) rising from the H. Wordmark "hisinf.uz" in a high-contrast book serif, lowercase, ".uz" in brick red. Colors: ink #2B2118, seal red #8C2F1B on parchment #F5EFE3. Flat vector, no gradients, no 3D, no shadows, generous negative space, legible at 16px. Vector logo sheet, plain background.</p>
+          <span style="font-size:15px;line-height:1.6;color:#6b5d4f">Negativ: gradient, 3D, glossy, photo, clipart, cartoon, many colors, mockup. Muhr, kitob+minora va faqat-wordmark variantlari <b style="color:#2b2118">Logo prompt.md</b> faylida.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

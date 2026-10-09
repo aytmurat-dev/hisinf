@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="posts" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+  <div style="height:3px;background:var(--surface-2)"><div style="height:100%;width:{{ progress }}%;background:var(--primary);transition:width .4s"></div></div>
+
+  <article style="padding:64px 48px 0">
+    <div style="max-width:980px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center">
+      <div style="display:flex;gap:10px;align-items:center;font:500 12px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--muted);animation:hf-up .6s both">
+        <a href="#maqolalar" style="color:var(--muted)">{{ t.posts }}</a><span>/</span><span style="padding:5px 10px;border:1px solid var(--p-indigo);color:var(--p-indigo);border-radius:999px">Sovet davri</span><span>/</span><span>Siyosiy tarix</span>
+      </div>
+      <h1 style="margin:0;font:400 clamp(44px,5.4vw,78px)/1.02 Literata,serif;letter-spacing:-.03em;text-wrap:balance;animation:hf-up .7s .08s both">1924-yilgi chegaralanish: Qoraqalpoq avtonom viloyati qanday tuzildi</h1>
+      <p style="margin:0;max-width:56ch;font:italic 400 21px/1.5 Literata,serif;color:var(--muted);text-wrap:pretty;animation:hf-up .7s .16s both">Arxiv hujjatlari, xaritalar va oʻsha davr matbuoti asosida milliy-hududiy chegaralanish jarayonining bosqichlari.</p>
+      <div style="display:flex;align-items:center;gap:16px;padding:14px 0;animation:hf-up .7s .24s both">
+        <span style="width:44px;height:44px;border-radius:50%;background:var(--teal);color:var(--bg);display:grid;place-items:center;font:600 15px Literata,serif">AQ</span>
+        <div style="display:flex;flex-direction:column;gap:4px;text-align:left"><span style="font-weight:600;font-size:15px">Aytmurat Qurbonov</span><span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">02.10.2026 · 14 {{ t.min }} · {{ t.checked }}: D. Rahimova</span></div>
+      </div>
+    </div>
+    <div data-reveal="0" style="max-width:1200px;margin:24px auto 0;border:1px solid var(--line);padding:12px;background:var(--card)">
+      <div style="height:520px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:8px 12px">arxiv fotosurati · Toʻrtkoʻl, 1925</span></div>
+      <span style="display:block;padding:12px 4px 2px;font:italic 400 14px Literata,serif;color:var(--muted)">Qoraqalpoq avtonom viloyatining birinchi maʼmuriy binosi. Manba: OʻzR MDA, fond R-25.</span>
+    </div>
+
+    <div style="max-width:1200px;margin:72px auto 0;display:grid;grid-template-columns:220px minmax(0,680px) 220px;gap:48px;justify-content:center">
+      <aside style="position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:6px">
+        <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">{{ t.toc }}</span>
+        <sc-for list="{{ toc }}" as="s" hint-placeholder-count="4">
+          <button onClick="{{ s.pick }}" style="display:flex;gap:10px;text-align:left;border:0;border-left:2px solid {{ s.bd }};background:transparent;padding:8px 12px;font:{{ s.fw }} 14px/1.35 'IBM Plex Sans';color:{{ s.fg }};cursor:pointer;transition:all .25s" style-hover="color:var(--fg)"><span style="font-family:'IBM Plex Mono';font-size:11px;padding-top:2px">{{ s.n }}</span>{{ s.label }}</button>
+        </sc-for>
+        <div style="display:flex;gap:6px;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)">
+          <button onClick="{{ fsDown }}" style="flex:1;height:36px;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:6px;font:500 13px Literata,serif;cursor:pointer">A−</button>
+          <button onClick="{{ fsUp }}" style="flex:1;height:36px;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:6px;font:500 17px Literata,serif;cursor:pointer">A+</button>
+          <button onClick="{{ toggleSave }}" aria-label="Saqlash" style="flex:1;height:36px;border:1px solid {{ saveBd }};background:{{ saveBg }};color:{{ saveFg }};border-radius:6px;font:500 15px 'IBM Plex Sans';cursor:pointer;transition:all .2s">❏</button>
+        </div>
+      </aside>
+
+      <div style="display:flex;flex-direction:column;gap:24px;font:400 {{ fs }}px/1.72 Literata,serif;text-wrap:pretty">
+        <p style="margin:0"><span style="float:left;font:400 92px/.8 Literata,serif;color:var(--primary);padding:8px 12px 0 0">1</span>924-yil 27-oktyabrda SSSR Markaziy Ijroiya Qoʻmitasi Oʻrta Osiyoda milliy-hududiy chegaralanishni tasdiqladi. Shu qaror bilan Xorazm Sovet Xalq Respublikasi tugatilib, uning hududi yangi tuzilmalar oʻrtasida taqsimlandi.<button onClick="{{ fn1 }}" style="border:0;background:transparent;color:var(--primary);font:600 13px 'IBM Plex Mono';vertical-align:super;cursor:pointer;padding:0 2px">[1]</button></p>
+        <sc-if value="{{ showFn1 }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:-8px 0 0;padding:14px 16px;background:var(--card);border:1px solid var(--line);font:400 14px/1.55 'IBM Plex Sans';animation:hf-up .3s both"><b style="font-family:'IBM Plex Mono';color:var(--primary)">[1]</b> OʻzR MDA, fond R-25, roʻyxat 1, ish 162, 14–17-varaqlar.</div>
+        </sc-if>
+        <h2 style="margin:24px 0 0;font:500 34px/1.2 Literata,serif;letter-spacing:-.015em">Chegaralanish arafasida</h2>
+        <p style="margin:0">Komissiya aholi tarkibi, xoʻjalik aloqalari va til xususiyatlari boʻyicha maʼlumot toʻpladi. Qoraqalpoq xalqi vakillari alohida avtonomiya masalasini koʻtardilar.</p>
+        <blockquote style="margin:16px 0;padding:8px 0 8px 32px;border-left:2px solid var(--primary);position:relative">
+          <span style="position:absolute;left:-14px;top:-18px;font:400 80px/1 Literata,serif;color:var(--primary);background:var(--bg)">“</span>
+          <p style="margin:0;font:italic 400 28px/1.4 Literata,serif">Xalqning oʻz yerida oʻz ishini oʻzi boshqarishi — chegaralanishning asosiy maqsadidir.</p>
+          <cite style="display:block;margin-top:14px;font:500 12px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--muted)">— «Qizil Qoraqalpogʻiston», 1925-yil, 3-son</cite>
+        </blockquote>
+        <h2 style="margin:24px 0 0;font:500 34px/1.2 Literata,serif;letter-spacing:-.015em">Viloyatning tuzilishi</h2>
+        <p style="margin:0">1925-yil fevralda Toʻrtkoʻlda birinchi taʼsis qurultoyi boʻlib oʻtdi va Qoraqalpoq avtonom viloyati rasman tashkil topdi. Dastlab u Qozogʻiston ASSR tarkibiga kirdi.<button onClick="{{ fn2 }}" style="border:0;background:transparent;color:var(--primary);font:600 13px 'IBM Plex Mono';vertical-align:super;cursor:pointer;padding:0 2px">[2]</button></p>
+        <sc-if value="{{ showFn2 }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:-8px 0 0;padding:14px 16px;background:var(--card);border:1px solid var(--line);font:400 14px/1.55 'IBM Plex Sans';animation:hf-up .3s both"><b style="font-family:'IBM Plex Mono';color:var(--primary)">[2]</b> Qoraqalpogʻiston tarixi. Nukus: Bilim, 2003. 211-bet.</div>
+        </sc-if>
+        <div data-reveal="0" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
+          <div style="height:220px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:end start;padding:10px"><span style="font:500 10px 'IBM Plex Mono';text-transform:uppercase;color:var(--muted)">xarita · 1924</span></div>
+          <div style="height:220px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:end start;padding:10px"><span style="font:500 10px 'IBM Plex Mono';text-transform:uppercase;color:var(--muted)">qurultoy hujjati</span></div>
+        </div>
+        <h2 style="margin:24px 0 0;font:500 34px/1.2 Literata,serif;letter-spacing:-.015em">Keyingi oʻzgarishlar</h2>
+        <p style="margin:0">1932-yilda viloyat ASSR maqomini oldi, 1936-yilda esa Oʻzbekiston SSR tarkibiga oʻtkazildi.</p>
+        <div style="margin-top:24px;padding:24px 28px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:12px;font:400 14.5px/1.55 'IBM Plex Sans'">
+          <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--teal)">{{ t.sources }}</span>
+          <span>1. OʻzR MDA, fond R-25, roʻyxat 1, ish 162.</span>
+          <span>2. Qoraqalpogʻiston tarixi. Nukus: Bilim, 2003.</span>
+          <span>3. «Qizil Qoraqalpogʻiston» gazetasi, 1925, №3.</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font:500 12px 'IBM Plex Mono'">
+          <span style="padding:7px 12px;border:1px solid var(--border);border-radius:999px">#chegaralanish</span><span style="padding:7px 12px;border:1px solid var(--border);border-radius:999px">#Toʻrtkoʻl</span><span style="padding:7px 12px;border:1px solid var(--border);border-radius:999px">#1924</span>
+        </div>
+      </div>
+
+      <aside style="position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:14px">
+        <span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">{{ t.related }}</span>
+        <a href="#shaxslar" style="display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--line);background:var(--card);color:var(--fg);transition:transform .25s" style-hover="color:var(--fg);transform:translateY(-3px)">
+          <span style="width:56px;height:56px;border-radius:50%;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 6px),var(--surface-2);border:1px solid var(--line)"></span>
+          <span style="font:500 17px Literata,serif">Allayor Doʻstnazarov</span><span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">1897–1938 · Davlat arbobi</span>
+        </a>
+        <a href="#xronologiya" style="display:flex;flex-direction:column;gap:6px;padding:16px;border:1px solid var(--line);color:var(--fg)" style-hover="color:var(--fg);background-color:var(--card)">
+          <span style="font:500 11px 'IBM Plex Mono';color:var(--p-indigo)">1917 – 1991</span><span style="font:500 17px Literata,serif">Sovet davri xronologiyasi →</span>
+        </a>
+      </aside>
+    </div>
+  </article>
+
+  <section style="max-width:1200px;margin:96px auto 0;padding:0 48px;display:grid;grid-template-columns:220px minmax(0,680px) 220px;gap:48px;justify-content:center">
+    <div></div>
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:baseline;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--line)"><h2 style="margin:0;font:400 40px/1 Literata,serif">{{ t.comments }}</h2><span style="font:500 14px 'IBM Plex Mono';color:var(--primary)">{{ count }}</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--line);background:var(--card)">
+        <textarea value="{{ draft }}" onInput="{{ onDraft }}" placeholder="{{ t.ph }}" rows="3" style="resize:vertical;border:0;outline:0;background:transparent;font:400 17px/1.55 Literata,serif;color:var(--fg)"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ t.rules }}</span>
+          <button onClick="{{ send }}" style="padding:11px 20px;border:0;border-radius:999px;background:{{ sendBg }};color:var(--primary-fg);font:500 14px 'IBM Plex Sans';cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-2px)">{{ t.send }} →</button>
+        </div>
+      </div>
+      <sc-for list="{{ comments }}" as="c" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:6px 0 22px;margin-left:{{ c.ml }}px;border-bottom:1px solid var(--border);animation:hf-up .45s both">
+          <span style="width:44px;height:44px;border-radius:50%;background:{{ c.av }};color:var(--bg);display:grid;place-items:center;font:600 14px Literata,serif">{{ c.ini }}</span>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-weight:600;font-size:15px">{{ c.name }}</span>
+              <sc-if value="{{ c.role }}" hint-placeholder-val="{{ false }}"><span style="font:500 10px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:var(--teal);color:var(--bg)">{{ c.role }}</span></sc-if>
+              <span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ c.time }}</span>
+              <sc-if value="{{ c.pending }}" hint-placeholder-val="{{ false }}"><span style="font:500 10px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border:1px dashed var(--gold);color:var(--gold);border-radius:999px">{{ t.pending }}</span></sc-if>
+            </div>
+            <p style="margin:0;font:400 16.5px/1.6 Literata,serif">{{ c.text }}</p>
+            <div style="display:flex;gap:18px;font:500 12.5px 'IBM Plex Sans';color:var(--muted)">
+              <button onClick="{{ c.like }}" style="border:0;background:transparent;font:inherit;color:{{ c.likeFg }};cursor:pointer;padding:0;transition:transform .2s" style-active="transform:scale(1.2)">♥ {{ c.likes }}</button>
+              <span style="cursor:pointer">{{ t.reply }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div></div>
+  </section>
+
+  <section style="margin:96px 48px 112px;display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)">
+    <a href="#maqola" data-curl="1" style="display:flex;flex-direction:column;gap:10px;padding:36px;border-right:1px solid var(--line);color:var(--fg)" style-hover="color:var(--fg);background-color:var(--card)"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">← {{ t.prev }}</span><span style="font:500 26px/1.25 Literata,serif">Jadidlar maktablari: usuli savtiya</span></a>
+    <a href="#maqola" data-curl="1" style="display:flex;flex-direction:column;gap:10px;padding:36px;text-align:right;color:var(--fg)" style-hover="color:var(--fg);background-color:var(--card)"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">{{ t.next }} →</span><span style="font:500 26px/1.25 Literata,serif">Mustaqillikning dastlabki yillari: 1991–1995</span></a>
+  </section>
+
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', sec: 0, fs: 19, saved: false, fn: 0, draft: '', liked: {}, extra: [] };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.all(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa';
+    const t = kaa ? { posts:'Maqalalar', min:'min', checked:'Tekserdi', toc:'Mazmunı', sources:'Derekler', related:'Baylanıslı', comments:'Pikirler', ph:'Pikirińizdi jazıń…', rules:'Pikirler moderaciyadan ótedi', send:'Jiberiw', pending:'Moderaciyada', reply:'Juwap beriw', prev:'Aldıńǵı maqala', next:'Keyingi maqala' }
+      : { posts:'Maqolalar', min:'daq', checked:'Tekshirdi', toc:'Mundarija', sources:'Manbalar', related:'Bogʻliq', comments:'Izohlar', ph:'Fikringizni yozing…', rules:'Izohlar moderatsiyadan oʻtadi', send:'Yuborish', pending:'Moderatsiyada', reply:'Javob berish', prev:'Oldingi maqola', next:'Keyingi maqola' };
+    const secs = kaa ? ['Kirisiw','Shegaralaw aldında','Wálayattıń dúziliwi','Keyingi ózgerisler'] : ['Kirish','Chegaralanish arafasida','Viloyatning tuzilishi','Keyingi oʻzgarishlar'];
+    const base = [
+      { id:'a', name:'Madina Ermatova', ini:'ME', av:'var(--p-ochre)', time:'2 kun oldin', text:'Toʻrtkoʻldagi binoning fotosi juda qiziq. Bu bino hozir saqlanib qolganmi?', likes:14 },
+      { id:'b', name:'Dilnoza Rahimova', ini:'DR', av:'var(--teal)', role:'Muharrir', time:'1 kun oldin', text:'Afsuski, asl bino 1950-yillarda buzilgan. Uning oʻrni haqida keyingi maqolada yozamiz.', likes:9, ml:60 },
+      { id:'c', name:'Jasur Toʻlaganov', ini:'JT', av:'var(--p-indigo)', time:'5 soat oldin', text:'Darsda foydalandim, oʻquvchilarga manbalar roʻyxati ayniqsa foydali boʻldi.', likes:6 },
+    ];
+    const all = [...s.extra, ...base];
+    return {
+      root: this.root, t, fs: s.fs, draft: s.draft,
+      theme: s.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      progress: 18 + s.sec * 24,
+      toc: secs.map((label, i) => ({ label, n: String(i + 1).padStart(2, '0'), bd: s.sec === i ? 'var(--primary)' : 'var(--border)', fg: s.sec === i ? 'var(--fg)' : 'var(--muted)', fw: s.sec === i ? 600 : 400, pick: () => this.setState({ sec: i }) })),
+      fsUp: () => this.setState(x => ({ fs: Math.min(23, x.fs + 1) })), fsDown: () => this.setState(x => ({ fs: Math.max(16, x.fs - 1) })),
+      toggleSave: () => this.setState(x => ({ saved: !x.saved })),
+      saveBg: s.saved ? 'var(--primary)' : 'var(--card)', saveFg: s.saved ? 'var(--primary-fg)' : 'var(--fg)', saveBd: s.saved ? 'var(--primary)' : 'var(--border)',
+      fn1: () => this.setState(x => ({ fn: x.fn === 1 ? 0 : 1 })), fn2: () => this.setState(x => ({ fn: x.fn === 2 ? 0 : 2 })),
+      showFn1: s.fn === 1, showFn2: s.fn === 2,
+      onDraft: e => this.setState({ draft: e.target.value }),
+      sendBg: s.draft.trim() ? 'var(--primary)' : 'var(--ornament)',
+      send: () => s.draft.trim() && this.setState(x => ({ draft: '', extra: [{ id: 'n' + Date.now(), name: 'Siz', ini: 'S', av: 'var(--primary)', time: kaa ? 'házir' : 'hozir', text: x.draft, likes: 0, pending: true }, ...x.extra] })),
+      count: all.length,
+      comments: all.map(c => { const on = !!s.liked[c.id]; return { ...c, ml: c.ml || 0, likes: c.likes + (on ? 1 : 0), likeFg: on ? 'var(--primary)' : 'var(--muted)', like: () => this.setState(x => ({ liked: { ...x.liked, [c.id]: !x.liked[c.id] } })) }; }),
+    };
+  }
+}
+</script>
+</body>
+</html>

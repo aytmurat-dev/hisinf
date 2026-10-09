@@ -1,5 +1,8 @@
 # HISINF — Tarixiy ma'lumotlar portali: bajarish rejasi
 
+> ⚠️ **Bu reja v2 tomonidan almashtirildi: [`docs/new_plan_v2.md`](../new_plan_v2.md).** Bu papkadagi fayllar faqat ma'lumotnoma sifatida qoladi (v2 ularga aniq point ID'lar bilan havola qiladi).
+
+
 > Versiya: 1.0 · Tuzilgan sana: 2026-10-06
 > Bu papka loyihaning **yagona bajarish rejasi**dir. Uni AI model ham, dasturchi ham bosqichma-bosqich bajaradi.
 

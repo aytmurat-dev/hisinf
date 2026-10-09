@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+</helmet>
+<div data-theme="{{ theme }}" style="display:flex;min-height:900px;background:var(--bg);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="AdminSidebar" active="users" on-theme="{{ toggleTheme }}" hint-size="248px,900px"></dc-import>
+  <main style="position:relative;flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:16px;padding:14px 32px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--muted)"><span>Tizim</span><span>/</span><span style="color:var(--fg)">Foydalanuvchilar</span></div>
+    <div style="padding:32px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;justify-content:space-between;align-items:end;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px"><h1 style="margin:0;font:400 42px/1.05 Literata,serif;letter-spacing:-.02em">Foydalanuvchilar</h1><span style="color:var(--muted);font-size:14.5px">Rollar: Admin — hammasi, Muharrir — tekshiruv va chop etish, Muallif — qoralama yozish, Oʻquvchi — izoh.</span></div>
+        <button onClick="{{ openInvite }}" style="padding:11px 18px;border:0;border-radius:6px;background:var(--primary);color:var(--primary-fg);font:500 14px 'IBM Plex Sans';cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-1px)">+ Foydalanuvchi qoʻshish</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:8px;background:var(--card)">
+          <sc-for list="{{ roleTabs }}" as="r" hint-placeholder-count="5"><button onClick="{{ r.pick }}" style="display:flex;gap:8px;align-items:center;padding:7px 12px;border:0;border-radius:6px;background:{{ r.bg }};color:{{ r.fg }};font:500 13px 'IBM Plex Sans';cursor:pointer;transition:all .2s">{{ r.label }}<span style="font:500 11px 'IBM Plex Mono';opacity:.6">{{ r.n }}</span></button></sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);min-width:240px">
+          <span style="width:11px;height:11px;border:1.4px solid var(--muted);border-radius:50%"></span>
+          <input value="{{ q }}" onInput="{{ onQ }}" placeholder="Ism yoki pochta…" style="flex:1;border:0;outline:0;background:transparent;padding:10px 0;font:400 14px 'IBM Plex Sans';color:var(--fg)">
+        </div>
+        <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}"><span style="display:flex;gap:10px;align-items:center;margin-left:auto;font-size:13.5px;animation:hf-pop .2s both">{{ selN }} tanlandi <button onClick="{{ blockSel }}" style="padding:7px 12px;border:1px solid var(--primary);border-radius:6px;background:transparent;color:var(--primary);font:500 13px 'IBM Plex Sans';cursor:pointer">Bloklash</button></span></sc-if>
+      </div>
+      <div style="border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden">
+        <div style="display:grid;grid-template-columns:40px minmax(0,2.2fr) 160px 110px 120px 140px 44px;gap:12px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--surface-2);font:500 10.5px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">
+          <input type="checkbox" checked="{{ allSel }}" onChange="{{ toggleAll }}" style="accent-color:var(--primary)"><span>Foydalanuvchi</span><span>Rol</span><span>Maqolalar</span><span>Holat</span><span>Oxirgi faollik</span><span></span>
+        </div>
+        <sc-for list="{{ rows }}" as="u" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:40px minmax(0,2.2fr) 160px 110px 120px 140px 44px;gap:12px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);background:{{ u.rowBg }};animation:hf-up .35s {{ u.d }}ms both;transition:background-color .2s" style-hover="background-color:var(--surface-2)">
+            <input type="checkbox" checked="{{ u.sel }}" onChange="{{ u.toggle }}" style="accent-color:var(--primary)">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:{{ u.av }};color:var(--bg);display:grid;place-items:center;font:600 13px Literata,serif">{{ u.ini }}</span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500;font-size:14.5px">{{ u.name }}</span><span style="font:400 12px 'IBM Plex Mono';color:var(--muted);overflow:hidden;text-overflow:ellipsis">{{ u.email }}</span></span></div>
+            <select value="{{ u.role }}" onChange="{{ u.setRole }}" style="border:1px solid var(--border);background:var(--bg);color:{{ u.rc }};border-radius:6px;padding:6px 8px;font:500 13px 'IBM Plex Sans'"><option>Admin</option><option>Muharrir</option><option>Muallif</option><option>Oʻquvchi</option></select>
+            <span style="font:400 13px 'IBM Plex Mono'">{{ u.posts }}</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:13px"><span style="width:7px;height:7px;border-radius:50%;background:{{ u.sc }}"></span>{{ u.status }}</span>
+            <span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ u.last }}</span>
+            <button style="border:0;background:transparent;color:var(--muted);font:500 16px 'IBM Plex Mono';cursor:pointer;border-radius:4px" style-hover="background-color:var(--bg)">⋯</button>
+          </div>
+        </sc-for>
+        <div style="display:flex;justify-content:space-between;padding:12px 18px;font:400 12px 'IBM Plex Mono';color:var(--muted)"><span>{{ shown }}</span><span>1 / 12 →</span></div>
+      </div>
+    </div>
+
+    <sc-if value="{{ invite }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeInvite }}" style="position:absolute;inset:0;background:rgba(20,14,8,.42);display:grid;place-items:center;animation:hf-pop .2s both;z-index:40">
+        <div onClick="{{ stop }}" style="width:480px;padding:28px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 60px var(--shadow);display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;justify-content:space-between;align-items:start"><div style="display:flex;flex-direction:column;gap:6px"><span style="font:400 28px/1.1 Literata,serif">Yangi foydalanuvchi</span><span style="font-size:14px;color:var(--muted)">Pochtaga taklif havolasi yuboriladi.</span></div><button onClick="{{ closeInvite }}" style="border:0;background:transparent;color:var(--muted);font:400 20px 'IBM Plex Sans';cursor:pointer">✕</button></div>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Ism-familiya</span><input value="{{ nName }}" onInput="{{ onNName }}" placeholder="Ism Familiya" style="border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:12px 14px;font:400 15px 'IBM Plex Sans';color:var(--fg);outline:0" style-focus="border-color:var(--line)"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Pochta</span><input value="{{ nEmail }}" onInput="{{ onNEmail }}" placeholder="email@manzil.uz" style="border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:12px 14px;font:400 15px 'IBM Plex Sans';color:var(--fg);outline:0" style-focus="border-color:var(--line)"></label>
+          <div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Rol</span>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <sc-for list="{{ roleOpts }}" as="r" hint-placeholder-count="3"><button onClick="{{ r.pick }}" style="display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid {{ r.bd }};border-radius:8px;background:{{ r.bg }};color:var(--fg);text-align:left;cursor:pointer;transition:all .2s"><span style="font-weight:600;font-size:14px">{{ r.label }}</span><span style="font-size:12px;color:var(--muted);line-height:1.4">{{ r.desc }}</span></button></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:6px"><button onClick="{{ closeInvite }}" style="padding:11px 16px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--fg);font:500 14px 'IBM Plex Sans';cursor:pointer">Bekor qilish</button><button onClick="{{ add }}" style="padding:11px 18px;border:0;border-radius:6px;background:var(--primary);color:var(--primary-fg);font:500 14px 'IBM Plex Sans';cursor:pointer">Taklif yuborish</button></div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, role: 'all', q: '', sel: {}, invite: false, nName: '', nEmail: '', nRole: 'Muallif', blocked: {}, roles: {},
+    users: [
+      ['Aytmurat Qurbonov','aytmurat@hisinf.uz','Admin',42,'Hozir'],['Dilnoza Rahimova','d.rahimova@hisinf.uz','Muharrir',31,'12 daq oldin'],
+      ['Sherzod Yusupov','sherzod.y@mail.uz','Muallif',18,'1 soat oldin'],['Gulnora Saidova','gulnora@school24.uz','Muallif',14,'Kecha'],
+      ['Berdaq Jumabayev','berdaq.j@nukus.uz','Muallif',9,'2 kun oldin'],['Madina Ermatova','madina.e@gmail.com','Oʻquvchi',0,'3 soat oldin'],
+      ['Jasur Toʻlaganov','jasur.t@school7.uz','Oʻquvchi',0,'Kecha'],['Nodira Qodirova','nodira@hisinf.uz','Muharrir',22,'5 kun oldin'],
+    ].map(([name, email, role, posts, last], i) => ({ id: i + 1, name, email, role, posts, last })) };
+  renderVals() {
+    const s = this.state;
+    const RC = { Admin: 'var(--primary)', Muharrir: 'var(--teal)', Muallif: 'var(--p-indigo)', 'Oʻquvchi': 'var(--muted)' };
+    const AV = ['var(--teal)', 'var(--p-ochre)', 'var(--p-indigo)', 'var(--primary)', 'var(--p-olive)'];
+    const all = s.users.map(u => ({ ...u, role: s.roles[u.id] || u.role }));
+    const list = all.filter(u => (s.role === 'all' || u.role === s.role) && (!s.q || (u.name + u.email).toLowerCase().includes(s.q.toLowerCase())));
+    const selIds = Object.keys(s.sel).filter(k => s.sel[k]);
+    const R = [['all', 'Barchasi'], ['Admin', 'Admin'], ['Muharrir', 'Muharrir'], ['Muallif', 'Muallif'], ['Oʻquvchi', 'Oʻquvchi']];
+    const RO = [['Muharrir', 'Tekshiradi va chop etadi'], ['Muallif', 'Qoralama yozadi'], ['Oʻquvchi', 'Izoh qoldiradi']];
+    return {
+      theme: s.theme || this.props.theme || 'light',
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      q: s.q, onQ: e => this.setState({ q: e.target.value }),
+      roleTabs: R.map(([k, label]) => ({ label, n: k === 'all' ? all.length : all.filter(u => u.role === k).length, bg: s.role === k ? 'var(--fg)' : 'transparent', fg: s.role === k ? 'var(--bg)' : 'var(--fg)', pick: () => this.setState({ role: k }) })),
+      rows: list.map((u, i) => {
+        const b = s.blocked[u.id];
+        return { ...u, d: i * 40, ini: u.name.split(' ').map(w => w[0]).join(''), av: AV[u.id % AV.length], rc: RC[u.role], sel: !!s.sel[u.id], rowBg: s.sel[u.id] ? 'var(--surface-2)' : 'transparent',
+          status: b ? 'Bloklangan' : u.last === 'Hozir' || u.last.includes('daq') ? 'Onlayn' : 'Faol', sc: b ? 'var(--primary)' : u.last === 'Hozir' || u.last.includes('daq') ? 'var(--teal)' : 'var(--ornament)',
+          toggle: () => this.setState(x => ({ sel: { ...x.sel, [u.id]: !x.sel[u.id] } })),
+          setRole: e => { const v = e.target.value; this.setState(x => ({ roles: { ...x.roles, [u.id]: v } })); } };
+      }),
+      allSel: list.length > 0 && list.every(u => s.sel[u.id]),
+      toggleAll: () => { const on = !list.every(u => s.sel[u.id]); const n = { ...s.sel }; list.forEach(u => n[u.id] = on); this.setState({ sel: n }); },
+      hasSel: selIds.length > 0, selN: selIds.length,
+      blockSel: () => { const b = { ...s.blocked }; selIds.forEach(k => b[k] = true); this.setState({ blocked: b, sel: {} }); },
+      shown: `${list.length} / 214 foydalanuvchi`,
+      invite: s.invite, openInvite: () => this.setState({ invite: true }), closeInvite: () => this.setState({ invite: false }), stop: e => e.stopPropagation(),
+      nName: s.nName, nEmail: s.nEmail, onNName: e => this.setState({ nName: e.target.value }), onNEmail: e => this.setState({ nEmail: e.target.value }),
+      roleOpts: RO.map(([label, desc]) => ({ label, desc, bd: s.nRole === label ? 'var(--fg)' : 'var(--border)', bg: s.nRole === label ? 'var(--bg)' : 'transparent', pick: () => this.setState({ nRole: label }) })),
+      add: () => { if (!s.nName.trim()) return; this.setState(x => ({ invite: false, nName: '', nEmail: '', users: [{ id: Date.now(), name: x.nName, email: x.nEmail || '—', role: x.nRole, posts: 0, last: 'Taklif yuborildi' }, ...x.users] })); },
+    };
+  }
+}
+</script>
+</body>
+</html>

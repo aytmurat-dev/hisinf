@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="display:flex;min-height:900px;background:var(--bg);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="AdminSidebar" active="new" on-theme="{{ toggleTheme }}" hint-size="248px,900px"></dc-import>
+  <main style="position:relative;flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--muted)">
+      <span>Maqolalar</span><span>/</span><span style="color:var(--fg);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ crumb }}</span>
+      <span style="display:flex;align-items:center;gap:7px;font:400 12px 'IBM Plex Mono'"><span style="width:7px;height:7px;border-radius:50%;background:{{ saveDot }};transition:background-color .3s"></span>{{ saveLabel }}</span>
+      <span style="margin-left:auto;font:400 12px 'IBM Plex Mono'">{{ words }} soʻz · {{ mins }} daq</span>
+      <button onClick="{{ togglePanel }}" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--fg);font:500 13px 'IBM Plex Sans';cursor:pointer">{{ panelBtn }}</button>
+      <button onClick="{{ advance }}" style="padding:8px 16px;border:0;border-radius:6px;background:var(--primary);color:var(--primary-fg);font:500 13px 'IBM Plex Sans';cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-1px)">{{ nextAction }}</button>
+    </div>
+
+    <div style="flex:1;display:flex;min-height:0">
+      <div style="flex:1;min-width:0;overflow:auto;padding:32px 24px 160px">
+        <div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column">
+          <div style="height:200px;margin:0 0 28px 44px;border:1px dashed var(--border);border-radius:10px;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center;cursor:pointer;transition:border-color .2s" style-hover="border-color:var(--line)"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:7px 11px">+ Muqova rasmi</span></div>
+          <div style="display:flex;gap:6px;margin:0 0 14px 44px">
+            <sc-for list="{{ langTabs }}" as="l" hint-placeholder-count="2">
+              <button onClick="{{ l.pick }}" style="display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid {{ l.bd }};border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font:500 12px 'IBM Plex Mono';cursor:pointer;transition:all .2s"><span>{{ l.label }}</span><span style="opacity:.7">{{ l.pct }}</span></button>
+            </sc-for>
+          </div>
+          <div style="padding-left:44px"><textarea value="{{ title }}" onInput="{{ onTitle }}" placeholder="Sarlavha" rows="1" style="width:100%;box-sizing:border-box;resize:none;field-sizing:content;border:0;outline:0;background:transparent;font:500 46px/1.12 Literata,serif;letter-spacing:-.02em;color:var(--fg);padding:0;margin-bottom:18px"></textarea></div>
+
+          <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="6">
+            <div onDragOver="{{ b.over }}" onDrop="{{ b.drop }}" style="position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start;padding:3px 0;opacity:{{ b.op }};transition:opacity .2s">
+              <sc-if value="{{ b.isOver }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:44px;right:0;top:-1px;height:2px;background:var(--teal);border-radius:2px"></span></sc-if>
+              <div style="display:flex;gap:2px;padding-top:{{ b.hpt }}px;opacity:.35;transition:opacity .15s" style-hover="opacity:1">
+                <button onClick="{{ b.add }}" aria-label="Blok qoʻshish" style="width:20px;height:22px;border:0;border-radius:4px;background:transparent;color:var(--muted);font:400 16px/1 'IBM Plex Sans';cursor:pointer" style-hover="background-color:var(--surface-2)">+</button>
+                <span draggable="true" onDragStart="{{ b.start }}" onDragEnd="{{ b.end }}" style="width:16px;height:22px;display:grid;place-items:center;border-radius:4px;color:var(--muted);font:600 11px/1 'IBM Plex Mono';cursor:grab;letter-spacing:-2px" style-hover="background-color:var(--surface-2)">⋮⋮</span>
+              </div>
+              <div style="position:relative;min-width:0">
+                <sc-if value="{{ b.isText }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:10px;align-items:baseline;border-left:{{ b.bl }};padding-left:{{ b.pl }}px;background:{{ b.bgc }};border-radius:{{ b.rad }}px;padding-top:{{ b.pv }}px;padding-bottom:{{ b.pv }}px;padding-right:{{ b.pv }}px">
+                    <sc-if value="{{ b.hasPre }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font:500 12px 'IBM Plex Mono';letter-spacing:.06em;color:{{ b.preC }}">{{ b.pre }}</span></sc-if>
+                    <textarea data-bid="{{ b.id }}" value="{{ b.text }}" onInput="{{ b.input }}" onKeyDown="{{ b.key }}" placeholder="{{ b.ph }}" rows="1" style="flex:1;min-width:0;resize:none;field-sizing:content;border:0;outline:0;background:transparent;font:{{ b.font }};color:var(--fg);padding:2px 0"></textarea>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ b.isImage }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px;margin:8px 0">
+                    <div style="height:280px;border:1px solid var(--border);border-radius:8px;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center"><span style="font:500 11px 'IBM Plex Mono';text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:7px 11px">Rasmni shu yerga torting yoki yuklang</span></div>
+                    <textarea data-bid="{{ b.id }}" value="{{ b.text }}" onInput="{{ b.input }}" onKeyDown="{{ b.key }}" placeholder="Rasm izohi va manbasi…" rows="1" style="resize:none;field-sizing:content;border:0;outline:0;background:transparent;font:italic 400 14px Literata,serif;color:var(--muted)"></textarea>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ b.isGallery }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:8px 0">
+                    <div style="height:180px;border:1px solid var(--border);border-radius:8px;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2)"></div>
+                    <div style="height:180px;border:1px solid var(--border);border-radius:8px;background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2)"></div>
+                    <div style="height:180px;border:1px dashed var(--border);border-radius:8px;display:grid;place-items:center;font:500 20px 'IBM Plex Sans';color:var(--muted)">+</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ b.isDivider }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:12px;padding:18px 0"><span style="flex:1;height:1px;background:var(--border)"></span><span style="width:8px;height:8px;background:var(--primary);transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:var(--border)"></span></div>
+                </sc-if>
+                <sc-if value="{{ b.menu }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;left:0;top:100%;z-index:30;width:300px;margin-top:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px var(--shadow);animation:hf-pop .18s both">
+                    <span style="display:block;padding:6px 10px 8px;font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Bloklar</span>
+                    <sc-for list="{{ b.opts }}" as="o" hint-placeholder-count="5">
+                      <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:8px 10px;border:0;border-radius:6px;background:{{ o.bg }};color:var(--fg);text-align:left;cursor:pointer" style-hover="background-color:var(--surface-2)">
+                        <span style="width:34px;height:34px;flex:none;border:1px solid var(--border);border-radius:6px;background:var(--bg);display:grid;place-items:center;font:500 13px Literata,serif">{{ o.icon }}</span>
+                        <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:500">{{ o.label }}</span><span style="font-size:12px;color:var(--muted)">{{ o.desc }}</span></span>
+                      </button>
+                    </sc-for>
+                    <sc-if value="{{ b.noOpts }}" hint-placeholder-val="{{ false }}"><span style="display:block;padding:10px;font-size:13px;color:var(--muted)">Mos blok yoʻq</span></sc-if>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <button onClick="{{ addEnd }}" style="margin:12px 0 0 44px;align-self:flex-start;border:0;background:transparent;color:var(--muted);font:400 14px 'IBM Plex Sans';cursor:pointer;padding:6px 0" style-hover="color:var(--fg)">+ Blok qoʻshish yoki «/» yozing</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ panel }}" hint-placeholder-val="{{ true }}">
+        <aside style="width:320px;flex:none;border-left:1px solid var(--border);background:var(--surface-2);display:flex;flex-direction:column;animation:hf-pop .25s both">
+          <div style="display:flex;border-bottom:1px solid var(--border)">
+            <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2"><button onClick="{{ tb.pick }}" style="flex:1;padding:13px;border:0;border-bottom:2px solid {{ tb.bd }};background:transparent;color:{{ tb.fg }};font:500 13px 'IBM Plex Sans';cursor:pointer">{{ tb.label }}</button></sc-for>
+          </div>
+          <sc-if value="{{ tabMeta }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:20px;display:flex;flex-direction:column;gap:22px;overflow:auto">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Holat</span>
+                <div style="display:flex;flex-direction:column;gap:0">
+                  <sc-for list="{{ flow }}" as="f" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:18px 1fr;gap:10px;align-items:start">
+                      <div style="display:flex;flex-direction:column;align-items:center;height:100%"><span style="width:12px;height:12px;margin-top:3px;border-radius:50%;border:1.5px solid {{ f.c }};background:{{ f.fill }};transition:all .3s"></span><span style="flex:1;width:1.5px;min-height:18px;background:{{ f.lc }}"></span></div>
+                      <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:12px"><span style="font-size:13.5px;font-weight:{{ f.fw }};color:{{ f.tc }}">{{ f.label }}</span><span style="font:400 11px 'IBM Plex Mono';color:var(--muted)">{{ f.who }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Davr</span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ periods }}" as="p" hint-placeholder-count="10"><button onClick="{{ p.pick }}" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid {{ p.bd }};border-radius:999px;background:{{ p.bg }};color:var(--fg);font:500 12px 'IBM Plex Sans';cursor:pointer;transition:all .2s"><span style="width:6px;height:6px;transform:rotate(45deg);background:{{ p.c }}"></span>{{ p.name }}</button></sc-for>
+                </div>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Kategoriya</span>
+                <select style="border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:6px;padding:9px;font:400 14px 'IBM Plex Sans'"><option>Siyosiy tarix</option><option>Madaniyat</option><option>Arxeologiya</option><option>Adabiyot</option><option>Ilm-fan</option></select></label>
+              <div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Bogʻliq shaxslar</span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px"><span style="padding:5px 9px;background:var(--card);border:1px solid var(--border);border-radius:6px">Allayor Doʻstnazarov ✕</span><span style="padding:5px 9px;border:1px dashed var(--border);border-radius:6px;color:var(--muted)">+ qoʻshish</span></div></div>
+              <div style="display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--card)">
+                <span style="font:500 10px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Muharrir uchun izoh</span>
+                <textarea placeholder="Masalan: 2-manbani tekshirib bering" rows="2" style="resize:none;border:0;outline:0;background:transparent;font:400 13.5px/1.5 'IBM Plex Sans';color:var(--fg)"></textarea>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ tabVer }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:12px;display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ versions }}" as="v" hint-placeholder-count="5">
+                <button onClick="{{ v.pick }}" style="display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid {{ v.bd }};border-radius:8px;background:{{ v.bg }};color:var(--fg);text-align:left;cursor:pointer;transition:all .2s" style-hover="background-color:var(--card)">
+                  <span style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:500"><span>{{ v.when }}</span><span style="font:500 10.5px 'IBM Plex Mono';color:var(--teal)">{{ v.tag }}</span></span>
+                  <span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ v.who }} · {{ v.diff }}</span>
+                </button>
+              </sc-for>
+              <sc-if value="{{ verSel }}" hint-placeholder-val="{{ false }}"><button onClick="{{ restore }}" style="margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--fg);font:500 13px 'IBM Plex Sans';cursor:pointer">Shu versiyani tiklash</button></sc-if>
+            </div>
+          </sc-if>
+        </aside>
+      </sc-if>
+    </div>
+    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);padding:12px 18px;background:var(--fg);color:var(--bg);border-radius:8px;font-size:14px;box-shadow:0 10px 30px var(--shadow);animation:hf-up .3s both">{{ toast }}</div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const TYPES = [
+  { k:'p', icon:'¶', label:'Matn', desc:'Oddiy paragraf' },
+  { k:'h2', icon:'H2', label:'Sarlavha', desc:'Boʻlim sarlavhasi' },
+  { k:'h3', icon:'H3', label:'Kichik sarlavha', desc:'Ichki boʻlim' },
+  { k:'quote', icon:'“', label:'Iqtibos', desc:'Manbadan keltirma' },
+  { k:'footnote', icon:'¹', label:'Izoh (footnote)', desc:'Sahifa osti izohi' },
+  { k:'source', icon:'§', label:'Manba', desc:'Arxiv yoki adabiyot' },
+  { k:'list', icon:'•', label:'Roʻyxat', desc:'Belgili roʻyxat' },
+  { k:'image', icon:'▣', label:'Rasm', desc:'Izoh bilan rasm' },
+  { k:'gallery', icon:'▦', label:'Galereya', desc:'Bir nechta rasm' },
+  { k:'divider', icon:'◆', label:'Ajratgich', desc:'Naqshli chiziq' },
+];
+let uid = 100;
+class Component extends DCLogic {
+  root = React.createRef();
+  state = {
+    theme: null, lang: 'uz', panel: true, tab: 'meta', status: 0, period: 8, saving: false, savedAt: '14:32', dragId: null, overId: null, ver: null, toast: '',
+    docs: {
+      uz: { title: '1924-yilgi chegaralanish: Qoraqalpoq avtonom viloyati', blocks: [
+        { id: 1, type: 'p', text: '1924-yil 27-oktyabrda SSSR Markaziy Ijroiya Qoʻmitasi Oʻrta Osiyoda milliy-hududiy chegaralanishni tasdiqladi.' },
+        { id: 2, type: 'h2', text: 'Chegaralanish arafasida' },
+        { id: 3, type: 'p', text: 'Komissiya aholi tarkibi, xoʻjalik aloqalari va til xususiyatlari boʻyicha maʼlumot toʻpladi.' },
+        { id: 4, type: 'quote', text: 'Xalqning oʻz yerida oʻz ishini oʻzi boshqarishi — chegaralanishning asosiy maqsadidir.' },
+        { id: 5, type: 'image', text: 'Toʻrtkoʻl, 1925. Manba: OʻzR MDA' },
+        { id: 6, type: 'footnote', text: 'OʻzR MDA, fond R-25, roʻyxat 1, ish 162, 14–17-varaqlar.' },
+        { id: 7, type: 'source', text: 'Qoraqalpogʻiston tarixi. Nukus: Bilim, 2003.' },
+        { id: 8, type: 'p', text: '' },
+      ] },
+      kaa: { title: '1924-jılǵı shegaralaw: Qaraqalpaq avtonom wálayatı', blocks: [
+        { id: 51, type: 'p', text: '1924-jıl 27-oktyabrde SSSR Oraylıq Atqarıw Komiteti Orta Aziyada milliy-aymaqlıq shegaralawdı tastıyıqladı.' },
+        { id: 52, type: 'h2', text: '' },
+      ] },
+    },
+  };
+  componentDidUpdate() {
+    if (this.focusId != null) {
+      const el = this.root.current && this.root.current.querySelector(`[data-bid="${this.focusId}"]`);
+      if (el) { el.focus(); const n = el.value.length; el.setSelectionRange(n, n); }
+      this.focusId = null;
+    }
+  }
+  setBlocks(fn) {
+    this.setState(s => ({ docs: { ...s.docs, [s.lang]: { ...s.docs[s.lang], blocks: fn(s.docs[s.lang].blocks) } }, saving: true }));
+    this.autosave();
+  }
+  autosave() {
+    clearTimeout(this.t);
+    this.t = setTimeout(() => { const d = new Date(); this.setState({ saving: false, savedAt: String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }); }, 900);
+  }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  insertAfter(id, type = 'p') {
+    const nid = ++uid; this.focusId = nid;
+    this.setBlocks(bs => { const i = bs.findIndex(b => b.id === id); const c = [...bs]; c.splice(i + 1, 0, { id: nid, type, text: '' }); return c; });
+  }
+  renderVals() {
+    const s = this.state, doc = s.docs[s.lang];
+    const FONT = { p:"400 18px/1.7 Literata,serif", h2:"500 30px/1.25 Literata,serif", h3:"500 22px/1.3 Literata,serif", quote:"italic 400 21px/1.5 Literata,serif", footnote:"400 14px/1.55 'IBM Plex Sans',sans-serif", source:"400 14px/1.55 'IBM Plex Sans',sans-serif", list:"400 18px/1.7 Literata,serif", image:'', gallery:'', divider:'' };
+    let fn = 0;
+    const blocks = doc.blocks.map((b, i) => {
+      const q = b.text.startsWith('/') ? b.text.slice(1).toLowerCase() : null;
+      const opts = q == null ? [] : TYPES.filter(t => (t.label + t.k).toLowerCase().includes(q));
+      const text = !['image', 'gallery', 'divider'].includes(b.type) || b.type === 'image';
+      if (b.type === 'footnote') fn++;
+      const pick = k => () => {
+        this.focusId = b.id;
+        this.setBlocks(bs => { const out = bs.map(x => x.id === b.id ? { ...x, type: k, text: '' } : x); if (k === 'divider' || k === 'gallery') { const j = out.findIndex(x => x.id === b.id); out.splice(j + 1, 0, { id: ++uid, type: 'p', text: '' }); this.focusId = uid; } return out; });
+      };
+      const pre = { footnote: `[${fn}]`, source: 'MANBA', list: '•' }[b.type];
+      return {
+        id: b.id, text: b.text,
+        isText: !['image', 'gallery', 'divider'].includes(b.type), isImage: b.type === 'image', isGallery: b.type === 'gallery', isDivider: b.type === 'divider',
+        font: FONT[b.type],
+        bl: b.type === 'quote' ? '2px solid var(--primary)' : '0', pl: b.type === 'quote' ? 20 : (b.type === 'footnote' || b.type === 'source') ? 12 : 0,
+        bgc: (b.type === 'footnote' || b.type === 'source') ? 'var(--surface-2)' : 'transparent', rad: 6, pv: (b.type === 'footnote' || b.type === 'source') ? 8 : 0,
+        hasPre: !!pre, pre, preC: b.type === 'list' ? 'var(--fg)' : b.type === 'source' ? 'var(--teal)' : 'var(--primary)',
+        hpt: { h2: 10, h3: 6, quote: 4 }[b.type] || 4,
+        ph: i === doc.blocks.length - 1 || b.text === '' ? ({ h2: 'Sarlavha', h3: 'Kichik sarlavha', quote: 'Iqtibos…', footnote: 'Izoh matni…', source: 'Muallif. Nomi. Shahar: Nashriyot, yil.' }[b.type] || 'Yozing yoki «/» bosing…') : '',
+        menu: q != null, opts: opts.map((o, j) => ({ ...o, pick: pick(o.k), bg: j === 0 ? 'var(--surface-2)' : 'transparent' })), noOpts: q != null && !opts.length,
+        input: e => { const v = e.target.value; this.setBlocks(bs => bs.map(x => x.id === b.id ? { ...x, text: v } : x)); },
+        key: e => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (q != null && opts.length) return pick(opts[0].k)();
+            this.insertAfter(b.id, b.type === 'list' ? 'list' : 'p');
+          } else if (e.key === 'Backspace' && b.text === '' && doc.blocks.length > 1) {
+            e.preventDefault(); const prev = doc.blocks[Math.max(0, i - 1)]; this.focusId = prev.id;
+            this.setBlocks(bs => bs.filter(x => x.id !== b.id));
+          } else if (e.key === 'Escape' && q != null) {
+            this.setBlocks(bs => bs.map(x => x.id === b.id ? { ...x, text: '' } : x));
+          }
+        },
+        add: () => this.insertAfter(b.id),
+        start: e => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(b.id)); this.setState({ dragId: b.id }); },
+        end: () => this.setState({ dragId: null, overId: null }),
+        over: e => { if (s.dragId == null) return; e.preventDefault(); if (s.overId !== b.id) this.setState({ overId: b.id }); },
+        drop: e => { e.preventDefault(); const from = s.dragId; this.setState({ dragId: null, overId: null }); if (from == null || from === b.id) return;
+          this.setBlocks(bs => { const c = bs.filter(x => x.id !== from); const j = c.findIndex(x => x.id === b.id); c.splice(j, 0, bs.find(x => x.id === from)); return c; }); },
+        isOver: s.overId === b.id && s.dragId !== b.id, op: s.dragId === b.id ? .35 : 1,
+      };
+    });
+    const words = doc.blocks.reduce((n, b) => n + (b.text.trim() ? b.text.trim().split(/\s+/).length : 0), 0) + doc.title.split(/\s+/).length;
+    const FLOW = [['Qoralama', 'Aytmurat Q. · bugun'], ['Tekshiruvda', 'Muharrir: D. Rahimova'], ['Tasdiqlandi', 'Faktlar va manbalar'], ['Chop etildi', 'hisinf.uz/maqola']];
+    const ACT = ['Tekshiruvga yuborish', 'Tasdiqlash', 'Chop etish', 'Yangilash'];
+    const P = [['Qadimgi','var(--p-sand)'],['Antik','var(--p-ochre)'],['Ilk oʻrta asr','var(--p-olive)'],['Xorazmshohlar','var(--p-teal)'],['Moʻgʻullar','var(--p-brick)'],['Temuriylar','var(--p-indigo)'],['Xonliklar','var(--p-ochre)'],['Rossiya imp.','var(--p-sand)'],['Sovet','var(--p-brick)'],['Mustaqillik','var(--p-teal)']];
+    const V = [['Hozir', 'joriy', 'Aytmurat Q.', `${words} soʻz`], ['Bugun, 11:05', '', 'Aytmurat Q.', '+184 soʻz'], ['Kecha, 18:40', 'muharrir', 'D. Rahimova', '3 ta izoh'], ['7-okt, 09:12', '', 'Aytmurat Q.', '+620 soʻz'], ['5-okt, 16:00', 'birinchi', 'Aytmurat Q.', 'yaratildi']];
+    const pct = l => { const bs = s.docs[l].blocks; return Math.round(bs.filter(b => b.text.trim()).length / Math.max(1, s.docs.uz.blocks.filter(b => b.text.trim()).length) * 100); };
+    return {
+      root: this.root,
+      theme: s.theme || this.props.theme || 'light',
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      crumb: doc.title || 'Nomsiz', title: doc.title,
+      onTitle: e => { const v = e.target.value; this.setState(x => ({ docs: { ...x.docs, [x.lang]: { ...x.docs[x.lang], title: v } }, saving: true })); this.autosave(); },
+      saveDot: s.saving ? 'var(--gold)' : 'var(--teal)', saveLabel: s.saving ? 'Saqlanmoqda…' : `Saqlandi ${s.savedAt}`,
+      words, mins: Math.max(1, Math.round(words / 180)),
+      panel: s.panel, panelBtn: s.panel ? 'Panelni yopish' : 'Sozlamalar',
+      togglePanel: () => this.setState(x => ({ panel: !x.panel })),
+      nextAction: ACT[s.status],
+      advance: () => { const n = Math.min(3, s.status + 1); this.setState({ status: n }); this.flash(['', 'Muharrir tekshiruviga yuborildi', 'Maqola tasdiqlandi', 'Maqola chop etildi'][n] || 'Yangilandi'); },
+      langTabs: [['uz', 'OʻZBEKCHA'], ['kaa', 'QARAQALPAQSHA']].map(([k, label]) => ({ label, pct: k === 'uz' ? 'asl' : pct('kaa') + '%', bd: s.lang === k ? 'var(--fg)' : 'var(--border)', bg: s.lang === k ? 'var(--fg)' : 'transparent', fg: s.lang === k ? 'var(--bg)' : 'var(--muted)', pick: () => this.setState({ lang: k }) })),
+      blocks,
+      addEnd: () => this.insertAfter(doc.blocks[doc.blocks.length - 1].id),
+      tabs: [['meta', 'Sozlamalar'], ['ver', 'Versiyalar']].map(([k, label]) => ({ label, bd: s.tab === k ? 'var(--primary)' : 'transparent', fg: s.tab === k ? 'var(--fg)' : 'var(--muted)', pick: () => this.setState({ tab: k }) })),
+      tabMeta: s.tab === 'meta', tabVer: s.tab === 'ver',
+      flow: FLOW.map(([label, who], i) => ({ label, who, c: i <= s.status ? 'var(--teal)' : 'var(--ornament)', fill: i < s.status ? 'var(--teal)' : i === s.status ? 'var(--bg)' : 'transparent', lc: i === 3 ? 'transparent' : i < s.status ? 'var(--teal)' : 'var(--border)', fw: i === s.status ? 600 : 400, tc: i <= s.status ? 'var(--fg)' : 'var(--muted)' })),
+      periods: P.map(([name, c], i) => ({ name, c, bd: s.period === i ? 'var(--fg)' : 'var(--border)', bg: s.period === i ? 'var(--card)' : 'transparent', pick: () => this.setState({ period: i }) })),
+      versions: V.map(([when, tag, who, diff], i) => ({ when, tag, who, diff, bd: s.ver === i ? 'var(--line)' : 'transparent', bg: s.ver === i ? 'var(--card)' : 'transparent', pick: () => this.setState({ ver: i }) })),
+      verSel: s.ver != null && s.ver > 0,
+      restore: () => { this.flash(`«${V[s.ver][0]}» versiyasi tiklandi`); this.setState({ ver: null }); },
+      toast: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

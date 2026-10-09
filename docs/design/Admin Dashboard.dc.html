@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+</helmet>
+<div data-theme="{{ theme }}" style="display:flex;min-height:900px;background:var(--bg);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="AdminSidebar" active="dash" on-theme="{{ toggleTheme }}" hint-size="248px,900px"></dc-import>
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:16px;padding:14px 32px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--muted)">
+      <span>Ish stoli</span><span>/</span><span style="color:var(--fg)">Boshqaruv paneli</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:var(--teal);animation:hf-pulse 2s infinite"></span>Sayt ishlayapti</span>
+      <a href="#editor" style="display:flex;gap:8px;padding:9px 16px;background:var(--primary);color:var(--primary-fg);border-radius:6px;font-weight:500;transition:transform .2s" style-hover="color:var(--primary-fg);transform:translateY(-1px)">+ Yangi maqola</a>
+    </div>
+    <div style="padding:32px;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:end;justify-content:space-between;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 11px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Payshanba, 9-oktabr</span><h1 style="margin:0;font:400 42px/1.05 Literata,serif;letter-spacing:-.02em">Xayrli kun, Aytmurat</h1></div>
+        <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font:500 12px 'IBM Plex Mono'">
+          <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3"><button onClick="{{ r.pick }}" style="border:0;padding:8px 14px;cursor:pointer;font:inherit;background:{{ r.bg }};color:{{ r.fg }}">{{ r.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:12px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;animation:hf-up .5s {{ s.d }}ms both;transition:border-color .2s" style-hover="border-color:var(--line)">
+            <span style="font-size:13px;color:var(--muted)">{{ s.label }}</span>
+            <span style="font:400 38px/1 Literata,serif">{{ s.v }}</span>
+            <span style="font:500 12px 'IBM Plex Mono';color:{{ s.c }}">{{ s.delta }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px">
+        <div style="padding:22px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;justify-content:space-between"><span style="font:500 18px Literata,serif">Oʻqishlar</span><span style="display:flex;gap:14px;font:500 11px 'IBM Plex Mono';color:var(--muted)"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:var(--primary)"></span>UZ</span><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:var(--teal)"></span>KAA</span></span></div>
+          <div style="height:220px;display:flex;align-items:flex-end;gap:6px;border-bottom:1px solid var(--line);padding-bottom:2px">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="14">
+              <div title="{{ b.tip }}" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%;cursor:pointer;transition:opacity .2s" style-hover="opacity:.75">
+                <span style="height:{{ b.k }}%;background:var(--teal);border-radius:2px 2px 0 0;transform-origin:bottom;animation:hf-grow .8s {{ b.d }}ms both"></span>
+                <span style="height:{{ b.u }}%;background:var(--primary);transform-origin:bottom;animation:hf-grow .8s {{ b.d }}ms both"></span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;font:400 11px 'IBM Plex Mono';color:var(--muted)"><span>{{ axis0 }}</span><span>{{ axis1 }}</span></div>
+        </div>
+        <div style="padding:22px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;gap:14px">
+          <span style="font:500 18px Literata,serif">Davrlar boʻyicha</span>
+          <sc-for list="{{ byPeriod }}" as="p" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between;font-size:13px"><span>{{ p.name }}</span><span style="font-family:'IBM Plex Mono';color:var(--muted)">{{ p.n }}</span></span><span style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:{{ p.w }}%;background:{{ p.c }};border-radius:3px;animation:hf-ink 1s both"></span></span></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border)"><span style="font:500 18px Literata,serif">Tekshiruv navbati</span><span style="font:500 11px 'IBM Plex Mono';padding:4px 8px;border-radius:999px;background:var(--primary);color:var(--primary-fg)">{{ queueN }}</span></div>
+          <sc-for list="{{ queue }}" as="q" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 22px;border-bottom:1px solid var(--border);transition:background-color .2s" style-hover="background-color:var(--surface-2)">
+              <div style="display:flex;flex-direction:column;gap:5px;min-width:0"><span style="font-weight:500;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.title }}</span><span style="font:400 12px 'IBM Plex Mono';color:var(--muted)">{{ q.author }} · {{ q.when }}</span></div>
+              <span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid {{ q.c }};color:{{ q.c }}">{{ q.status }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border)"><span style="font:500 18px Literata,serif">Izohlar moderatsiyasi</span><span style="font:500 12px 'IBM Plex Mono';color:var(--muted)">{{ modN }} kutmoqda</span></div>
+          <sc-for list="{{ mods }}" as="m" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:16px 22px;border-bottom:1px solid var(--border);opacity:{{ m.op }};transition:opacity .3s">
+              <div style="display:flex;gap:10px;align-items:center;font-size:13px"><span style="font-weight:600">{{ m.name }}</span><span style="color:var(--muted)">→ {{ m.post }}</span></div>
+              <span style="font:400 15px/1.5 Literata,serif">{{ m.text }}</span>
+              <sc-if value="{{ m.open }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ m.ok }}" style="padding:7px 14px;border:0;border-radius:6px;background:var(--teal);color:var(--bg);font:500 13px 'IBM Plex Sans';cursor:pointer">✓ Tasdiqlash</button>
+                  <button onClick="{{ m.no }}" style="padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--fg);font:500 13px 'IBM Plex Sans';cursor:pointer">Rad etish</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ m.closed }}" hint-placeholder-val="{{ false }}"><span style="font:500 12px 'IBM Plex Mono';color:{{ m.rc }}">{{ m.result }}</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null, range: 1, mod: {} };
+  renderVals() {
+    const s = this.state;
+    const R = ['7 kun', '30 kun', '1 yil'];
+    const mult = [0.3, 1, 11][s.range];
+    const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + 'K' : String(Math.round(n));
+    const seed = [42, 58, 51, 70, 66, 82, 60, 74, 90, 77, 68, 85, 96, 88];
+    const M = [
+      { id: 1, name: 'Madina E.', post: '1924-yilgi chegaralanish', text: 'Toʻrtkoʻldagi bino hozir saqlanib qolganmi?' },
+      { id: 2, name: 'anon_77', post: 'Amir Temur saltanati', text: 'Bu maqolada sanalar notoʻgʻri!!! manba yoʻq' },
+      { id: 3, name: 'Jasur T.', post: 'Tuproqqalʼa', text: 'Oʻquvchilarim bilan muzeyga borishdan oldin oʻqidik, rahmat.' },
+    ];
+    return {
+      theme: s.theme || this.props.theme || 'light',
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      ranges: R.map((label, i) => ({ label, bg: s.range === i ? 'var(--fg)' : 'var(--card)', fg: s.range === i ? 'var(--bg)' : 'var(--muted)', pick: () => this.setState({ range: i }) })),
+      stats: [
+        { label: 'Oʻqishlar', v: fmt(48200 * mult), delta: '↑ 12,4%', c: 'var(--teal)' },
+        { label: 'Chop etilgan maqolalar', v: fmt(18 * mult), delta: '↑ 3 ta', c: 'var(--teal)' },
+        { label: 'Yangi izohlar', v: fmt(312 * mult), delta: '↓ 4,1%', c: 'var(--primary)' },
+        { label: 'Roʻyxatdan oʻtganlar', v: fmt(1240 * mult), delta: '↑ 8,0%', c: 'var(--teal)' },
+      ].map((x, i) => ({ ...x, d: i * 70 })),
+      bars: seed.map((v, i) => { const u = (((v * (s.range + 3)) % 40) + 35); return { u: u * 0.7, k: u * 0.28, d: i * 40, tip: fmt(v * 120 * mult) + ' oʻqish' }; }),
+      axis0: ['3-okt', '10-sen', 'Okt 2025'][s.range], axis1: '9-okt',
+      byPeriod: [['Sovet davri', 54, 'var(--p-brick)'], ['Temuriylar', 41, 'var(--p-indigo)'], ['Xonliklar', 33, 'var(--p-ochre)'], ['Antik davr', 28, 'var(--p-ochre)'], ['Xorazmshohlar', 22, 'var(--p-teal)'], ['Mustaqillik', 19, 'var(--p-teal)']].map(([name, n, c]) => ({ name, n, c, w: n / 54 * 100 })),
+      queueN: 7,
+      queue: [
+        ['Xiva xonligida suv xoʻjaligi', 'Berdaq J.', '2 soat', 'Yangi', 'var(--primary)'],
+        ['Muynoq: baliqchilik tarixi', 'Gulnora S.', '5 soat', 'Tahrirda', 'var(--gold)'],
+        ['Sugʻd tilidagi hujjatlar', 'Sherzod Y.', 'kecha', 'Tarjima', 'var(--p-indigo)'],
+        ['Qoraqalpoq dostonlari', 'Dilnoza R.', '2 kun', 'Tayyor', 'var(--teal)'],
+      ].map(([title, author, when, status, c]) => ({ title, author, when, status, c })),
+      modN: M.filter(m => !s.mod[m.id]).length,
+      mods: M.map(m => { const r = s.mod[m.id]; return { ...m, open: !r, closed: !!r, op: r ? .55 : 1, result: r === 'ok' ? '✓ Chop etildi' : '✕ Rad etildi', rc: r === 'ok' ? 'var(--teal)' : 'var(--primary)', ok: () => this.setState(x => ({ mod: { ...x.mod, [m.id]: 'ok' } })), no: () => this.setState(x => ({ mod: { ...x.mod, [m.id]: 'no' } })) }; }),
+    };
+  }
+}
+</script>
+</body>
+</html>

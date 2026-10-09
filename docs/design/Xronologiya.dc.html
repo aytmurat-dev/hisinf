@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="hisinf.css">
+<script src="hisinf-fx.js"></script>
+</helmet>
+<div ref="{{ root }}" data-theme="{{ theme }}" style="position:relative;overflow:hidden;background-color:var(--bg);background-image:var(--paper);color:var(--fg);font-family:'IBM Plex Sans',sans-serif">
+  <dc-import name="SiteHeader" active="periods" lang="{{ lang }}" on-lang="{{ setLang }}" on-theme="{{ toggleTheme }}" hint-size="100%,112px"></dc-import>
+  <section style="padding:72px 48px 48px;display:flex;flex-direction:column;gap:18px;align-items:center;text-align:center">
+    <span style="display:flex;align-items:center;gap:12px;font:500 12px 'IBM Plex Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--primary);animation:hf-up .6s both"><span style="width:28px;height:1px;background:currentColor"></span>{{ t.kicker }}<span style="width:28px;height:1px;background:currentColor"></span></span>
+    <h1 style="margin:0;font:400 clamp(56px,7vw,100px)/.95 Literata,serif;letter-spacing:-.04em;animation:hf-up .7s .08s both">{{ t.title }}</h1>
+    <p style="margin:0;max-width:52ch;font:400 19px/1.55 Literata,serif;color:var(--muted);animation:hf-up .7s .16s both">{{ t.sub }}</p>
+  </section>
+
+  <section style="padding:0 48px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font:500 11px 'IBM Plex Mono';letter-spacing:.1em;color:var(--muted)"><button onClick="{{ prev }}" style="border:1px solid var(--line);background:transparent;color:var(--fg);width:40px;height:40px;border-radius:50%;cursor:pointer;font:500 14px 'IBM Plex Mono';transition:all .2s" style-hover="background-color:var(--fg);color:var(--bg)">←</button><span>{{ pos }}</span><button onClick="{{ next }}" style="border:1px solid var(--line);background:transparent;color:var(--fg);width:40px;height:40px;border-radius:50%;cursor:pointer;font:500 14px 'IBM Plex Mono';transition:all .2s" style-hover="background-color:var(--fg);color:var(--bg)">→</button></div>
+    <div style="display:flex;border:1px solid var(--line);background:var(--card)">
+      <sc-for list="{{ eras }}" as="e" hint-placeholder-count="10">
+        <button onClick="{{ e.pick }}" style="position:relative;flex:{{ e.flex }};min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px 12px 18px;border:0;border-right:1px solid var(--line);background:{{ e.bg }};color:{{ e.fg }};text-align:left;cursor:pointer;transition:flex .6s cubic-bezier(.2,.7,.2,1),background-color .3s" style-hover="background-color:var(--surface-2)">
+          <span style="position:absolute;left:0;right:0;top:0;height:{{ e.bar }}px;background:{{ e.c }};transition:height .4s"></span>
+          <span style="font:500 11px 'IBM Plex Mono';opacity:.7">{{ e.n }}</span>
+          <span style="font:500 15px/1.2 Literata,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.short }}</span>
+          <span style="font:400 10.5px 'IBM Plex Mono';opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.yrs }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:72px 48px 112px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:72px">
+    <div style="position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:22px">
+      <span data-ev="1" style="font:400 120px/.85 Literata,serif;color:{{ cur.c }};letter-spacing:-.04em">{{ cur.n }}</span>
+      <h2 data-ev="1" style="margin:0;font:400 48px/1.05 Literata,serif;letter-spacing:-.02em;text-wrap:balance">{{ cur.name }}</h2>
+      <span data-ev="1" style="font:500 14px 'IBM Plex Mono';color:{{ cur.c }}">{{ cur.yrs }}</span>
+      <p data-ev="1" style="margin:0;font:400 18px/1.6 Literata,serif;color:var(--muted);text-wrap:pretty">{{ cur.desc }}</p>
+      <div data-ev="1" style="height:260px;border:1px solid var(--line);padding:8px;background:var(--card)"><div style="height:100%;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--ph) 0 1px,transparent 1px 8px),var(--surface-2);display:grid;place-items:center"><span style="font:500 10.5px 'IBM Plex Mono';text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 10px">gravyura · {{ cur.ph }}</span></div></div>
+      <div data-ev="1" style="display:flex;gap:28px"><span style="display:flex;flex-direction:column;gap:4px"><span style="font:400 30px/1 Literata,serif">{{ cur.posts }}</span><span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">maqola</span></span><span style="display:flex;flex-direction:column;gap:4px"><span style="font:400 30px/1 Literata,serif">{{ cur.people }}</span><span style="font:500 10.5px 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">shaxs</span></span></div>
+    </div>
+    <div style="position:relative;display:flex;flex-direction:column;padding-left:56px">
+      <span data-spine="1" style="position:absolute;left:15px;top:8px;bottom:8px;width:1.5px;background:var(--line);transform-origin:top"></span>
+      <sc-for list="{{ events }}" as="ev" hint-placeholder-count="5">
+        <a href="#maqola" data-ev="1" style="position:relative;display:grid;grid-template-columns:120px minmax(0,1fr);gap:24px;padding:26px 24px;margin-bottom:12px;border:1px solid transparent;color:var(--fg);transition:background-color .25s,border-color .25s,transform .25s" style-hover="color:var(--fg);background-color:var(--card);border-color:var(--line);transform:translateX(6px)">
+          <span style="position:absolute;left:-49px;top:32px;width:14px;height:14px;transform:rotate(45deg);background:var(--bg);border:1.5px solid {{ cur.c }}"></span>
+          <span style="font:400 28px/1.1 Literata,serif;color:{{ cur.c }}">{{ ev.y }}</span>
+          <span style="display:flex;flex-direction:column;gap:8px"><span style="font:500 22px/1.25 Literata,serif;text-wrap:balance">{{ ev.t }}</span><span style="font:400 15.5px/1.55 Literata,serif;color:var(--muted)">{{ ev.d }}</span><span style="font:500 12px 'IBM Plex Mono';color:var(--primary)">{{ ev.link }}</span></span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+  <dc-import name="SiteFooter" lang="{{ lang }}" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ERAS = [
+  ['Qadimgi davr','Qadimgi','mil. avv. 100 000 – 600','var(--p-sand)',3,'Teshiktosh, Sarazm va Qoʻyqirilganqalʼa — Oʻrta Osiyodagi ilk manzilgohlar.','Teshiktosh gʻori',12,4,[['mil. avv. 70 000','Teshiktosh odami','Boysun togʻlarida neandertal bolasining qoldiqlari topildi.'],['mil. avv. 3500','Sarazm','Zarafshon vodiysidagi ilk dehqonchilik va metallurgiya markazi.'],['mil. avv. 1000','Amirobod madaniyati','Quyi Amudaryoda ilk sugʻorish kanallari.']]],
+  ['Antik davr','Antik','mil. avv. 600 – 400','var(--p-ochre)',2,'Xorazm, Sugʻd va Baqtriya davlatlari, Ahamoniylar, Aleksandr va Kushonlar.','Tuproqqalʼa',27,9,[['mil. avv. 329','Aleksandr Sugʻdda','Spitamen boshchiligidagi qarshilik.'],['I asr','Kushon podsholigi','Termiz va Dalvarzintepa — buddaviylik markazlari.'],['III asr','Tuproqqalʼa saroyi','Xorazm podsholarining qarorgohi qurildi.']]],
+  ['Ilk oʻrta asrlar','Ilk OʻA','401 – 850','var(--p-olive)',1.4,'Eftaliylar, Turk xoqonligi va arab istilosi davri.','Afrosiyob devoriy surati',19,6,[['VI asr','Turk xoqonligi','Ipak yoʻlining shimoliy tarmogʻi nazoratga olindi.'],['712','Qutayba Samarqandda','Arab xalifaligi Movarounnahrga kirdi.']]],
+  ['Musulmon renessansi va Xorazmshohlar','Renessans','851 – 1220','var(--p-teal)',1.4,'Somoniylar, Qoraxoniylar va Xorazmshohlar davlati. Ilm-fan yuksalishi.','Maʼmun akademiyasi',34,14,[['875','Somoniylar davlati','Buxoro poytaxt sifatida ilm markaziga aylandi.'],['1004','Maʼmun akademiyasi','Beruniy va Ibn Sino Xorazmda faoliyat yuritdi.'],['1200','Muhammad Xorazmshoh','Davlat eng katta hududiga erishdi.']]],
+  ['Moʻgʻullar va Oltin Oʻrda','Moʻgʻullar','1221 – 1370','var(--p-brick)',1,'Chingizxon yurishi, Chigʻatoy ulusi va Oltin Oʻrda.','Urganch qamali',15,5,[['1221','Urganch mudofaasi','Olti oylik qamaldan soʻng shahar vayron qilindi.'],['1227','Chigʻatoy ulusi','Movarounnahr Chigʻatoy ulusiga kirdi.']]],
+  ['Temuriylar davri','Temuriylar','1370 – 1507','var(--p-indigo)',1,'Amir Temur saltanati va Temuriylar madaniy uygʻonishi.','Registon',41,12,[['1370','Amir Temur hokimiyati','Samarqand saltanat poytaxti boʻldi.'],['1420','Ulugʻbek rasadxonasi','Ziji Koʻragoniy jadvallari tuzildi.'],['1501','Shayboniyxon','Samarqand Shayboniylarga oʻtdi.']]],
+  ['Xonliklar davri','Xonliklar','1508 – 1873','var(--p-ochre)',1.2,'Buxoro, Xiva va Qoʻqon xonliklari. Qoraqalpoqlarning Amudaryo boʻyiga koʻchishi.','Ichan qalʼa',33,11,[['1512','Xiva xonligi','Elbarsxon Xorazmda yangi sulolaga asos soldi.'],['1811','Qoraqalpoqlar Xiva tarkibida','Quyi Amudaryo yerlari xonlikka qoʻshildi.'],['1855','Ernazar Olako‘z qoʻzgʻoloni','Xiva xonligiga qarshi qoraqalpoq qoʻzgʻoloni.']]],
+  ['Rossiya imperiyasi davri','Rossiya imp.','1873 – 1917','var(--p-sand)',.9,'Turkiston general-gubernatorligi, jadidchilik harakati.','jadid maktabi',21,8,[['1873','Gandimiyon shartnomasi','Xiva xonligi Rossiya protektoratiga aylandi.'],['1874','Amudaryo boʻlimi','Petro-Aleksandrovsk (Toʻrtkoʻl) markaz boʻldi.']]],
+  ['Sovet davri','Sovet','1917 – 1991','var(--p-brick)',1.1,'Milliy-hududiy chegaralanish, kollektivlashtirish, Ikkinchi jahon urushi, Orol fojiasi.','Toʻrtkoʻl, 1925',54,16,[['1924','Chegaralanish','Qoraqalpoq avtonom viloyati tuzildi.'],['1932','Qoraqalpoq ASSR','Viloyat respublika maqomini oldi.'],['1936','Oʻzbekiston SSR tarkibida','Qoraqalpogʻiston ASSR Oʻzbekistonga oʻtkazildi.'],['1960-yillar','Orol dengizi','Sugʻorish natijasida dengiz qurishi boshlandi.']]],
+  ['Mustaqillik davri','Mustaqillik','1991 – 2026','var(--p-teal)',1,'Mustaqil Oʻzbekiston va Qoraqalpogʻiston Respublikasi.','Mustaqillik maydoni',19,7,[['1991','Mustaqillik','31-avgustda Oʻzbekiston mustaqilligi eʼlon qilindi.'],['1992','Konstitutsiya','8-dekabrda Asosiy qonun qabul qilindi.'],['1993','Qoraqalpogʻiston Konstitutsiyasi','Respublikaning Asosiy qonuni qabul qilindi.']]],
+];
+class Component extends DCLogic {
+  state = { theme: null, lang: 'uz', era: 8 };
+  root = React.createRef();
+  componentDidMount() { const go = (t = 0) => window.HFX ? window.HFX.all(this.root.current) : t < 40 && setTimeout(() => go(t + 1), 100); go(); this.anim(); }
+  componentDidUpdate(_, ps) { if (ps.era !== this.state.era) this.anim(); }
+  anim() {
+    const r = this.root.current; if (!r || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    r.querySelectorAll('[data-ev]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 550, delay: i * 70, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }));
+    const sp = r.querySelector('[data-spine]'); sp && sp.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 1100, easing: 'cubic-bezier(.4,0,.2,1)' });
+  }
+  renderVals() {
+    const s = this.state, kaa = s.lang === 'kaa';
+    const t = kaa ? { kicker:'Dáwirler', title:'Xronologiya', sub:'On tariyxıy dáwir — tas dáwirinen ǵárezsizlikke shekem. Dáwirdi saylań.' } : { kicker:'Davrlar', title:'Xronologiya', sub:'Oʻnta tarixiy davr — tosh davridan mustaqillikkacha. Davrni tanlang va voqealarni koʻring.' };
+    const e = ERAS[s.era];
+    const go = i => this.setState({ era: (i + ERAS.length) % ERAS.length });
+    return {
+      root: this.root, t, theme: s.theme || this.props.theme || 'light', lang: s.lang,
+      setLang: l => this.setState({ lang: l }),
+      toggleTheme: () => this.setState(x => ({ theme: (x.theme || this.props.theme || 'light') === 'dark' ? 'light' : 'dark' })),
+      pos: `${String(s.era + 1).padStart(2, '0')} / 10`,
+      prev: () => go(s.era - 1), next: () => go(s.era + 1),
+      eras: ERAS.map((x, i) => { const on = i === s.era; return { n: String(i + 1).padStart(2, '0'), short: x[1], yrs: x[2], c: x[3], flex: on ? 3.2 : x[4], bg: on ? 'var(--fg)' : 'transparent', fg: on ? 'var(--bg)' : 'var(--fg)', bar: on ? 6 : 3, pick: () => go(i) }; }),
+      cur: { n: String(s.era + 1).padStart(2, '0'), name: e[0], yrs: e[2], c: e[3], desc: e[5], ph: e[6], posts: e[7], people: e[8] },
+      events: e[9].map(([y, tt, d]) => ({ y, t: tt, d, link: 'Maqolani oʻqish →' })),
+    };
+  }
+}
+</script>
+</body>
+</html>
