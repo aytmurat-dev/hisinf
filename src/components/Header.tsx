@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { ThemeToggle } from './ThemeToggle'
+import { ThemeToggle } from './layout/ThemeToggle'
 import { HeaderSearch } from './HeaderSearch'
 import { Menu, X, Shield, LogOut } from 'lucide-react'
 

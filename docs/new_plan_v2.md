@@ -652,7 +652,7 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P2.S1 — Shriftlar
 
-- [ ] **V2-P2.S1.1** `src/app/(frontend)/fonts.ts`:
+- [x] **V2-P2.S1.1** `src/app/(frontend)/fonts.ts`:
   ```ts
   import { Literata, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 
@@ -677,8 +677,8 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
   })
   ```
   `next/font` bitta shrift uchun `axes` bilan `weight` ni birga qabul qilmasa, Literata'da `weight` bermang (variable font).
-- [ ] **V2-P2.S1.2** `[locale]/layout.tsx`: `<html lang={locale} className={cn(literata.variable, plexSans.variable, plexMono.variable)} suppressHydrationWarning>`.
-- [ ] **V2-P2.S1.3** **Glif testi:** `src/app/(frontend)/[locale]/dev/glyphs/page.tsx` (faqat `process.env.NODE_ENV === 'development'` da ochiladi, aks holda `notFound()`). U uchala shriftda quyidagi satrni ko'rsatadi:
+- [x] **V2-P2.S1.2** `[locale]/layout.tsx`: `<html lang={locale} className={cn(literata.variable, plexSans.variable, plexMono.variable)} suppressHydrationWarning>`.
+- [x] **V2-P2.S1.3** **Glif testi:** `src/app/(frontend)/[locale]/dev/glyphs/page.tsx` (faqat `process.env.NODE_ENV === 'development'` da ochiladi, aks holda `notFound()`). U uchala shriftda quyidagi satrni ko'rsatadi:
   `Qaraqalpaqsha: Áá Óó Úú Ǵǵ Ńń Íı Shsh Chch — Oʻzbekcha: Oʻoʻ Gʻgʻ maʼno — «Iqtibos» “Iqtibos” — 1220–1405 ← → ✓ ♥ ◷ ⌘`
   DevTools → Elements → Computed → "Rendered Fonts" bo'limida har bir glif kerakli shriftda chizilganini tekshiring. Biror glif zaxira shriftga tushsa, uni `docs/design-fonts.md` ga yozing. Belgi muhim bo'lsa (`ǵ`, `ń`, `ı`), o'sha rol uchun zaxira sifatida `Noto Sans`/`Noto Serif` qo'shing.
 
@@ -686,163 +686,15 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P2.S2 — `globals.css` (to'liq almashtiriladi)
 
-- [ ] **V2-P2.S2.1** `src/app/(frontend)/globals.css` ni **to'liq** quyidagiga almashtiring. Hozirgi `gold-*`, `historical-divider` klasslari o'chadi. Ularni ishlatgan komponentlar P6 da qayta yoziladi.
-  ```css
-  @import "tailwindcss";
-
-  @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
-  /* ---------- 1. Tokenlar (manba: docs/design/hisinf.css) ---------- */
-  :root,
-  [data-theme="light"] {
-    --bg:#f5efe3; --fg:#2b2118; --card:#fbf7ee; --surface-2:#efe6d4; --muted:#6b5d4f;
-    --primary:#8c2f1b; --primary-fg:#fff8ee; --teal:#2f5d62; --border:#dccfb8; --line:#2b2118;
-    --gold:#a07a3c; --ornament:#b89a6a; --ring:#2f5d62; --ph:rgba(43,33,24,.07); --shadow:rgba(60,40,20,.12);
-    --p-ochre:#b7791f; --p-teal:#2f5d62; --p-brick:#8c2f1b; --p-olive:#5f6b2e; --p-indigo:#3b4a7a; --p-sand:#9c7f57;
-    --paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .14 0 0 0 0 .08 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --article-fs: 19px;
-    --header-h: 112px;
-  }
-  [data-theme="dark"] {
-    --bg:#15110d; --fg:#ede4d3; --card:#1f1914; --surface-2:#2a221b; --muted:#a89a86;
-    --primary:#d9785c; --primary-fg:#1a120c; --teal:#6fb1b5; --border:#3a3027; --line:#ede4d3;
-    --gold:#cfae74; --ornament:#7a6446; --ring:#6fb1b5; --ph:rgba(237,228,211,.06); --shadow:rgba(0,0,0,.4);
-    --p-ochre:#e0a54a; --p-teal:#6fb1b5; --p-brick:#d9785c; --p-olive:#a5b36a; --p-indigo:#8d9be0; --p-sand:#c9ad86;
-  }
-
-  /* ---------- 2. Tailwind'ga ulash ---------- */
-  @theme inline {
-    --color-bg: var(--bg);
-    --color-fg: var(--fg);
-    --color-card: var(--card);
-    --color-surface-2: var(--surface-2);
-    --color-muted: var(--muted);
-    --color-primary: var(--primary);
-    --color-primary-fg: var(--primary-fg);
-    --color-teal: var(--teal);
-    --color-border: var(--border);
-    --color-line: var(--line);
-    --color-gold: var(--gold);
-    --color-ornament: var(--ornament);
-    --color-ring: var(--ring);
-    --color-p-ochre: var(--p-ochre);
-    --color-p-teal: var(--p-teal);
-    --color-p-brick: var(--p-brick);
-    --color-p-olive: var(--p-olive);
-    --color-p-indigo: var(--p-indigo);
-    --color-p-sand: var(--p-sand);
-
-    --font-serif: var(--font-literata), Georgia, serif;
-    --font-sans: var(--font-plex-sans), system-ui, sans-serif;
-    --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-
-    --ease-ink: cubic-bezier(.2,.7,.2,1);
-
-    --animate-hf-up: hf-up .7s cubic-bezier(.2,.7,.2,1) both;
-    --animate-hf-ink: hf-ink .5s ease both;
-    --animate-hf-spin: hf-spin 30s linear infinite;
-    --animate-hf-pulse: hf-pulse 2s infinite;
-    --animate-hf-float: hf-float 5s ease-in-out infinite;
-    --animate-hf-marquee: hf-marquee 48s linear infinite;
-    --animate-hf-pop: hf-pop .25s both;
-    --animate-hf-slide: hf-slide .45s cubic-bezier(.2,.7,.2,1) both;
-    --animate-hf-drop: hf-drop .6s both;
-    --animate-hf-ping: hf-ping 1.4s infinite;
-    --animate-hf-grow: hf-grow .8s both;
-  }
-
-  /* ---------- 3. Keyframes (hisinf.css dan aynan) ---------- */
-  @keyframes hf-up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-  @keyframes hf-ink{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
-  @keyframes hf-spin{to{transform:rotate(360deg)}}
-  @keyframes hf-pulse{0%{box-shadow:0 0 0 0 rgba(140,47,27,.45)}100%{box-shadow:0 0 0 14px rgba(140,47,27,0)}}
-  @keyframes hf-blink{50%{opacity:0}}
-  @keyframes hf-marquee{to{transform:translateX(-50%)}}
-  @keyframes hf-draw{to{stroke-dashoffset:0}}
-  @keyframes hf-float{50%{transform:translateY(-6px)}}
-  @keyframes hf-grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-  @keyframes hf-pop{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
-  @keyframes hf-slide{from{transform:translateX(100%)}to{transform:none}}
-  @keyframes hf-drop{0%{opacity:0;transform:translateY(-30px) scale(.6)}70%{opacity:1;transform:translateY(3px) scale(1.05)}100%{transform:none}}
-  @keyframes hf-ping{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.6);opacity:0}}
-
-  /* ---------- 4. Utilitalar ---------- */
-  @utility bg-hatch { background: repeating-linear-gradient(135deg, var(--ph) 0 1px, transparent 1px 8px), var(--surface-2); }
-  @utility bg-paper { background-color: var(--bg); background-image: var(--paper); }
-  @utility shadow-offset { box-shadow: 8px 8px 0 var(--fg); }
-  @utility shadow-offset-sm { box-shadow: 6px 6px 0 var(--fg); }
-  @utility shadow-btn { box-shadow: 0 4px 0 var(--fg); }
-
-  /* Sahifa burchagi qayrilishi (dizayn: data-curl) */
-  .curl { position: relative; }
-  .curl::after {
-    content: ""; position: absolute; right: -1px; top: -1px; width: 0; height: 0; pointer-events: none; z-index: 2;
-    background: linear-gradient(225deg, var(--bg) 50%, var(--surface-2) 50%);
-    box-shadow: -3px 3px 6px var(--shadow);
-    transition: width .45s var(--ease-ink), height .45s var(--ease-ink);
-  }
-  .curl:hover::after { width: 46px; height: 46px; }
-
-  /* Pero-kursor (dizayn: hisinf-fx.js NIB / NIB_HOT) — faqat html.fx-cursor bo'lsa */
-  @media (hover: hover) and (pointer: fine) {
-    html.fx-cursor, html.fx-cursor body {
-      cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><g transform='rotate(45 14 14)'><path d='M14 1 L19 9 L19 19 L14 27 L9 19 L9 9 Z' fill='%232b2118' stroke='%23f5efe3' stroke-width='1.6' stroke-linejoin='round'/><path d='M14 1 L19 9 L19 19 L14 27 L9 19 L9 9 Z' fill='none' stroke='%232b2118' stroke-width='1' stroke-linejoin='round'/><line x1='14' y1='15' x2='14' y2='26' stroke='%23f5efe3' stroke-width='1'/><circle cx='14' cy='13' r='1.6' fill='%23f5efe3'/></g></svg>") 4 24, auto;
-    }
-    html.fx-cursor :is(a, button, select, label, summary, [role="button"], [data-hot]) {
-      cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><g transform='rotate(45 14 14)'><path d='M14 1 L19 9 L19 19 L14 27 L9 19 L9 9 Z' fill='%238c2f1b' stroke='%23f5efe3' stroke-width='1.6' stroke-linejoin='round'/><path d='M14 1 L19 9 L19 19 L14 27 L9 19 L9 9 Z' fill='none' stroke='%232b2118' stroke-width='1' stroke-linejoin='round'/><line x1='14' y1='15' x2='14' y2='26' stroke='%23f5efe3' stroke-width='1'/><circle cx='14' cy='13' r='1.6' fill='%23f5efe3'/></g></svg>") 4 24, pointer;
-    }
-    html.fx-cursor :is(input, textarea, [contenteditable="true"]) { cursor: text; }
-  }
-
-  /* ---------- 5. Base ---------- */
-  @layer base {
-    html { background: var(--bg); }
-    body {
-      background-color: var(--bg); background-image: var(--paper); color: var(--fg);
-      font-family: var(--font-sans); -webkit-font-smoothing: antialiased;
-      transition: background-color .4s ease, color .4s ease;
-    }
-    a { color: var(--primary); text-decoration: none; }
-    a:hover { color: var(--teal); }
-    ::selection { background: var(--primary); color: var(--primary-fg); }
-    :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-    h1, h2, h3, h4 { text-wrap: balance; }
-    p { text-wrap: pretty; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-  }
-  ```
-- [ ] **V2-P2.S2.2** Klass nomlari to'g'ri ishlashini tekshiring: `bg-bg`, `text-fg`, `bg-card`, `bg-surface-2`, `text-muted`, `bg-primary`, `text-primary-fg`, `border-line`, `border-border`, `text-p-indigo`, `bg-hatch`, `bg-paper`, `shadow-offset`, `font-serif`, `font-mono`, `animate-hf-up`. Hammasini dev sahifasiga (S7) qo'ying.
-- [ ] **V2-P2.S2.3** `.prose-hisinf` (maqola matni) stillari — shu faylning oxiriga:
-  ```css
-  .prose-hisinf { font-family: var(--font-serif); font-size: var(--article-fs); line-height: 1.72; color: var(--fg); }
-  .prose-hisinf > * + * { margin-top: 24px; }
-  .prose-hisinf h2 { font-weight: 500; font-size: 34px; line-height: 1.2; letter-spacing: -.015em; margin-top: 48px; scroll-margin-top: 96px; }
-  .prose-hisinf h3 { font-weight: 500; font-size: 24px; line-height: 1.3; margin-top: 36px; scroll-margin-top: 96px; }
-  .prose-hisinf a { color: var(--primary); border-bottom: 1px solid currentColor; }
-  .prose-hisinf ul { list-style: none; padding-left: 0; }
-  .prose-hisinf ul > li { position: relative; padding-left: 22px; }
-  .prose-hisinf ul > li::before { content: ""; position: absolute; left: 4px; top: .7em; width: 7px; height: 7px; background: var(--primary); transform: rotate(45deg); }
-  .prose-hisinf ol { padding-left: 1.4em; }
-  .prose-hisinf table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 15px; }
-  .prose-hisinf th, .prose-hisinf td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-  .prose-hisinf > p:first-of-type::first-letter {
-    float: left; font: 400 92px/.8 var(--font-serif); color: var(--primary); padding: 8px 12px 0 0;
-  }
-  @media (max-width: 639px) {
-    .prose-hisinf { font-size: calc(var(--article-fs) - 1px); }
-    .prose-hisinf h2 { font-size: 28px; }
-    .prose-hisinf > p:first-of-type::first-letter { font-size: 64px; }
-  }
-  ```
+- [x] **V2-P2.S2.1** `src/app/(frontend)/globals.css` ni **to'liq** quyidagiga almashtiring. Hozirgi `gold-*`, `historical-divider` klasslari o'chadi. Ularni ishlatgan komponentlar P6 da qayta yoziladi.
+- [x] **V2-P2.S2.2** Klass nomlari to'g'ri ishlashini tekshiring: `bg-bg`, `text-fg`, `bg-card`, `bg-surface-2`, `text-muted`, `bg-primary`, `text-primary-fg`, `border-line`, `border-border`, `text-p-indigo`, `bg-hatch`, `bg-paper`, `shadow-offset`, `font-serif`, `font-mono`, `animate-hf-up`. Hammasini dev sahifasiga (S7) qo'ying.
+- [x] **V2-P2.S2.3** `.prose-hisinf` (maqola matni) stillari — shu faylning oxiriga.
 
 ✅ **Qabul mezonlari:** dev sahifasida (S7) barcha klasslar to'g'ri rangda. Tema almashganda ranglar ham o'zgaradi.
 
 ## V2-P2.S3 — Tema (kunduz/tun)
 
-- [ ] **V2-P2.S3.1** `src/components/layout/ThemeProvider.tsx` (mavjud `src/components/ThemeProvider.tsx` ko'chiriladi):
+- [x] **V2-P2.S3.1** `src/components/layout/ThemeProvider.tsx` (mavjud `src/components/ThemeProvider.tsx` ko'chiriladi):
   ```tsx
   'use client'
   import { ThemeProvider as NextThemes } from 'next-themes'
@@ -854,8 +706,8 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
     )
   }
   ```
-- [ ] **V2-P2.S3.2** `src/components/layout/ThemeToggle.tsx` — dizayn: `SiteHeader.dc.html` 54–56-qatorlar. 40×40 doira tugma, ichida 16px doira (yarmi to'ldirilgan: `background: linear-gradient(90deg, var(--fg) 50%, transparent 50%)`, `border: 1.5px solid var(--fg)`). Hover'da `rotate(180deg)`, `transition-transform duration-500`. Bosilganda `setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')`. `aria-label={t('theme.toggle')}`. Hydration xatosi bo'lmasligi uchun `mounted` holati kutiladi (mount bo'lmaguncha bo'sh doira chiziladi).
-- [ ] **V2-P2.S3.3** Eski `src/components/ThemeProvider.tsx` va `src/components/ThemeToggle.tsx` ni o'chiring va importlarni yangilang.
+- [x] **V2-P2.S3.2** `src/components/layout/ThemeToggle.tsx` — dizayn: `SiteHeader.dc.html` 54–56-qatorlar. 40×40 doira tugma, ichida 16px doira (yarmi to'ldirilgan: `background: linear-gradient(90deg, var(--fg) 50%, transparent 50%)`, `border: 1.5px solid var(--fg)`). Hover'da `rotate(180deg)`, `transition-transform duration-500`. Bosilganda `setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')`. `aria-label={t('theme.toggle')}`. Hydration xatosi bo'lmasligi uchun `mounted` holati kutiladi (mount bo'lmaguncha bo'sh doira chiziladi).
+- [x] **V2-P2.S3.3** Eski `src/components/ThemeProvider.tsx` va `src/components/ThemeToggle.tsx` ni o'chiring va importlarni yangilang.
 
 ✅ **Qabul mezonlari:** tema almashadi, sahifa yangilanganda saqlanib qoladi va oq chaqnash bo'lmaydi.
 
@@ -863,22 +715,22 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 Har biri `src/components/ui/` da. Ranglar faqat tokenlar orqali.
 
-- [ ] **V2-P2.S4.1** `Dialog.tsx` — `@radix-ui/react-dialog` o'rami. Overlay: `fixed inset-0 z-50 bg-[rgba(20,14,8,.45)] data-[state=open]:animate-hf-pop`. Content variantlari (`cva`):
+- [x] **V2-P2.S4.1** `Dialog.tsx` — `@radix-ui/react-dialog` o'rami. Overlay: `fixed inset-0 z-50 bg-[rgba(20,14,8,.45)] data-[state=open]:animate-hf-pop`. Content variantlari (`cva`):
   - `center`: `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(480px,92vw)] bg-card border border-line rounded-[12px] p-7 shadow-[0_24px_60px_var(--shadow)]`.
   - `right` (drawer): `fixed right-0 top-0 bottom-0 w-[min(560px,100vw)] bg-paper border-l border-line p-10 overflow-auto data-[state=open]:animate-hf-slide`.
   - `full` (lightbox): `fixed inset-0 bg-[rgba(15,10,6,.88)]`.
   Har birida yopish tugmasi bor: 40px doira, `border-line`, `✕`, `aria-label`.
-- [ ] **V2-P2.S4.2** `Sheet.tsx` — mobil menyu uchun `Dialog` ning chap/o'ng variantlari (`left` qo'shiladi).
-- [ ] **V2-P2.S4.3** `DropdownMenu.tsx` — Content: `min-w-[220px] bg-card border border-line p-1.5 rounded-[10px] shadow-[0_12px_32px_var(--shadow)] animate-hf-pop`. Item: `rounded-[6px] px-2.5 py-2 text-[14px] text-fg outline-none data-[highlighted]:bg-surface-2`.
-- [ ] **V2-P2.S4.4** `Popover.tsx` — footnote'lar uchun. Content: `max-w-[360px] bg-card border border-line px-4 py-3.5 font-sans text-[14px] leading-[1.55] text-fg animate-hf-up`.
-- [ ] **V2-P2.S4.5** `Tooltip.tsx` — `bg-fg text-bg text-[12px] px-2 py-1 rounded`.
+- [x] **V2-P2.S4.2** `Sheet.tsx` — mobil menyu uchun `Dialog` ning chap/o'ng variantlari (`left` qo'shiladi).
+- [x] **V2-P2.S4.3** `DropdownMenu.tsx` — Content: `min-w-[220px] bg-card border border-line p-1.5 rounded-[10px] shadow-[0_12px_32px_var(--shadow)] animate-hf-pop`. Item: `rounded-[6px] px-2.5 py-2 text-[14px] text-fg outline-none data-[highlighted]:bg-surface-2`.
+- [x] **V2-P2.S4.4** `Popover.tsx` — footnote'lar uchun. Content: `max-w-[360px] bg-card border border-line px-4 py-3.5 font-sans text-[14px] leading-[1.55] text-fg animate-hf-up`.
+- [x] **V2-P2.S4.5** `Tooltip.tsx` — `bg-fg text-bg text-[12px] px-2 py-1 rounded`.
 
 ✅ **Qabul mezonlari:** dev sahifasida 5 ta primitiv klaviatura bilan ochiladi va `Esc` bilan yopiladi.
 
 ## V2-P2.S5 — Effektlar (`src/components/fx/`)
 
-- [ ] **V2-P2.S5.1** `src/lib/use-reduced-motion.ts` — `matchMedia('(prefers-reduced-motion: reduce)')` ni kuzatuvchi hook.
-- [ ] **V2-P2.S5.2** `Reveal.tsx` (`'use client'`):
+- [x] **V2-P2.S5.1** `src/lib/use-reduced-motion.ts` — `matchMedia('(prefers-reduced-motion: reduce)')` ni kuzatuvchi hook.
+- [x] **V2-P2.S5.2** `Reveal.tsx` (`'use client'`):
   ```tsx
   'use client'
   import { useEffect, useRef } from 'react'
@@ -906,12 +758,12 @@ Har biri `src/components/ui/` da. Ranglar faqat tokenlar orqali.
   }
   ```
   **Eslatma:** element JS yuklanmaguncha ham ko'rinib turadi (SSR'da yashirilmaydi). Bu SEO va JS'siz holat uchun to'g'ri.
-- [ ] **V2-P2.S5.3** `InkCursor.tsx` (`'use client'`) — layout'da bir marta mount qilinadi:
+- [x] **V2-P2.S5.3** `InkCursor.tsx` (`'use client'`) — layout'da bir marta mount qilinadi:
   - `matchMedia('(hover: hover) and (pointer: fine)')` true bo'lsa, `document.documentElement.classList.add('fx-cursor')`. Unmount'da olib tashlanadi.
   - `prefers-reduced-motion` bo'lmasa, `mousedown` (input/textarea'dan tashqari) bo'lganda `position:fixed` span yaratiladi (10px doira, `border:1.5px solid var(--primary)`, `pointer-events:none`, `z-index:999`) va `animate([{transform:'scale(.4)',opacity:.9},{transform:'scale(3.2)',opacity:0}],{duration:520})` dan keyin o'chiriladi. Koordinatalar `clientX/clientY` dan olinadi.
-- [ ] **V2-P2.S5.4** `Tilt.tsx` — `hisinf-fx.js` dagi `tilt()` ning React versiyasi (`onMouseMove` / `onMouseLeave`). Reduced-motion va touch qurilmalarda effektsiz `div` qaytaradi.
-- [ ] **V2-P2.S5.5** `Marquee.tsx` — `children` ni 2 marta render qiladi: `<div className="flex w-max animate-hf-marquee hover:[animation-play-state:paused]">`. Ota element: `overflow-hidden`. Ikkinchi nusxa `aria-hidden="true"`.
-- [ ] **V2-P2.S5.6** `DrawPath.tsx` — SVG `path` uchun `getTotalLength()` bilan `strokeDasharray/Offset`. Ko'ringanda 2.4s davomida chiziladi.
+- [x] **V2-P2.S5.4** `Tilt.tsx` — `hisinf-fx.js` dagi `tilt()` ning React versiyasi (`onMouseMove` / `onMouseLeave`). Reduced-motion va touch qurilmalarda effektsiz `div` qaytaradi.
+- [x] **V2-P2.S5.5** `Marquee.tsx` — `children` ni 2 marta render qiladi: `<div className="flex w-max animate-hf-marquee hover:[animation-play-state:paused]">`. Ota element: `overflow-hidden`. Ikkinchi nusxa `aria-hidden="true"`.
+- [x] **V2-P2.S5.6** `DrawPath.tsx` — SVG `path` uchun `getTotalLength()` bilan `strokeDasharray/Offset`. Ko'ringanda 2.4s davomida chiziladi.
 
 ✅ **Qabul mezonlari:** effektlar dev sahifasida ishlaydi va OS'da "Reduce motion" yoqilganda o'chadi.
 
@@ -919,7 +771,7 @@ Har biri `src/components/ui/` da. Ranglar faqat tokenlar orqali.
 
 Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni aynan shu yerdan oling.
 
-- [ ] **V2-P2.S6.1** `LogoMark.tsx` (manba: `SiteHeader.dc.html` 26–30):
+- [x] **V2-P2.S6.1** `LogoMark.tsx` (manba: `SiteHeader.dc.html` 26–30):
   ```tsx
   export function LogoMark({ size = 38 }: { size?: number }) {
     const s = size / 38
@@ -932,9 +784,9 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
     )
   }
   ```
-- [ ] **V2-P2.S6.2** `Logo.tsx` — `LogoMark` + wordmark: `<span className="font-serif text-[24px] font-semibold leading-none tracking-[-.01em]">hisinf<span className="text-primary">.uz</span></span>` va ostida `font-mono text-[9.5px] font-medium uppercase tracking-[.18em] text-muted` "historical info". Props: `compact` (faqat mark + wordmark, footer va admin uchun). Haqiqiy SVG logo tayyor bo'lganda (`Logo prompt.md`) shu komponent ichi almashtiriladi.
-- [ ] **V2-P2.S6.3** `Seal.tsx` (manba: `Home.dc.html` 41–48): props `size` (132), `top` ("MUHR"), `value` ("10"), `bottom` ("TARIXIY\nDAVR"). Tashqi doira `rounded-full bg-bg border border-line animate-hf-float`, ichki `absolute inset-2 rounded-full border border-dashed border-primary animate-hf-spin`.
-- [ ] **V2-P2.S6.4** `Kicker.tsx`:
+- [x] **V2-P2.S6.2** `Logo.tsx` — `LogoMark` + wordmark: `<span className="font-serif text-[24px] font-semibold leading-none tracking-[-.01em]">hisinf<span className="text-primary">.uz</span></span>` va ostida `font-mono text-[9.5px] font-medium uppercase tracking-[.18em] text-muted` "historical info". Props: `compact` (faqat mark + wordmark, footer va admin uchun). Haqiqiy SVG logo tayyor bo'lganda (`Logo prompt.md`) shu komponent ichi almashtiriladi.
+- [x] **V2-P2.S6.3** `Seal.tsx` (manba: `Home.dc.html` 41–48): props `size` (132), `top` ("MUHR"), `value` ("10"), `bottom` ("TARIXIY\nDAVR"). Tashqi doira `rounded-full bg-bg border border-line animate-hf-float`, ichki `absolute inset-2 rounded-full border border-dashed border-primary animate-hf-spin`.
+- [x] **V2-P2.S6.4** `Kicker.tsx`:
   ```tsx
   export function Kicker({ children, center = false, className }: { children: React.ReactNode; center?: boolean; className?: string }) {
     return (
@@ -946,9 +798,9 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
     )
   }
   ```
-- [ ] **V2-P2.S6.5** `SectionHeader.tsx` (manba: `Home.dc.html` 66–73): props `numeral` ("II"), `kicker`, `title`, `href?`, `linkLabel?`.
+- [x] **V2-P2.S6.5** `SectionHeader.tsx` (manba: `Home.dc.html` 66–73): props `numeral` ("II"), `kicker`, `title`, `href?`, `linkLabel?`.
   Klasslar: konteyner `grid grid-cols-1 md:grid-cols-[120px_minmax(0,1fr)_auto] gap-4 md:gap-8 items-end pb-7 border-b border-line`; rim raqami `font-serif text-[40px] md:text-[64px] leading-none text-primary`; kicker `font-mono text-[12px] uppercase tracking-[.14em] text-muted`; h2 `font-serif font-normal text-[34px] md:text-[52px] leading-[1.05] tracking-[-.02em]`; havola `text-[15px] font-medium border-b border-current pb-[3px]`.
-- [ ] **V2-P2.S6.6** `Pill.tsx` (`cva` bilan). Variantlar:
+- [x] **V2-P2.S6.6** `Pill.tsx` (`cva` bilan). Variantlar:
   | variant | klasslar | manba |
   |---------|----------|-------|
   | `primary` | `bg-primary text-primary-fg shadow-btn hover:translate-y-0.5 hover:shadow-[0_2px_0_var(--fg)] active:translate-y-1 active:shadow-none hover:text-primary-fg` | Home CTA |
@@ -957,20 +809,20 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
   | `filter` | `border text-[13px]` + `data-[on=true]:border-fg data-[on=true]:bg-fg data-[on=true]:text-bg data-[on=false]:border-border data-[on=false]:bg-card data-[on=false]:text-fg hover:border-line` | filtrlar |
   | `light` | `bg-primary-fg text-primary hover:translate-x-1` | CTA blok ichida |
   O'lchamlar: `lg` = `px-[26px] py-4 text-[15.5px]`, `md` = `px-[18px] py-[11px] text-[14px]`, `sm` = `px-[15px] py-[9px] text-[13px]`. Umumiy: `inline-flex items-center gap-2.5 rounded-full font-medium transition-[transform,box-shadow,background-color] duration-200`. `asChild` (Radix Slot) qo'llab-quvvatlanadi, shunda `<Link>` ham pill bo'la oladi. O'q belgisi `→` doim `font-mono` da.
-- [ ] **V2-P2.S6.7** `IconCircleButton.tsx` — `grid size-10 place-items-center rounded-full border border-border text-fg transition-colors hover:border-line`.
-- [ ] **V2-P2.S6.8** `PlateFrame.tsx` — rasm joyi yoki rasm ramkasi. Props: `media?` (Payload Media), `label?` (rasm yo'q bo'lganda ko'rsatiladigan yozuv), `height` yoki `aspect`, `inset` (10 | 8 | 12 px), `caption?`, `priority?`, `sizes?`.
+- [x] **V2-P2.S6.7** `IconCircleButton.tsx` — `grid size-10 place-items-center rounded-full border border-border text-fg transition-colors hover:border-line`.
+- [x] **V2-P2.S6.8** `PlateFrame.tsx` — rasm joyi yoki rasm ramkasi. Props: `media?` (Payload Media), `label?` (rasm yo'q bo'lganda ko'rsatiladigan yozuv), `height` yoki `aspect`, `inset` (10 | 8 | 12 px), `caption?`, `priority?`, `sizes?`.
   - Tashqi: `border border-line bg-card` + `padding: inset`.
   - Ichki: `border border-line bg-hatch relative overflow-hidden grid place-items-center`.
   - Rasm bo'lsa: `MediaImage` (`object-cover`, `fill`).
   - Rasm bo'lmasa: yorliq chipi `font-mono text-[11px] uppercase tracking-[.08em] text-muted bg-card border border-border px-3 py-2 text-center`.
   - `caption` bo'lsa: ostida `font-serif italic text-[14px] text-muted pt-3 px-1`.
-- [ ] **V2-P2.S6.9** `MediaImage.tsx` — Payload `Media` → `next/image` (`unoptimized`, `srcSet` Payload o'lchamlaridan: `thumb 400w, card 800w, hero 1600w`). `alt` lokalizatsiyalangan media'dan, `object-position` focal point'dan olinadi. Media `null` bo'lsa, `null` qaytaradi.
-- [ ] **V2-P2.S6.10** `DiamondDivider.tsx` (manba: `SiteFooter.dc.html` 14–20): `flex items-center gap-[18px]` → `flex-1 h-px bg-current opacity-30` · `size-2 border border-current rotate-45 opacity-60` · `size-3 bg-primary rotate-45` · (takror) · chiziq. Props: `className` (rangni `text-…` bilan beradi).
-- [ ] **V2-P2.S6.11** `PeriodDot.tsx` — `<span className="inline-block rotate-45" style={{ width: size, height: size, background: periodColorVar(color) }} />`. `PeriodBadge.tsx` — `rounded-full border px-2.5 py-[5px] font-mono text-[10px] md:text-[11px] font-medium uppercase tracking-[.1em] bg-bg`, `style={{ borderColor: c, color: c }}`.
-- [ ] **V2-P2.S6.12** `Avatar.tsx` — props `name`, `id`, `size` (26 | 34 | 36 | 44). Initsiallar: `initials(name)` (birinchi 2 so'zning bosh harflari). Fon: `avatarColor(id)` = `['var(--teal)','var(--p-ochre)','var(--p-indigo)','var(--primary)','var(--p-olive)'][id % 5]`, matn `text-bg font-serif font-semibold`.
-- [ ] **V2-P2.S6.13** `Pagination.tsx` (manba: `Maqolalar.dc.html` 110–118): chapda "← Oldingi", markazda raqamlar (42px doira, tanlangani `bg-fg text-bg border-fg`), o'ngda "Keyingi →". Ko'p sahifa bo'lsa `1 2 3 4 … 25`. Havolalar `?sahifa=N` ni boshqa parametrlarni saqlagan holda o'rnatadi. `aria-current="page"`, `<nav aria-label>`.
-- [ ] **V2-P2.S6.14** `EmptyState.tsx`, `StatNumber.tsx`, `CountTabs.tsx` — 5.7-bo'limdagi jadval bo'yicha.
-- [ ] **V2-P2.S6.15** `src/lib/period-color.ts`:
+- [x] **V2-P2.S6.9** `MediaImage.tsx` — Payload `Media` → `next/image` (`unoptimized`, `srcSet` Payload o'lchamlaridan: `thumb 400w, card 800w, hero 1600w`). `alt` lokalizatsiyalangan media'dan, `object-position` focal point'dan olinadi. Media `null` bo'lsa, `null` qaytaradi.
+- [x] **V2-P2.S6.10** `DiamondDivider.tsx` (manba: `SiteFooter.dc.html` 14–20): `flex items-center gap-[18px]` → `flex-1 h-px bg-current opacity-30` · `size-2 border border-current rotate-45 opacity-60` · `size-3 bg-primary rotate-45` · (takror) · chiziq. Props: `className` (rangni `text-…` bilan beradi).
+- [x] **V2-P2.S6.11** `PeriodDot.tsx` — `<span className="inline-block rotate-45" style={{ width: size, height: size, background: periodColorVar(color) }} />`. `PeriodBadge.tsx` — `rounded-full border px-2.5 py-[5px] font-mono text-[10px] md:text-[11px] font-medium uppercase tracking-[.1em] bg-bg`, `style={{ borderColor: c, color: c }}`.
+- [x] **V2-P2.S6.12** `Avatar.tsx` — props `name`, `id`, `size` (26 | 34 | 36 | 44). Initsiallar: `initials(name)` (birinchi 2 so'zning bosh harflari). Fon: `avatarColor(id)` = `['var(--teal)','var(--p-ochre)','var(--p-indigo)','var(--primary)','var(--p-olive)'][id % 5]`, matn `text-bg font-serif font-semibold`.
+- [x] **V2-P2.S6.13** `Pagination.tsx` (manba: `Maqolalar.dc.html` 110–118): chapda "← Oldingi", markazda raqamlar (42px doira, tanlangani `bg-fg text-bg border-fg`), o'ngda "Keyingi →". Ko'p sahifa bo'lsa `1 2 3 4 … 25`. Havolalar `?sahifa=N` ni boshqa parametrlarni saqlagan holda o'rnatadi. `aria-current="page"`, `<nav aria-label>`.
+- [x] **V2-P2.S6.14** `EmptyState.tsx`, `StatNumber.tsx`, `CountTabs.tsx` — 5.7-bo'limdagi jadval bo'yicha.
+- [x] **V2-P2.S6.15** `src/lib/period-color.ts`:
   ```ts
   export type PeriodColor = 'ochre' | 'teal' | 'brick' | 'olive' | 'indigo' | 'sand'
   export const periodColorVar = (c?: string | null) => `var(--p-${(c as PeriodColor) || 'sand'})`
@@ -981,8 +833,8 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
 
 ## V2-P2.S7 — Dizayn tizimi sahifasi
 
-- [ ] **V2-P2.S7.1** `src/app/(frontend)/[locale]/dev/design/page.tsx` (faqat development). Bo'limlar: ranglar (har token kvadrat + nomi), davr ranglari, tipografiya shkalasi (5.2-jadvaldagi har bir rol), pill'lar (barcha variantlar va o'lchamlar), PlateFrame (rasm bilan va rasmsiz), DiamondDivider, Seal, Kicker, SectionHeader, Avatar, Pagination, EmptyState, Dialog/Drawer/Popover demo, effektlar (Reveal, Tilt, curl, marquee).
-- [ ] **V2-P2.S7.2** Shu sahifani `docs/design/Home.dc.html` (brauzerda ochilgan) bilan yonma-yon solishtiring. Farqlarni (rang, o'lcham) tuzating.
+- [x] **V2-P2.S7.1** `src/app/(frontend)/[locale]/dev/design/page.tsx` (faqat development). Bo'limlar: ranglar (har token kvadrat + nomi), davr ranglari, tipografiya shkalasi (5.2-jadvaldagi har bir rol), pill'lar (barcha variantlar va o'lchamlar), PlateFrame (rasm bilan va rasmsiz), DiamondDivider, Seal, Kicker, SectionHeader, Avatar, Pagination, EmptyState, Dialog/Drawer/Popover demo, effektlar (Reveal, Tilt, curl, marquee).
+- [x] **V2-P2.S7.2** Shu sahifani `docs/design/Home.dc.html` (brauzerda ochilgan) bilan yonma-yon solishtiring. Farqlarni (rang, o'lcham) tuzating.
 
 ✅ **Qabul mezonlari:** dizayn tizimi sahifasi dizayn fayllari bilan vizual mos keladi (ko'z bilan solishtirish).
 
@@ -2639,7 +2491,7 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 |-------|------|-------|------|------|
 | V2-P0 | Xavfsizlik hotfix'i | 🟡 | 2026-10-09 | Kod tayyor (S2–S5). Qo'lda qoldi: S1, S2.5, S4.4 ishga tushirish, S5.4, S5.5, S6 |
 | V2-P1 | Poydevor | ✅ | 2026-10-09 | S1–S4 to'liq bajarildi, paketlar, layout, cn.ts, env |
-| V2-P2 | Dizayn tizimi | ⬜ | | |
+| V2-P2 | Dizayn tizimi | ✅ | 2026-10-09 | S1–S7 to'liq bajarildi: tokenlar, shriftlar, tema, UI primitivlar, effektlar, dev sahifalar |
 | V2-P3 | Ma'lumotlar modeli va ko'chirish | ⬜ | | |
 | V2-P4 | Auth, rollar, workflow | ⬜ | | |
 | V2-P5 | Tahririyat (admin) | ⬜ | | |
