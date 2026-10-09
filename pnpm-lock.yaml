@@ -83,6 +83,9 @@ importers:
       graphql:
         specifier: ^16.8.1
         version: 16.14.2
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -168,9 +171,6 @@ importers:
       eslint-config-next:
         specifier: 15.4.11
         version: 15.4.11(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
-      jsdom:
-        specifier: ^25.0.1
-        version: 25.0.1
       prettier:
         specifier: ^3.4.2
         version: 3.9.9

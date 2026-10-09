@@ -1,6 +1,6 @@
-import type { CollectionConfig, Where } from 'payload'
+import type { CollectionConfig } from 'payload'
 import { postEditor } from '../editor/config'
-import { isStaff, isAdmin, isStaffUser, fieldEditorOrAdmin } from '../access'
+import { isStaff, isStaffUser, fieldEditorOrAdmin } from '../access'
 import { slugField } from '../fields/slug'
 import { enforcePostWorkflow } from '../hooks/enforcePostWorkflow'
 import { computeReadingTime } from '../hooks/computeReadingTime'
@@ -57,37 +57,30 @@ export const Posts: CollectionConfig = {
   defaultSort: '-publishedAt',
   access: {
     read: ({ req }) => {
-      if (isStaffUser(req.user)) {
-        if (req.user.role === 'admin' || req.user.role === 'editor') return true
-        const filter: Where = {
-          or: [
-            { _status: { equals: 'published' } },
-            { author: { equals: req.user.id } },
-          ],
-        }
-        return filter
-      }
+      if (isStaffUser(req.user)) return true
       return { _status: { equals: 'published' } }
     },
     create: isStaff,
     update: ({ req }) => {
       if (!isStaffUser(req.user)) return false
       if (req.user.role === 'admin' || req.user.role === 'editor') return true
-      const filter: Where = {
-        and: [
-          { author: { equals: req.user.id } },
-          { workflowStatus: { in: ['draft', 'changes_requested'] } },
-        ],
-      }
-      return filter
+      return { author: { equals: req.user.id } }
     },
-    delete: isAdmin,
+    delete: ({ req }) => {
+      if (!isStaffUser(req.user)) return false
+      return req.user.role === 'admin' || req.user.role === 'editor'
+    },
     readVersions: isStaff,
   },
   hooks: {
     beforeChange: [
       ({ data, originalDoc, req }) => {
         if (data?.reviewNotes && Array.isArray(data.reviewNotes)) {
+          // Filter out completely empty review notes so they never block saving
+          data.reviewNotes = data.reviewNotes.filter(
+            (note: Record<string, unknown>) =>
+              note && typeof note.note === 'string' && note.note.trim().length > 0,
+          )
           const originalCount = originalDoc?.reviewNotes?.length ?? 0
           data.reviewNotes = data.reviewNotes.map((note: Record<string, unknown>, idx: number) => {
             if (idx >= originalCount && req.user) {
@@ -121,7 +114,11 @@ export const Posts: CollectionConfig = {
               localized: true,
               maxLength: 160,
               required: false,
-              label: 'Sarlavha',
+              label: 'Maqola sarlavhasi (Nomi)',
+              admin: {
+                description: 'Maqolaning asosiy nomi (masalan: "Amir Temur davlati va harbiy yurishlari")',
+                placeholder: 'Maqola sarlavhasini shu yerga yozing...',
+              },
             },
             {
               name: 'excerpt',
@@ -129,12 +126,19 @@ export const Posts: CollectionConfig = {
               localized: true,
               maxLength: 300,
               label: 'Qisqa tavsif (Anons)',
+              admin: {
+                description: 'Qisqa anons (1-2 gap). Asosiy sahifada va maqola kartasida oʻquvchilarga koʻrinadi.',
+                placeholder: 'Maqola haqida qisqacha maʼlumot kiriting...',
+              },
             },
             {
               name: 'coverImage',
               type: 'upload',
               relationTo: 'media',
-              label: 'Muqova rasmi',
+              label: 'Muqova rasmi (Asosiy surat)',
+              admin: {
+                description: 'Maqolaning bosh rasmi. Kompyuteringizdan rasm tanlang yoki yuklang (JPG, PNG, WebP).',
+              },
             },
             {
               name: 'translationStatusUI',
@@ -158,8 +162,11 @@ export const Posts: CollectionConfig = {
               name: 'body',
               type: 'richText',
               localized: true,
-              label: 'Maqola matni',
+              label: 'Asosiy maqola matni',
               editor: postEditor,
+              admin: {
+                description: 'Bu yerda maqolaning toʻliq matnini yozing. Sarlavhalar, xatboshilar va rasmlarni kiritishingiz mumkin.',
+              },
             },
             {
               name: 'content',
@@ -168,6 +175,7 @@ export const Posts: CollectionConfig = {
               required: false,
               admin: {
                 readOnly: true,
+                hidden: true,
                 description: 'ESKIRGAN matn — bodyʼga koʻchirildi',
               },
               label: 'Eski matn',
@@ -177,6 +185,7 @@ export const Posts: CollectionConfig = {
               type: 'text',
               admin: {
                 readOnly: true,
+                hidden: true,
                 description: 'ESKIRGAN rasm URL',
               },
               label: 'Eski rasm havolasi',
@@ -184,13 +193,15 @@ export const Posts: CollectionConfig = {
             {
               name: 'language',
               type: 'select',
+              defaultValue: 'both',
+              label: 'Maqola tili (Saytda qaysi tilda koʻrinsin)',
               options: [
-                { label: 'both', value: 'both' },
-                { label: 'uz', value: 'uz' },
-                { label: 'kaa', value: 'kaa' },
+                { label: '🌐 Ikkala til uchun ham (Oʻzbekcha va Qoraqalpoqcha)', value: 'both' },
+                { label: '🇺🇿 Faqat Oʻzbekcha (uz)', value: 'uz' },
+                { label: '🏴 Faqat Qoraqalpoqcha (kaa)', value: 'kaa' },
               ],
               admin: {
-                hidden: true,
+                description: 'Saytda qaysi til tanlanganda ushbu maqola koʻrinishi kerakligini belgilang. «Ikkala til uchun ham» tanlansa, har ikki tilda ham chiqadi.',
               },
             },
           ],
@@ -204,6 +215,7 @@ export const Posts: CollectionConfig = {
               relationTo: 'periods',
               label: 'Tarixiy davr',
               admin: {
+                description: 'Maqola tegishli boʻlgan davrni tanlang (masalan: Amir Temur davri, Qadimgi dunyo)',
                 components: {
                   Field: '/components/admin/PeriodChipsField#PeriodChipsField',
                 },
@@ -267,7 +279,7 @@ export const Posts: CollectionConfig = {
                 {
                   name: 'note',
                   type: 'textarea',
-                  required: true,
+                  required: false,
                   label: 'Qayd matni',
                 },
                 {

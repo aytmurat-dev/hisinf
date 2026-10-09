@@ -8,6 +8,7 @@ export const Inquiries: CollectionConfig = {
     plural: 'Murojaatlar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'name',
     group: 'Muloqot',
     defaultColumns: ['name', 'type', 'subject', 'email', 'status', 'createdAt'],

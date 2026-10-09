@@ -12,6 +12,7 @@ export const Places: CollectionConfig = {
     plural: 'Tarixiy joylar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'name',
     group: 'Tarix',
     defaultColumns: ['name', 'placeType', 'appearsIn', 'region'],

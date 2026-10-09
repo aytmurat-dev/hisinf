@@ -14,6 +14,7 @@ export const Events: CollectionConfig = {
     plural: 'Tarixiy voqealar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Tarix',
     defaultColumns: ['title', 'year', 'yearLabel', 'period', 'importance'],

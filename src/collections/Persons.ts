@@ -14,6 +14,7 @@ export const Persons: CollectionConfig = {
     plural: 'Tarixiy shaxslar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'name',
     group: 'Tarix',
     defaultColumns: ['name', 'personType', 'period', 'birthYear', 'deathYear'],

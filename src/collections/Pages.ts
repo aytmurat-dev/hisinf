@@ -11,6 +11,7 @@ export const Pages: CollectionConfig = {
     plural: 'Sahifalar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Kontent',
     defaultColumns: ['title', 'slug', 'showInFooter', 'updatedAt'],

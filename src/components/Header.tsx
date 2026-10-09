@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link, usePathname, useRouter } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './layout/ThemeToggle'
 import { HeaderSearch } from './HeaderSearch'
@@ -11,7 +11,6 @@ import { Menu, X, Shield, LogOut } from 'lucide-react'
 export function Header() {
   const t = useTranslations('nav')
   const pathname = usePathname()
-  const router = useRouter()
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<{ firstName: string; username: string; role?: string } | null>(null)
@@ -32,7 +31,7 @@ export function Header() {
   const handleLogout = async () => {
     await fetch('/api/readers/logout', { method: 'POST' })
     setCurrentUser(null)
-    router.refresh()
+    window.location.reload()
   }
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin'

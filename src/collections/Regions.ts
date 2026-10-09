@@ -9,6 +9,7 @@ export const Regions: CollectionConfig = {
     plural: 'Hududlar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Taksonomiya',
   },

@@ -15,6 +15,7 @@ export const Periods: CollectionConfig = {
   },
   defaultSort: 'order',
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Tarix',
     defaultColumns: ['order', 'title', 'yearsLabel', 'color'],
@@ -30,6 +31,7 @@ export const Periods: CollectionConfig = {
       name: 'order',
       type: 'number',
       required: true,
+      defaultValue: 1,
       unique: true,
       index: true,
       label: 'Tartib raqami (1–10)',

@@ -86,6 +86,8 @@ export interface Config {
     inquiries: Inquiry;
     subscribers: Subscriber;
     'daily-stats': DailyStat;
+    'admin-conversations': AdminConversation;
+    'admin-messages': AdminMessage;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -127,6 +129,8 @@ export interface Config {
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'daily-stats': DailyStatsSelect<false> | DailyStatsSelect<true>;
+    'admin-conversations': AdminConversationsSelect<false> | AdminConversationsSelect<true>;
+    'admin-messages': AdminMessagesSelect<false> | AdminMessagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -224,6 +228,10 @@ export interface ReaderAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Ushbu adminga yangi parol berish uchun shu yerga yangi parolni yozing va saqlang (kamida 6 ta belgi).
+   */
+  newPassword?: string | null;
   displayName: string;
   /**
    * Avtomatik. Chop etilgandan keyin o'zgartirmang.
@@ -316,6 +324,10 @@ export interface Media {
  */
 export interface Reader {
   id: number;
+  /**
+   * Ushbu oʻquvchiga yangi parol berish uchun shu yerga yangi parolni yozing va saqlang (kamida 6 ta belgi).
+   */
+  newPassword?: string | null;
   displayName?: string | null;
   locale?: ('uz' | 'kaa') | null;
   acceptedTermsAt?: string | null;
@@ -324,6 +336,9 @@ export interface Reader {
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
+  /**
+   * Ushbu oʻquvchining dastlabki paroli (faqat maʼlumot uchun)
+   */
   displayPassword?: string | null;
   role?: ('reader' | 'admin' | 'superadmin') | null;
   updatedAt: string;
@@ -355,9 +370,21 @@ export interface Reader {
  */
 export interface Post {
   id: number;
+  /**
+   * Maqolaning asosiy nomi (masalan: "Amir Temur davlati va harbiy yurishlari")
+   */
   title?: string | null;
+  /**
+   * Qisqa anons (1-2 gap). Asosiy sahifada va maqola kartasida oʻquvchilarga koʻrinadi.
+   */
   excerpt?: string | null;
+  /**
+   * Maqolaning bosh rasmi. Kompyuteringizdan rasm tanlang yoki yuklang (JPG, PNG, WebP).
+   */
   coverImage?: (number | null) | Media;
+  /**
+   * Bu yerda maqolaning toʻliq matnini yozing. Sarlavhalar, xatboshilar va rasmlarni kiritishingiz mumkin.
+   */
   body?: {
     root: {
       type: string;
@@ -381,7 +408,13 @@ export interface Post {
    * ESKIRGAN rasm URL
    */
   coverImageUrl?: string | null;
+  /**
+   * Saytda qaysi til tanlanganda ushbu maqola koʻrinishi kerakligini belgilang. «Ikkala til uchun ham» tanlansa, har ikki tilda ham chiqadi.
+   */
   language?: ('both' | 'uz' | 'kaa') | null;
+  /**
+   * Maqola tegishli boʻlgan davrni tanlang (masalan: Amir Temur davri, Qadimgi dunyo)
+   */
   period?: (number | null) | Period;
   categories?: (number | Category)[] | null;
   tags?: (number | Tag)[] | null;
@@ -391,7 +424,7 @@ export interface Post {
   regions?: (number | Region)[] | null;
   reviewNotes?:
     | {
-        note: string;
+        note?: string | null;
         by?: (number | null) | User;
         at?: string | null;
         id?: string | null;
@@ -883,6 +916,37 @@ export interface DailyStat {
   createdAt: string;
 }
 /**
+ * Adminlar oʻrtasidagi shaxsiy va guruh suhbatlari
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-conversations".
+ */
+export interface AdminConversation {
+  id: number;
+  name?: string | null;
+  isGroup?: boolean | null;
+  participants: (number | User)[];
+  createdBy?: (number | null) | User;
+  lastMessage?: string | null;
+  lastMessageAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Adminlar chatidagi xabarlar
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-messages".
+ */
+export interface AdminMessage {
+  id: number;
+  conversation: number | AdminConversation;
+  sender: number | User;
+  text: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -977,6 +1041,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'daily-stats';
         value: number | DailyStat;
+      } | null)
+    | ({
+        relationTo: 'admin-conversations';
+        value: number | AdminConversation;
+      } | null)
+    | ({
+        relationTo: 'admin-messages';
+        value: number | AdminMessage;
       } | null);
   globalSlug?: string | null;
   user:
@@ -1035,6 +1107,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  newPassword?: T;
   displayName?: T;
   slug?: T;
   role?: T;
@@ -1067,6 +1140,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "readers_select".
  */
 export interface ReadersSelect<T extends boolean = true> {
+  newPassword?: T;
   displayName?: T;
   locale?: T;
   acceptedTermsAt?: T;
@@ -1498,6 +1572,31 @@ export interface DailyStatsSelect<T extends boolean = true> {
   locale?: T;
   post?: T;
   views?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-conversations_select".
+ */
+export interface AdminConversationsSelect<T extends boolean = true> {
+  name?: T;
+  isGroup?: T;
+  participants?: T;
+  createdBy?: T;
+  lastMessage?: T;
+  lastMessageAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-messages_select".
+ */
+export interface AdminMessagesSelect<T extends boolean = true> {
+  conversation?: T;
+  sender?: T;
+  text?: T;
   updatedAt?: T;
   createdAt?: T;
 }

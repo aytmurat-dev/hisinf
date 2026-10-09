@@ -9,3 +9,9 @@ try {
 } catch (_) {}
 
 process.env.SWC_NATIVE_BINDING_CACHE = cacheDir
+
+try {
+  const dotenv = require('dotenv')
+  dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
+  dotenv.config({ path: path.resolve(__dirname, '..', '.env.local'), override: true })
+} catch (_) {}

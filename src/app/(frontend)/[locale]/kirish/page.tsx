@@ -2,13 +2,12 @@
 
 import React, { useState, Suspense } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link, useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
 import { Shield, KeyRound, User, ArrowRight } from 'lucide-react'
 
 function LoginForm() {
   const t = useTranslations('auth')
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/'
 
@@ -37,11 +36,10 @@ function LoginForm() {
       }
 
       if ((data.reader?.role === 'admin' || data.reader?.role === 'superadmin') && redirect === '/') {
-        router.push('/admin')
+        window.location.href = '/admin'
       } else {
-        router.push(redirect)
+        window.location.href = redirect
       }
-      router.refresh()
     } catch (_err) {
       setError('Server bilan bogʻlanishda xatolik')
     } finally {

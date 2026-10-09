@@ -28,6 +28,8 @@ import { CommentLikes } from './collections/CommentLikes'
 import { Inquiries } from './collections/Inquiries'
 import { Subscribers } from './collections/Subscribers'
 import { DailyStats } from './collections/DailyStats'
+import { AdminConversations } from './collections/AdminConversations'
+import { AdminMessages } from './collections/AdminMessages'
 
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
@@ -203,6 +205,8 @@ export default buildConfig({
     Inquiries,
     Subscribers,
     DailyStats,
+    AdminConversations,
+    AdminMessages,
   ],
   globals: [Header, Footer, SiteSettings, HomePage],
   editor: postEditor,
@@ -214,8 +218,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    // push o'chirilgan: sxema faqat migratsiyalar orqali o'zgaradi (pnpm migrate)
-    push: false,
+    // dev muhitda yangi v2 kolleksiyalari jadvallari avtomatik moslashadi
+    push: process.env.NODE_ENV === 'development',
   }),
   sharp,
   plugins,

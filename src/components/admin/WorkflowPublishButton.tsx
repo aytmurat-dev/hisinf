@@ -14,7 +14,6 @@ export function WorkflowPublishButton(props: PublishButtonClientProps) {
 
   const staffRole = (user as { role?: string })?.role || 'author'
   const isAuthor = staffRole === 'author'
-  const isEditorOrAdmin = staffRole === 'admin' || staffRole === 'editor'
 
   const currentStatus = (workflowStatus as string) || 'draft'
 
@@ -76,8 +75,13 @@ export function WorkflowPublishButton(props: PublishButtonClientProps) {
     )
   }
 
-  // Editor/Admin flows
-  if (isEditorOrAdmin && currentStatus === 'in_review') {
+  // Admin can always directly publish or save without restrictions
+  if (staffRole === 'admin') {
+    return <PublishButton {...props} />
+  }
+
+  // Editor flows
+  if (staffRole === 'editor' && currentStatus === 'in_review') {
     const handleApprove = async () => {
       setSubmitting(true)
       try {

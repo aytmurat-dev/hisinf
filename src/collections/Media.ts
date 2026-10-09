@@ -6,6 +6,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Media', plural: 'Medialar' },
   admin: {
+    hidden: true,
     group: 'Media',
     useAsTitle: 'altText',
     defaultColumns: ['filename', 'altText', 'credit', 'license', 'createdAt'],

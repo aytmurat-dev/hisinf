@@ -144,7 +144,7 @@ export default async function HomePage({
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-semibold tracking-wider uppercase text-[var(--gold)] font-mono">
-                    {period.startYear ? `${period.startYear} — ${period.endYear || (locale === 'kaa' ? 'házir' : 'hozir')}` : '1924'}
+                    {period.yearsLabel || (period.startYear ? (period.startYear === period.endYear ? `${period.startYear}${locale === 'kaa' ? '-jıl' : '-yil'}` : `${period.startYear} — ${period.endYear || (locale === 'kaa' ? 'házir' : 'hozir')}`) : (locale === 'kaa' ? '1924-jıl' : '1924-yil'))}
                   </span>
                 </div>
                 <h3 className="font-serif font-bold text-base text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors">

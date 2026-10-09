@@ -9,27 +9,17 @@ export async function NavWorkdesk(props: ServerProps) {
   const staffUser = user as unknown as { id: number; role?: 'admin' | 'editor' | 'author' }
   const isAuthor = staffUser.role === 'author'
 
-  let reviewCount = 0
   let commentsCount = 0
   let changesCount = 0
 
   try {
     if (!isAuthor) {
-      const [revRes, comRes] = await Promise.all([
-        payload.count({
-          collection: 'posts',
-          where: { workflowStatus: { equals: 'in_review' } },
-          overrideAccess: false,
-          user,
-        }),
-        payload.count({
-          collection: 'comments',
-          where: { status: { equals: 'pending' } },
-          overrideAccess: false,
-          user,
-        }),
-      ])
-      reviewCount = revRes.totalDocs
+      const comRes = await payload.count({
+        collection: 'comments',
+        where: { status: { equals: 'pending' } },
+        overrideAccess: false,
+        user,
+      })
       commentsCount = comRes.totalDocs
     } else {
       const changesRes = await payload.count({
@@ -52,6 +42,7 @@ export async function NavWorkdesk(props: ServerProps) {
   const items = isAuthor
     ? [
         { label: 'Boshqaruv paneli', href: '/admin' },
+        { label: '💬 Adminlar chati', href: '/admin/chat' },
         {
           label: 'Mening maqolalarim',
           href: `/admin/collections/posts?where[author][equals]=${staffUser.id}`,
@@ -59,14 +50,12 @@ export async function NavWorkdesk(props: ServerProps) {
         },
       ]
     : [
-        { label: 'Boshqaruv paneli', href: '/admin' },
+        { label: '🏠 Boshqaruv paneli', href: '/admin' },
+        { label: '💬 Adminlar chati', href: '/admin/chat' },
+        { label: '✍️ Yangi maqola qoʻshish', href: '/admin/collections/posts/create' },
+        { label: '👤 Yangi admin qoʻshish', href: '/admin/collections/users/create' },
         {
-          label: 'Tekshiruv navbati',
-          href: '/admin/collections/posts?where[workflowStatus][equals]=in_review',
-          badge: reviewCount > 0 ? String(reviewCount) : undefined,
-        },
-        {
-          label: 'Izohlar',
+          label: '💬 Izohlar',
           href: '/admin/collections/comments?where[status][equals]=pending',
           badge: commentsCount > 0 ? String(commentsCount) : undefined,
         },
@@ -83,6 +72,32 @@ export async function NavWorkdesk(props: ServerProps) {
         marginBottom: '10px',
       }}
     >
+      <Link
+        href="/"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          padding: '8px 12px',
+          marginBottom: '8px',
+          borderRadius: '6px',
+          backgroundColor: 'var(--hf-primary, #8c2f1b)',
+          color: 'var(--hf-primary-fg, #fff8ee)',
+          textDecoration: 'none',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 2px 6px rgba(140, 47, 27, 0.2)',
+          transition: 'opacity 0.2s',
+        }}
+      >
+        <span>🌐</span>
+        <span>Asosiy saytga oʻtish</span>
+        <span style={{ fontSize: '11px', opacity: 0.85 }}>↗</span>
+      </Link>
+
       <span
         style={{
           padding: '6px 8px 4px',

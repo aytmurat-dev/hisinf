@@ -8,6 +8,7 @@ export const Subscribers: CollectionConfig = {
     plural: 'Obunachilar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'email',
     group: 'Muloqot',
     defaultColumns: ['email', 'locale', 'status', 'confirmedAt', 'lastDigestAt'],

@@ -107,10 +107,21 @@ export function Dashboard() {
         <div className={styles.topBarRight}>
           <div className={styles.statusIndicator}>
             <span className={styles.pulseDot} />
-            <span>Sayt ishlayapti</span>
+            <span>Sayt faol</span>
           </div>
+          <Link
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.topBarLinkBtn}
+          >
+            🌐 Asosiy saytga oʻtish ↗
+          </Link>
+          <Link href="/admin/chat" className={styles.chatButton}>
+            💬 Adminlar chati
+          </Link>
           <Link href="/admin/collections/posts/create" className={styles.createButton}>
-            + Yangi maqola
+            ✍️ + Yangi maqola
           </Link>
         </div>
       </div>
@@ -148,6 +159,102 @@ export function Dashboard() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* 2.1. Beginner Guide & Quick Actions (Non-technical friendly) */}
+      <div className={styles.guideSection}>
+        <div className={styles.guideHeader}>
+          <h2 className={styles.guideTitle}>Boshqaruv paneli qoʻllanmasi va tezkor amallar</h2>
+          <p className={styles.guideSubtitle}>
+            Xush kelibsiz! Ushbu panel orqali sayt maqolalarini boshqarish juda oson. Dasturlashni
+            bilish umuman shart emas — quyidagi tugmalarni bosib kerakli boʻlimga oʻting:
+          </p>
+        </div>
+
+        <div className={styles.actionGrid}>
+          <Link
+            href="/admin/collections/posts/create"
+            className={`${styles.actionCard} ${styles.actionCardPrimary}`}
+          >
+            <span className={styles.actionIcon}>✍️</span>
+            <h3 className={styles.actionTitle}>1-bosishda Yangi Maqola Yozish</h3>
+            <p className={styles.actionDesc}>
+              Saytga yangi tarixiy mavzu qoʻshish. Sarlavha yozasiz, rasm tanlaysiz va matn
+              kiritasiz.
+            </p>
+            <span className={styles.actionBtnText}>Yangi maqola boshlash →</span>
+          </Link>
+
+          <Link href="/admin/chat" className={styles.actionCard}>
+            <span className={styles.actionIcon}>💬</span>
+            <h3 className={styles.actionTitle}>Adminlar Chati</h3>
+            <p className={styles.actionDesc}>
+              Boshqa adminlar bilan toʻgʻridan-toʻgʻri yoki umumiy guruhda suhbatlashish xonasi.
+            </p>
+            <span className={styles.actionBtnText}>Chatga kirish →</span>
+          </Link>
+
+          <Link
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.actionCard}
+          >
+            <span className={styles.actionIcon}>🌐</span>
+            <h3 className={styles.actionTitle}>Asosiy Saytni Ochish</h3>
+            <p className={styles.actionDesc}>
+              Oʻquvchilar va tashrif buyuruvchilar saytni qanday koʻrayotganini yangi oynada ochib
+              koʻrish.
+            </p>
+            <span className={styles.actionBtnText}>Saytga oʻtish ↗</span>
+          </Link>
+
+          <Link href="/admin/collections/users/create" className={styles.actionCard}>
+            <span className={styles.actionIcon}>👤</span>
+            <h3 className={styles.actionTitle}>Yangi Admin Qoʻshish</h3>
+            <p className={styles.actionDesc}>
+              Saytni boshqarish uchun yangi xodim yoki admin qoʻshish, unga rol va parol belgilash.
+            </p>
+            <span className={styles.actionBtnText}>Admin qoʻshish →</span>
+          </Link>
+
+          <Link href="/admin/collections/users" className={styles.actionCard}>
+            <span className={styles.actionIcon}>👥</span>
+            <h3 className={styles.actionTitle}>Xodimlar va Oʻquvchilar</h3>
+            <p className={styles.actionDesc}>
+              Barcha adminlar va oʻquvchilar maʼlumotlari, login/parollarini tahrirlash yoki oʻchirish.
+            </p>
+            <span className={styles.actionBtnText}>Foydalanuvchilar →</span>
+          </Link>
+        </div>
+
+        <div className={styles.stepBox}>
+          <h4 className={styles.stepBoxTitle}>
+            💡 Yangi maqola qanday qoʻshiladi? (3 ta oddiy qadam)
+          </h4>
+          <div className={styles.stepList}>
+            <div className={styles.stepItem}>
+              <span className={styles.stepNum}>1</span>
+              <span className={styles.stepText}>
+                Yuqoridagi <b>&quot;+ Yangi maqola&quot;</b> tugmasini bosing.
+              </span>
+            </div>
+            <div className={styles.stepItem}>
+              <span className={styles.stepNum}>2</span>
+              <span className={styles.stepText}>
+                <b>Sarlavha</b> yozing, <b>Muqova rasmi</b>ni tanlang va <b>Maqola matni</b>ni
+                kiriting.
+              </span>
+            </div>
+            <div className={styles.stepItem}>
+              <span className={styles.stepNum}>3</span>
+              <span className={styles.stepText}>
+                Oʻng tomondagi <b>&quot;Chop etish&quot;</b> yoki <b>&quot;Saqlash&quot;</b>{' '}
+                tugmasini bosing — maqola darhol saytda chiqadi!
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Author view */}

@@ -2,12 +2,11 @@
 
 import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link, useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import { UserPlus, User, KeyRound, Phone, ArrowRight } from 'lucide-react'
 
 export default function RegisterPage() {
   const t = useTranslations('auth')
-  const router = useRouter()
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -45,8 +44,7 @@ export default function RegisterPage() {
         return
       }
 
-      router.push('/')
-      router.refresh()
+      window.location.href = '/'
     } catch (_err) {
       setError('Server bilan aloqa uzildi')
     } finally {

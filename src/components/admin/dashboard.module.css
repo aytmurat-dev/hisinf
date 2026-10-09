@@ -396,3 +396,184 @@
   font-weight: 500;
   color: var(--fg, #2b2118);
 }
+
+.topBarLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--hf-surface-2, #efe6d4);
+  color: var(--fg, #2b2118);
+  border: 1px solid var(--hf-border, #dccfb8);
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.topBarLinkBtn:hover {
+  background: var(--hf-border, #dccfb8);
+}
+
+.chatButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--hf-teal, #2f5d62);
+  color: #fff8ee;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.chatButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Beginner Guide & Quick Action Cards */
+.guideSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, var(--hf-card, #fbf7ee) 0%, var(--hf-surface-2, #efe6d4) 100%);
+  border: 1px solid var(--hf-border, #dccfb8);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(43, 33, 24, 0.05);
+}
+
+.guideHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guideTitle {
+  margin: 0;
+  font-family: var(--font-serif, 'Literata', Georgia, serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--fg, #2b2118);
+}
+
+.guideSubtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--muted, #6b5d4f);
+  line-height: 1.5;
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.actionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  background: var(--hf-card, #fbf7ee);
+  border: 1px solid var(--hf-border, #dccfb8);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--fg, #2b2118);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(43, 33, 24, 0.04);
+}
+
+.actionCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--hf-ornament, #b89a6a);
+  box-shadow: 0 6px 16px rgba(43, 33, 24, 0.08);
+}
+
+.actionCardPrimary {
+  background: #fffdf8;
+  border: 1.5px solid var(--hf-primary, #8c2f1b);
+}
+
+.actionIcon {
+  font-size: 28px;
+}
+
+.actionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg, #2b2118);
+  margin: 0;
+}
+
+.actionDesc {
+  font-size: 13px;
+  color: var(--muted, #6b5d4f);
+  line-height: 1.45;
+  margin: 0;
+  flex: 1;
+}
+
+.actionBtnText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hf-primary, #8c2f1b);
+  margin-top: 4px;
+}
+
+.stepBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px;
+  background: var(--hf-card, #fbf7ee);
+  border: 1px solid var(--hf-border, #dccfb8);
+  border-radius: 8px;
+}
+
+.stepBoxTitle {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--fg, #2b2118);
+}
+
+.stepList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stepNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--hf-primary, #8c2f1b);
+  color: #fff8ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stepText {
+  font-size: 13px;
+  color: var(--fg, #2b2118);
+  line-height: 1.4;
+}
+

@@ -12,9 +12,10 @@ const dirname = path.dirname(__filename)
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 const r2PublicURL = process.env.R2_PUBLIC_URL
 
-const remotePatterns: Array<{ hostname: string; protocol: 'http' | 'https' }> = [
+const remotePatterns: Array<{ hostname: string; protocol?: 'http' | 'https' }> = [
   { hostname: 'images.unsplash.com', protocol: 'https' },
   { hostname: 'raw.githubusercontent.com', protocol: 'https' },
+  { hostname: '**', protocol: 'https' },
 ]
 
 for (const urlStr of [serverURL, r2PublicURL].filter(Boolean) as string[]) {

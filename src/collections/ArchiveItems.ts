@@ -13,6 +13,7 @@ export const ArchiveItems: CollectionConfig = {
     plural: 'Media arxiv',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Tarix',
     defaultColumns: ['title', 'kind', 'year', 'period', 'provenance'],

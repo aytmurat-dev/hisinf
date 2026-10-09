@@ -13,6 +13,7 @@ export const Tags: CollectionConfig = {
     afterChange: [revalidateSite],
   },
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Taksonomiya',
   },

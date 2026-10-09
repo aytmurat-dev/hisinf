@@ -89,6 +89,19 @@ export const Users: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (
+          data.newPassword &&
+          typeof data.newPassword === 'string' &&
+          data.newPassword.trim().length >= 6
+        ) {
+          data.password = data.newPassword.trim()
+          delete data.newPassword
+        }
+        return data
+      },
+    ],
     beforeLogin: [
       ({ user }: { user: unknown }) => {
         if ((user as { isActive?: boolean })?.isActive === false) {
@@ -131,6 +144,20 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => isStaffUser(req.user),
   },
   fields: [
+    {
+      name: 'newPassword',
+      type: 'text',
+      label: 'Yangi parol oʻrnatish (Parolni oʻzgartirish yoki tiklash)',
+      access: {
+        read: () => false,
+        update: fieldAdminOnly,
+      },
+      admin: {
+        description:
+          'Ushbu adminga yangi parol berish uchun shu yerga yangi parolni yozing va saqlang (kamida 6 ta belgi).',
+        placeholder: 'Yangi parolni kiriting (masalan: admin123)...',
+      },
+    },
     {
       name: 'displayName',
       type: 'text',

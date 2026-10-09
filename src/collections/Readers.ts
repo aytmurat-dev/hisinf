@@ -74,6 +74,19 @@ export const Readers: CollectionConfig = {
     },
   },
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (
+          data.newPassword &&
+          typeof data.newPassword === 'string' &&
+          data.newPassword.trim().length >= 6
+        ) {
+          data.password = data.newPassword.trim()
+          delete data.newPassword
+        }
+        return data
+      },
+    ],
     afterDelete: [
       async ({ req, id }) => {
         try {
@@ -92,6 +105,20 @@ export const Readers: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      name: 'newPassword',
+      type: 'text',
+      label: 'Yangi parol oʻrnatish (Parolni oʻzgartirish)',
+      access: {
+        read: () => false,
+        update: fieldStaffOnly,
+      },
+      admin: {
+        description:
+          'Ushbu oʻquvchiga yangi parol berish uchun shu yerga yangi parolni yozing va saqlang (kamida 6 ta belgi).',
+        placeholder: 'Yangi parolni kiriting...',
+      },
+    },
     {
       name: 'displayName',
       type: 'text',
@@ -159,23 +186,23 @@ export const Readers: CollectionConfig = {
     {
       name: 'phone',
       type: 'text',
+      label: 'Telefon raqami',
       access: {
         read: fieldStaffOnly,
         update: fieldStaffOnly,
-      },
-      admin: {
-        hidden: true,
       },
     },
     {
       name: 'displayPassword',
       type: 'text',
+      label: 'Dastlabki parol (Eski oʻquvchilar uchun)',
       access: {
         read: fieldStaffOnly,
         update: fieldStaffOnly,
       },
       admin: {
-        hidden: true,
+        readOnly: true,
+        description: 'Ushbu oʻquvchining dastlabki paroli (faqat maʼlumot uchun)',
       },
     },
     {
