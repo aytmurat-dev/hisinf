@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-serif: 'Literata', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --style-radius-s: 6px;
+  --style-radius-m: 8px;
+  --style-radius-l: 10px;
+}
+
+html[data-theme='light'],
+[data-theme='light'] {
+  --hf-primary: #8c2f1b;
+  --hf-primary-fg: #fff8ee;
+  --hf-teal: #2f5d62;
+  --hf-card: #fbf7ee;
+  --hf-surface-2: #efe6d4;
+  --hf-gold: #a07a3c;
+  --hf-ornament: #b89a6a;
+  --hf-line: #2b2118;
+  --hf-border: #dccfb8;
+  --theme-elevation-0: #f5efe3;
+  --theme-elevation-50: #ebe5d9;
+  --theme-elevation-100: #e1dacf;
+  --theme-elevation-150: #d7d0c5;
+  --theme-elevation-200: #cdc6ba;
+  --theme-elevation-250: #c2bcb0;
+  --theme-elevation-300: #b8b1a6;
+  --theme-elevation-350: #aea79c;
+  --theme-elevation-400: #a49d92;
+  --theme-elevation-450: #9a9288;
+  --theme-elevation-500: #90887e;
+  --theme-elevation-550: #867e73;
+  --theme-elevation-600: #7c7369;
+  --theme-elevation-650: #72695f;
+  --theme-elevation-700: #685f55;
+  --theme-elevation-750: #5e544b;
+  --theme-elevation-800: #534a41;
+  --theme-elevation-850: #494036;
+  --theme-elevation-900: #3f362c;
+  --theme-elevation-950: #352b22;
+  --theme-elevation-1000: #2b2118;
+  --theme-border-color: #dccfb8;
+  --theme-input-bg: #fbf7ee;
+
+  /* Aliases matching design tokens */
+  --bg: #f5efe3;
+  --fg: #2b2118;
+  --card: #fbf7ee;
+  --surface-2: #efe6d4;
+  --muted: #6b5d4f;
+  --primary: #8c2f1b;
+  --primary-fg: #fff8ee;
+  --teal: #2f5d62;
+  --border: #dccfb8;
+  --line: #2b2118;
+  --gold: #a07a3c;
+  --ornament: #b89a6a;
+}
+
+html[data-theme='dark'],
+[data-theme='dark'] {
+  --hf-primary: #d9785c;
+  --hf-primary-fg: #1a120c;
+  --hf-teal: #6fb1b5;
+  --hf-card: #1f1914;
+  --hf-surface-2: #2a221b;
+  --hf-gold: #cfae74;
+  --hf-ornament: #7a6446;
+  --hf-line: #ede4d3;
+  --hf-border: #3a3027;
+  --theme-elevation-0: #15110d;
+  --theme-elevation-50: #201c17;
+  --theme-elevation-100: #2b2621;
+  --theme-elevation-150: #35312b;
+  --theme-elevation-200: #403b35;
+  --theme-elevation-250: #4b463e;
+  --theme-elevation-300: #565048;
+  --theme-elevation-350: #615b52;
+  --theme-elevation-400: #6b655c;
+  --theme-elevation-450: #767066;
+  --theme-elevation-500: #817a70;
+  --theme-elevation-550: #8c857a;
+  --theme-elevation-600: #979084;
+  --theme-elevation-650: #a19a8e;
+  --theme-elevation-700: #aca598;
+  --theme-elevation-750: #b7afa2;
+  --theme-elevation-800: #c2baab;
+  --theme-elevation-850: #cdc4b5;
+  --theme-elevation-900: #d7cfbf;
+  --theme-elevation-950: #e2d9c9;
+  --theme-elevation-1000: #ede4d3;
+  --theme-border-color: #3a3027;
+  --theme-input-bg: #1f1914;
+
+  /* Aliases matching design tokens */
+  --bg: #15110d;
+  --fg: #ede4d3;
+  --card: #1f1914;
+  --surface-2: #2a221b;
+  --muted: #a89a86;
+  --primary: #d9785c;
+  --primary-fg: #1a120c;
+  --teal: #6fb1b5;
+  --border: #3a3027;
+  --line: #ede4d3;
+  --gold: #cfae74;
+  --ornament: #7a6446;
+}
+
+/* Animations */
+@keyframes hf-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hf-ink {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes hf-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(47, 93, 98, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(47, 93, 98, 0);
+  }
+}
+
+@keyframes hf-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Asosiy tugma — muhr qizili */
+.btn--style-primary,
+button[type='submit'].btn {
+  background-color: var(--hf-primary) !important;
+  color: var(--hf-primary-fg) !important;
+  border-color: var(--hf-primary) !important;
+}
+
+.btn--style-primary:hover,
+button[type='submit'].btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* Sidebar (nav) — dizayn: surface-2 fon */
+.nav,
+aside.nav {
+  background: var(--hf-surface-2) !important;
+  border-right: 1px solid var(--hf-border) !important;
+}
+
+.nav__link {
+  border-radius: 6px;
+  font-size: 13.5px;
+}
+
+.nav-group__toggle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Sarlavhalar Literata'da */
+.doc-header__title,
+.list-header h1,
+.dashboard h1,
+.collection-list h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* Maqola sarlavhasi maydoni — dizayn: 40px Literata */
+.collection-edit--posts #field-title input {
+  font: 500 40px/1.15 var(--font-serif);
+  letter-spacing: -0.02em;
+  border: 0;
+  background: transparent;
+  padding-left: 0;
+}
+
+/* Lexical matni — dizayn: 18px/1.7 Literata */
+.rich-text-lexical .editor,
+.rich-text-lexical .ContentEditable__root {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.rich-text-lexical h2 {
+  font: 500 30px/1.25 var(--font-serif);
+}
+
+.rich-text-lexical h3 {
+  font: 500 22px/1.3 var(--font-serif);
+}
+
+.rich-text-lexical blockquote {
+  border-left: 2px solid var(--hf-primary);
+  padding-left: 20px;
+  font-style: italic;
+  font-size: 21px;
+}

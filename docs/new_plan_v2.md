@@ -1346,7 +1346,7 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
 
 ## V2-P5.S1 — Mavzu (ranglar, shriftlar)
 
-- [ ] **V2-P5.S1.1** `src/app/(payload)/custom.css` ni to'liq yozing:
+- [x] **V2-P5.S1.1** `src/app/(payload)/custom.css` ni to'liq yozing:
   ```css
   @import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
@@ -1408,22 +1408,22 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   .rich-text-lexical blockquote { border-left: 2px solid var(--hf-primary); padding-left: 20px; font-style: italic; font-size: 21px; }
   ```
   **Muhim:** CSS selektorlari (`.nav`, `.nav__link`, `#field-title`, `.rich-text-lexical …`) o'rnatilgan versiyada boshqacha bo'lishi mumkin. DevTools'da haqiqiy klass nomlarini tekshiring va moslang. `!important` faqat zarur joylarda ishlatiladi.
-- [ ] **V2-P5.S1.2** `payload.config.ts` → `admin.meta`: `titleSuffix: ' — hisinf.uz Tahririyat'`, `icons: [{ url: '/favicon.svg' }]`.
+- [x] **V2-P5.S1.2** `payload.config.ts` → `admin.meta`: `titleSuffix: ' — hisinf.uz Tahririyat'`, `icons: [{ url: '/favicon.svg' }]`.
 
 ✅ **Qabul mezonlari:** `/admin` ikkala temada pergament / kutubxona ranglarida, sarlavhalar Literata'da, asosiy tugmalar qizil.
 
 ## V2-P5.S2 — Logo va ikonka
 
-- [ ] **V2-P5.S2.1** `src/components/admin/AdminLogo.tsx` — login sahifasi uchun: `LogoMark` (52px) + "hisinf**.uz**" (Literata 600 32px) + "Tahririyat" (mono 10px uppercase tracking .14em). Faqat inline style yoki `custom.css` klasslari ishlatiladi (admin'da Tailwind yo'q).
-- [ ] **V2-P5.S2.2** `src/components/admin/AdminIcon.tsx` — nav uchun kichik romb + H (30px, dizayn: AdminSidebar 15-qator).
-- [ ] **V2-P5.S2.3** `admin.components.graphics = { Logo: '/components/admin/AdminLogo#AdminLogo', Icon: '/components/admin/AdminIcon#AdminIcon' }`.
-- [ ] **V2-P5.S2.4** `public/favicon.svg` — romb + H (`#8c2f1b`), 32×32 viewBox.
+- [x] **V2-P5.S2.1** `src/components/admin/AdminLogo.tsx` — login sahifasi uchun: `LogoMark` (52px) + "hisinf**.uz**" (Literata 600 32px) + "Tahririyat" (mono 10px uppercase tracking .14em). Faqat inline style yoki `custom.css` klasslari ishlatiladi (admin'da Tailwind yo'q).
+- [x] **V2-P5.S2.2** `src/components/admin/AdminIcon.tsx` — nav uchun kichik romb + H (30px, dizayn: AdminSidebar 15-qator).
+- [x] **V2-P5.S2.3** `admin.components.graphics = { Logo: '/components/admin/AdminLogo#AdminLogo', Icon: '/components/admin/AdminIcon#AdminIcon' }`.
+- [x] **V2-P5.S2.4** `public/favicon.svg` — romb + H (`#8c2f1b`), 32×32 viewBox.
 
 ## V2-P5.S3 — Sidebar ("Ish stoli" bloki)
 
 Dizayn: `docs/design/AdminSidebar.dc.html`.
 
-- [ ] **V2-P5.S3.1** Kolleksiya guruhlari (`admin.group`) — dizayn guruhlariga mos:
+- [x] **V2-P5.S3.1** Kolleksiya guruhlari (`admin.group`) — dizayn guruhlariga mos:
   - **Kontent:** Maqolalar, Sahifalar.
   - **Tarix:** Davrlar, Shaxslar, Voqealar, Joylar, Arxiv.
   - **Taksonomiya:** Kategoriyalar, Teglar, Hududlar.
@@ -1431,15 +1431,15 @@ Dizayn: `docs/design/AdminSidebar.dc.html`.
   - **Muloqot:** Izohlar, Murojaatlar, Obunachilar.
   - **Tizim:** Xodimlar, O'quvchilar, Statistika.
   - **Sozlamalar:** globallar.
-- [ ] **V2-P5.S3.2** `src/components/admin/NavWorkdesk.tsx` (server komponent) → `admin.components.beforeNavLinks`. U "ISH STOLI" sarlavhasi (mono 10px uppercase) ostida 3 ta havola chiqaradi:
+- [x] **V2-P5.S3.2** `src/components/admin/NavWorkdesk.tsx` (server komponent) → `admin.components.beforeNavLinks`. U "ISH STOLI" sarlavhasi (mono 10px uppercase) ostida 3 ta havola chiqaradi:
   1. **Boshqaruv paneli** → `/admin`.
   2. **Tekshiruv navbati** → `/admin/collections/posts?where[workflowStatus][equals]=in_review` + badge (`count` so'rovi; faqat editor/admin uchun).
   3. **Izohlar** → `/admin/collections/comments?where[status][equals]=pending` + badge (pending soni; faqat editor/admin).
   Muallif uchun buning o'rniga **Mening maqolalarim** → `/admin/collections/posts?where[author][equals]=<id>` va "Tuzatish kerak: N" badge'i chiqadi.
   Har havola oldida 7px romb (`border:1.3px solid var(--hf-ornament)`), joriy sahifada to'ldirilgan qizil. Badge: `font:500 10.5px var(--font-mono); padding:3px 6px; border-radius:999px; background:var(--hf-primary); color:var(--hf-primary-fg)`.
   Sonlarni olish: `payload.count({ collection: 'posts', where: {...}, overrideAccess: false, user })`.
-- [ ] **V2-P5.S3.3** `src/components/admin/NavThemeToggle.tsx` (`'use client'`) — `useTheme()` (`@payloadcms/ui`) bilan yorug'/qorong'i almashtiruvchi 28px tugma (dizayn: AdminSidebar 20-qator). `beforeNavLinks` ga `NavWorkdesk` dan keyin qo'shiladi.
-- [ ] **V2-P5.S3.4** (Ixtiyoriy) Nav pastidagi foydalanuvchi kartochkasi: `afterNavLinks` — avatar (initsiallar), ism va rol (mono 10px, teal).
+- [x] **V2-P5.S3.3** `src/components/admin/NavThemeToggle.tsx` (`'use client'`) — `useTheme()` (`@payloadcms/ui`) bilan yorug'/qorong'i almashtiruvchi 28px tugma (dizayn: AdminSidebar 20-qator). `beforeNavLinks` ga `NavWorkdesk` dan keyin qo'shiladi.
+- [x] **V2-P5.S3.4** (Ixtiyoriy) Nav pastidagi foydalanuvchi kartochkasi: `afterNavLinks` — avatar (initsiallar), ism va rol (mono 10px, teal).
 
 ✅ **Qabul mezonlari:** sidebar dizayndagi tuzilmaga o'xshaydi, badge'lardagi sonlar to'g'ri, muallif boshqa havolalarni ko'radi.
 
@@ -1447,7 +1447,7 @@ Dizayn: `docs/design/AdminSidebar.dc.html`.
 
 Dizayn: `docs/design/Admin Dashboard.dc.html`. Payload'ning standart kolleksiya kartochkalari pastda "Tezkor havolalar" sifatida qoladi. Dizayndagi bloklar `beforeDashboard` ga qo'shiladi.
 
-- [ ] **V2-P5.S4.1** **Statistika endpoint'i** — `payload.config.ts` → root `endpoints`:
+- [x] **V2-P5.S4.1** **Statistika endpoint'i** — `payload.config.ts` → root `endpoints`:
   ```ts
   endpoints: [{
     path: '/admin-stats',
@@ -1460,7 +1460,7 @@ Dizayn: `docs/design/Admin Dashboard.dc.html`. Payload'ning standart kolleksiya 
   }],
   ```
   URL: `GET /api/admin-stats?range=30`.
-- [ ] **V2-P5.S4.2** `src/lib/admin-stats.ts` → `getAdminStats(payload, range)`:
+- [x] **V2-P5.S4.2** `src/lib/admin-stats.ts` → `getAdminStats(payload, range)`:
   ```ts
   type AdminStats = {
     reads: { value: number; deltaPct: number }          // daily-stats yig'indisi, oldingi davrga nisbatan %
@@ -1475,7 +1475,7 @@ Dizayn: `docs/design/Admin Dashboard.dc.html`. Payload'ning standart kolleksiya 
   }
   ```
   `daily-stats` dan yig'ish uchun `payload.find({ collection: 'daily-stats', where: { day: { greater_than_equal: from } }, limit: 10000, depth: 0, pagination: false })` va JS'da guruhlash (kichik sayt uchun yetarli). Kunlar `Asia/Tashkent` bo'yicha hisoblanadi (`src/lib/today.ts`).
-- [ ] **V2-P5.S4.3** `src/components/admin/Dashboard.tsx` (`'use client'`) → `admin.components.beforeDashboard`. Tuzilma (dizayn qatorlari bo'yicha):
+- [x] **V2-P5.S4.3** `src/components/admin/Dashboard.tsx` (`'use client'`) → `admin.components.beforeDashboard`. Tuzilma (dizayn qatorlari bo'yicha):
   1. **Yuqori qator** (17–21): breadcrumb "Ish stoli / Boshqaruv paneli", o'ngda pulslanuvchi teal nuqta (`animation: hf-pulse 2s infinite` — keyframe'ni `custom.css` ga qo'shing) va "Sayt ishlayapti", qizil "+ Yangi maqola" tugmasi → `/admin/collections/posts/create`.
   2. **Salomlashish** (24): mono uppercase sana ("Payshanba, 9-oktabr") va Literata 42px "Xayrli kun, {ism}" (soatga qarab: 5–11 "Xayrli tong", 11–17 "Xayrli kun", 17–23 "Xayrli kech", aks holda "Xayrli tun"). O'ngda segmentli range tanlagich: `7 kun | 30 kun | 1 yil`.
   3. **4 ta stat kartochka** (29–36): `grid 4 ustun`, `bg card, border, radius 10px, padding 20px`. Yorliq 13px muted, qiymat Literata 38px, delta mono 12px (↑ teal, ↓ primary). Qiymat formati: ≥1000 → `48.2K`.
@@ -1485,7 +1485,7 @@ Dizayn: `docs/design/Admin Dashboard.dc.html`. Payload'ning standart kolleksiya 
   7. **"Izohlar moderatsiyasi"** (68–83): "N kutmoqda", har izoh: ism → maqola, matn (Literata 15px), "✓ Tasdiqlash" (teal) va "Rad etish" tugmalari. Bosilganda `fetch('/api/comments/' + id, { method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'approved' | 'rejected' }) })`. Natijada qator xiralashadi (`opacity .55`) va "✓ Chop etildi" / "✕ Rad etildi" yozuvi chiqadi. `flagged` izohda kichik "⚑ shubhali" belgisi bo'ladi.
   Ma'lumot: `useEffect` → `fetch('/api/admin-stats?range=' + range, { credentials: 'include' })`. Yuklanayotganda skelet ko'rinadi. **Muallif uchun** (403 qaytsa) faqat 1–2 qatorlar va "Mening maqolalarim" ro'yxati chiqadi (`/api/posts?where[author][equals]=…`).
   Stillar: admin'da Tailwind yo'q, shuning uchun `src/components/admin/dashboard.module.css` (CSS Modules) yoki inline style ishlatiladi. Ranglar `var(--hf-*)` va `var(--theme-elevation-*)` orqali beriladi.
-- [ ] **V2-P5.S4.4** Standart kolleksiya kartochkalari ustiga "Tezkor havolalar" sarlavhasi qo'shing (CSS `::before` yoki `afterDashboard` komponenti).
+- [x] **V2-P5.S4.4** Standart kolleksiya kartochkalari ustiga "Tezkor havolalar" sarlavhasi qo'shing (CSS `::before` yoki `afterDashboard` komponenti).
 
 ✅ **Qabul mezonlari:** seed ma'lumotlari bilan dashboard dizaynga o'xshaydi. Range almashtirilganda sonlar o'zgaradi. Izohni tasdiqlash ishlaydi va saytda paydo bo'ladi.
 
@@ -1493,7 +1493,7 @@ Dizayn: `docs/design/Admin Dashboard.dc.html`. Payload'ning standart kolleksiya 
 
 Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok turi).
 
-- [ ] **V2-P5.S5.1** `src/editor/config.ts`:
+- [x] **V2-P5.S5.1** `src/editor/config.ts`:
   ```ts
   import {
     lexicalEditor, FixedToolbarFeature, HeadingFeature, BlocksFeature, UploadFeature,
@@ -1533,7 +1533,7 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
   })
   ```
   `f.key` qiymatlarini `console.log(defaultFeatures.map(f => f.key))` bilan tekshiring. `payload.config.ts` → `editor: postEditor`. Posts `body` → `postEditor`. Persons/Events/Pages → `simpleEditor`.
-- [ ] **V2-P5.S5.2** Bloklar (`src/blocks/*.ts`, har birida `interfaceName` va o'zbekcha `labels`). `/` menyusida dizayndagi tartibda chiqadi:
+- [x] **V2-P5.S5.2** Bloklar (`src/blocks/*.ts`, har birida `interfaceName` va o'zbekcha `labels`). `/` menyusida dizayndagi tartibda chiqadi:
   | Dizayn | Payload | Fayl | Maydonlar |
   |--------|---------|------|-----------|
   | ¶ Matn | paragraph (standart) | — | — |
@@ -1547,19 +1547,19 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
   | ◆ Ajratgich | HorizontalRuleFeature | — | — |
   | qo'shimcha | Callout ("Bilasizmi?"), DocumentEmbed (PDF), YouTube, PersonCard, EventsTimeline, MapEmbed, ArchiveItemEmbed | eski reja `docs/plan/P05-editor.md` P5.S2.3–S2.10 bo'yicha | |
   `src/blocks/index.ts`: `export const postBlocks = [QuoteBlock, SourceBlock, GalleryBlock, CalloutBlock, DocumentEmbedBlock, YouTubeBlock, PersonCardBlock, EventsTimelineBlock, MapEmbedBlock, ArchiveItemBlock]`, `export const inlineBlocks = [FootnoteBlock]`.
-- [ ] **V2-P5.S5.3** **Manba qoidasi (D6):** `Source` bloki saytda **joyida ko'rinmaydi**. Maqola oxiridagi "Manbalar" qutisiga tartib raqami bilan yig'iladi (P6). Admin'da blok kartochka sifatida "MANBA · {title}" ko'rinishida chiqadi (dizayn: `pre: 'MANBA'`, teal). Buning uchun `admin.components.Label` yoki blokning `labels` dan foydalaning.
-- [ ] **V2-P5.S5.4** `pnpm generate:types && pnpm generate:importmap`. Admin'da `/` bosilganda bloklar ro'yxati chiqadi, `+` va `⋮⋮` (drag) ishlaydi.
+- [x] **V2-P5.S5.3** **Manba qoidasi (D6):** `Source` bloki saytda **joyida ko'rinmaydi**. Maqola oxiridagi "Manbalar" qutisiga tartib raqami bilan yig'iladi (P6). Admin'da blok kartochka sifatida "MANBA · {title}" ko'rinishida chiqadi (dizayn: `pre: 'MANBA'`, teal). Buning uchun `admin.components.Label` yoki blokning `labels` dan foydalaning.
+- [x] **V2-P5.S5.4** `pnpm generate:types && pnpm generate:importmap`. Admin'da `/` bosilganda bloklar ro'yxati chiqadi, `+` va `⋮⋮` (drag) ishlaydi.
 
 ✅ **Qabul mezonlari:** barcha blok turlari qo'shiladi, saqlanadi va qayta ochilganda joyida turadi.
 
 ## V2-P5.S6 — Maqola tahriri ekrani (dizayn: Admin Muharrir)
 
-- [ ] **V2-P5.S6.1** **So'zlar soni** — `src/components/admin/WordCountField.tsx` (`'use client'`, `ui` maydon, sidebar'ning eng tepasida): `useFormFields(([fields]) => fields.body?.value)` → `extractPlainText` → "1 240 soʻz · 7 daq" (mono 12px muted). Har 500ms dan ko'p bo'lmagan tezlikda yangilanadi (debounce).
-- [ ] **V2-P5.S6.2** **Workflow vaqt chizig'i** — `src/components/admin/WorkflowTimelineField.tsx` (`ui` maydon, sidebar). Dizayn qatorlari 93–101: 4 qadam (Qoralama → Tekshiruvda → Tasdiqlandi → Chop etildi). Har qadamda 12px doira (o'tgan: to'ldirilgan teal, joriy: `bg` fonli teal chegara, kelajak: ornament chegara) va vertikal chiziq. Ostida kim va qachon: muallif ismi · `createdAt`, muharrir ismi (`reviewedBy`), "hisinf.uz/maqola" (chop etilgan bo'lsa havola). `changes_requested` holatida 2-qadam qizil bo'ladi va ostida "Tuzatish kerak: <oxirgi izoh>" yoziladi.
-- [ ] **V2-P5.S6.3** **Tarjima holati** — `src/components/admin/TranslationStatusField.tsx` (`ui`, `body` tepasida). Dizayn 29–33: ikkita pill "OʻZBEKCHA · asl" va "QARAQALPAQSHA · 64%". Foiz: kaa `body` dagi bo'sh bo'lmagan bloklar soni / uz'dagi soni. Ikkala til ma'lumotini olish uchun `fetch('/api/posts/' + id + '?locale=all&depth=0&draft=true', { credentials: 'include' })` ishlatiladi. Pill bosilsa locale almashadi: `router.push('?locale=kaa')` (Payload locale query parametri) yoki `useLocale`/`LocaleSelector` mantig'idan foydalaning. Joriy locale `bg fg` bilan to'ldiriladi.
-- [ ] **V2-P5.S6.4** **Davr chip'lari** — `src/components/admin/PeriodChipsField.tsx` (`'use client'`), `period` maydoniga `admin.components.Field` sifatida ulanadi. Dizayn 104–108: davrlar ro'yxati (`/api/periods?sort=order&limit=50&depth=0`) 6px romb (davr rangida) va qisqa nom bilan pill bo'lib chiqadi. Tanlangani `border fg + bg card`. `useField<number | null>({ path })` → `setValue(id)`. Label: "DAVR" (mono 10px uppercase).
-- [ ] **V2-P5.S6.5** **Muharrir uchun izoh** — `noteToEditor` maydoni sidebar'da kartochka ko'rinishida (dizayn 113–116): `admin.position: 'sidebar'`, `admin.placeholder: 'Masalan: 2-manbani tekshirib bering'`.
-- [ ] **V2-P5.S6.6** **Harakat tugmalari** — `src/components/admin/WorkflowPublishButton.tsx` (`'use client'`) → Posts `admin.components.edit.PublishButton`. Mantiq:
+- [x] **V2-P5.S6.1** **So'zlar soni** — `src/components/admin/WordCountField.tsx` (`'use client'`, `ui` maydon, sidebar'ning eng tepasida): `useFormFields(([fields]) => fields.body?.value)` → `extractPlainText` → "1 240 soʻz · 7 daq" (mono 12px muted). Har 500ms dan ko'p bo'lmagan tezlikda yangilanadi (debounce).
+- [x] **V2-P5.S6.2** **Workflow vaqt chizig'i** — `src/components/admin/WorkflowTimelineField.tsx` (`ui` maydon, sidebar). Dizayn qatorlari 93–101: 4 qadam (Qoralama → Tekshiruvda → Tasdiqlandi → Chop etildi). Har qadamda 12px doira (o'tgan: to'ldirilgan teal, joriy: `bg` fonli teal chegara, kelajak: ornament chegara) va vertikal chiziq. Ostida kim va qachon: muallif ismi · `createdAt`, muharrir ismi (`reviewedBy`), "hisinf.uz/maqola" (chop etilgan bo'lsa havola). `changes_requested` holatida 2-qadam qizil bo'ladi va ostida "Tuzatish kerak: <oxirgi izoh>" yoziladi.
+- [x] **V2-P5.S6.3** **Tarjima holati** — `src/components/admin/TranslationStatusField.tsx` (`ui`, `body` tepasida). Dizayn 29–33: ikkita pill "OʻZBEKCHA · asl" va "QARAQALPAQSHA · 64%". Foiz: kaa `body` dagi bo'sh bo'lmagan bloklar soni / uz'dagi soni. Ikkala til ma'lumotini olish uchun `fetch('/api/posts/' + id + '?locale=all&depth=0&draft=true', { credentials: 'include' })` ishlatiladi. Pill bosilsa locale almashadi: `router.push('?locale=kaa')` (Payload locale query parametri) yoki `useLocale`/`LocaleSelector` mantig'idan foydalaning. Joriy locale `bg fg` bilan to'ldiriladi.
+- [x] **V2-P5.S6.4** **Davr chip'lari** — `src/components/admin/PeriodChipsField.tsx` (`'use client'`), `period` maydoniga `admin.components.Field` sifatida ulanadi. Dizayn 104–108: davrlar ro'yxati (`/api/periods?sort=order&limit=50&depth=0`) 6px romb (davr rangida) va qisqa nom bilan pill bo'lib chiqadi. Tanlangani `border fg + bg card`. `useField<number | null>({ path })` → `setValue(id)`. Label: "DAVR" (mono 10px uppercase).
+- [x] **V2-P5.S6.5** **Muharrir uchun izoh** — `noteToEditor` maydoni sidebar'da kartochka ko'rinishida (dizayn 113–116): `admin.position: 'sidebar'`, `admin.placeholder: 'Masalan: 2-manbani tekshirib bering'`.
+- [x] **V2-P5.S6.6** **Harakat tugmalari** — `src/components/admin/WorkflowPublishButton.tsx` (`'use client'`) → Posts `admin.components.edit.PublishButton`. Mantiq:
   | Rol | Holat | Ko'rinadigan tugma | Bosilganda |
   |-----|-------|--------------------|------------|
   | author | draft / changes_requested | **Tekshiruvga yuborish** | `workflowStatus = 'in_review'` + qoralamani saqlash |
@@ -1571,7 +1571,7 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
   Qoralamani saqlash mantig'ini Payload'ning `SaveDraftButton` manbasidan oling: `node_modules/@payloadcms/ui/dist/elements/SaveDraftButton/index.js` (`useForm().submit({ overrides: { _status: 'draft' }, skipValidation: true, … })`). Maydon qiymatini o'rnatish: `useField({ path: 'workflowStatus' }).setValue(...)`. Natija `toast.success('Muharrir tekshiruviga yuborildi')` (`import { toast } from '@payloadcms/ui'`). Server xatosi (400/403) bo'lsa, matni `toast.error` da ko'rsatiladi.
   Ulash: `admin: { components: { edit: { PublishButton: '/components/admin/WorkflowPublishButton#WorkflowPublishButton' } } }`.
   **Agar API mos kelmasa:** tugmani olib tashlang, `workflowStatus` select'ini sidebar'da qoldiring (server hook baribir himoya qiladi) va `docs/BLOCKERS.md` ga yozing.
-- [ ] **V2-P5.S6.7** **Word/PDF import (D4)** — `src/components/admin/ImportDocumentField.tsx` (`ui`, `body` dan oldin). Tugma "📄 Word/PDF'dan import" modal ochadi. Modal ichida fayl tanlash (`.docx`, `.pdf`, `.txt`, ≤10 MB) va "Almashtirish / Oxiriga qo'shish" tanlovi bor.
+- [x] **V2-P5.S6.7** **Word/PDF import (D4)** — `src/components/admin/ImportDocumentField.tsx` (`ui`, `body` dan oldin). Tugma "📄 Word/PDF'dan import" modal ochadi. Modal ichida fayl tanlash (`.docx`, `.pdf`, `.txt`, ≤10 MB) va "Almashtirish / Oxiriga qo'shish" tanlovi bor.
   Server: root endpoint `POST /api/import-document` (multipart, faqat xodim):
   ```ts
   // .docx → HTML (mammoth.convertToHtml) → Lexical (convertHTMLToLexical)
@@ -1584,52 +1584,52 @@ Dizayn: `docs/design/Admin Muharrir.dc.html` (`TYPES` massivi — 10 ta blok tur
   `editorConfigFactory` metod nomini (`fromEditor` / `default`) o'rnatilgan versiyaning `index.d.ts` faylidan tekshiring. `jsdom` hozir devDependency, uni **dependencies** ga ko'chiring.
   Client: javobdagi Lexical JSON `useField({ path: 'body' }).setValue(...)` bilan qo'yiladi (almashtirish yoki `root.children` ni birlashtirish). Muvaffaqiyatda "Import qilindi: N paragraf" toast chiqadi. Word izohlari (footnote) oddiy matn bo'lib keladi — muallif ularni qo'lda "Izoh" blokiga aylantiradi (toast'da eslatma).
   Eski `src/app/api/parse-document/route.ts` o'chiriladi (mantiq endpoint'ga ko'chdi).
-- [ ] **V2-P5.S6.8** **Versiyalar** — Payload'ning standart "Versions" tab'i (dizayn 119–129 ga mos). Qo'shimcha ish yo'q. `maxPerDoc: 30` va autosave ishlashini tekshiring.
+- [x] **V2-P5.S6.8** **Versiyalar** — Payload'ning standart "Versions" tab'i (dizayn 119–129 ga mos). Qo'shimcha ish yo'q. `maxPerDoc: 30` va autosave ishlashini tekshiring.
 
 ✅ **Qabul mezonlari:** muallif yozadi → "Tekshiruvga yuborish" → editor "Tasdiqlash" → "Chop etish" sikli toast'lar bilan ishlaydi. Vaqt chizig'i holatni ko'rsatadi. Word fayl import qilinadi.
 
 ## V2-P5.S7 — Foydalanuvchilar ekrani (dizayn: Admin Foydalanuvchilar)
 
-- [ ] **V2-P5.S7.1** `src/components/admin/UsersListHeader.tsx` (`'use client'`) → Users `admin.components.beforeListTable`:
+- [x] **V2-P5.S7.1** `src/components/admin/UsersListHeader.tsx` (`'use client'`) → Users `admin.components.beforeListTable`:
   - **Rol tab'lari** (dizayn 24–26): `Barchasi · Admin · Muharrir · Muallif` va har birining soni (`/api/users?where[role][equals]=…&limit=0` → `totalDocs`). Tab bosilganda `router.push('?where[role][equals]=editor')`.
   - Izoh matni (dizayn 20): "Rollar: Admin — hammasi, Muharrir — tekshiruv va chop etish, Muallif — qoralama yozish."
   - **"+ Foydalanuvchi qo'shish"** (faqat admin) → modal (dizayn 52–66): ism-familiya, pochta, rol kartochkalari (Muharrir "Tekshiradi va chop etadi", Muallif "Qoralama yozadi"), "Bekor qilish" va "Taklif yuborish". `POST /api/users/invite` (P4.S6). Muvaffaqiyatda toast chiqadi va ro'yxat yangilanadi (`router.refresh()`).
-- [ ] **V2-P5.S7.2** **Ustun komponentlari** (`admin.components.Cell`):
+- [x] **V2-P5.S7.2** **Ustun komponentlari** (`admin.components.Cell`):
   - `displayName` → `UserCell`: avatar (initsiallar, `avatarColor(id)`) va ism (500 14.5px).
   - `role` → `RoleCell`: rangli matn (Admin primary, Muharrir teal, Muallif indigo).
   - `isActive` → `StatusCell`: 7px nuqta + "Faol" (ornament) yoki "Bloklangan" (primary).
-- [ ] **V2-P5.S7.3** **Bloklash:** Payload'ning bulk "Edit" funksiyasi → `isActive = false`. EDITOR_GUIDE'ga yozing.
-- [ ] **V2-P5.S7.4** **O'quvchilar** (`readers`) ro'yxati uchun ham xuddi shunday sarlavha qo'shiladi (tab'lar: Barchasi · Tasdiqlangan · Tasdiqlanmagan · Bloklangan). Bloklash `isBanned` orqali.
+- [x] **V2-P5.S7.3** **Bloklash:** Payload'ning bulk "Edit" funksiyasi → `isActive = false`. EDITOR_GUIDE'ga yozing.
+- [x] **V2-P5.S7.4** **O'quvchilar** (`readers`) ro'yxati uchun ham xuddi shunday sarlavha qo'shiladi (tab'lar: Barchasi · Tasdiqlangan · Tasdiqlanmagan · Bloklangan). Bloklash `isBanned` orqali.
 
 ✅ **Qabul mezonlari:** admin taklif yuboradi → email keladi → yangi xodim parol o'rnatib kiradi.
 
 ## V2-P5.S8 — Izohlar va murojaatlar
 
-- [ ] **V2-P5.S8.1** `src/components/admin/CommentsListHeader.tsx` → Comments `beforeListTable`: status tab'lari (Kutilmoqda N · Tasdiqlangan · Rad etilgan · Spam · ⚑ Shubhali). Standart: ro'yxat `?where[status][equals]=pending` bilan ochiladi. Nav'dagi havola ham shunday.
-- [ ] **V2-P5.S8.2** `StatusCell` (comments): pill — pending (gold, uzuq-uzuq chegara), approved (teal), rejected (primary), spam (muted).
-- [ ] **V2-P5.S8.3** **Xodim javobi:** Comments edit ekranida `src/components/admin/StaffReplyField.tsx` (`ui`) — textarea va "Javob yozish" tugmasi. U `POST /api/comments` (`credentials: 'include'`) ga `{ context, post, parent: <joriy izoh id>, body }` yuboradi. Server hook xodim javobini avtomatik `approved` qiladi.
-- [ ] **V2-P5.S8.4** Inquiries ro'yxati: tab'lar `Aloqa · Mualliflik arizalari` (`type`) va status. Edit ekranida `reply` maydoni katta textarea. Saqlanganda email ketadi (P3.S8.3). Mualliflik arizasida "Xodim qilib taklif qilish" tugmasi (`ui`) invite modalini ism va email bilan to'ldirilgan holda ochadi.
+- [x] **V2-P5.S8.1** `src/components/admin/CommentsListHeader.tsx` → Comments `beforeListTable`: status tab'lari (Kutilmoqda N · Tasdiqlangan · Rad etilgan · Spam · ⚑ Shubhali). Standart: ro'yxat `?where[status][equals]=pending` bilan ochiladi. Nav'dagi havola ham shunday.
+- [x] **V2-P5.S8.2** `StatusCell` (comments): pill — pending (gold, uzuq-uzuq chegara), approved (teal), rejected (primary), spam (muted).
+- [x] **V2-P5.S8.3** **Xodim javobi:** Comments edit ekranida `src/components/admin/StaffReplyField.tsx` (`ui`) — textarea va "Javob yozish" tugmasi. U `POST /api/comments` (`credentials: 'include'`) ga `{ context, post, parent: <joriy izoh id>, body }` yuboradi. Server hook xodim javobini avtomatik `approved` qiladi.
+- [x] **V2-P5.S8.4** Inquiries ro'yxati: tab'lar `Aloqa · Mualliflik arizalari` (`type`) va status. Edit ekranida `reply` maydoni katta textarea. Saqlanganda email ketadi (P3.S8.3). Mualliflik arizasida "Xodim qilib taklif qilish" tugmasi (`ui`) invite modalini ism va email bilan to'ldirilgan holda ochadi.
 
 ✅ **Qabul mezonlari:** izohni tasdiqlash yoki rad etish va xodim javobi saytda "Muharrir" belgisi bilan chiqishi ishlaydi.
 
 ## V2-P5.S9 — Eski admin'ni o'chirish
 
-- [ ] **V2-P5.S9.1** Quyidagilarni **o'qib**, kerakli mantiq ko'chirilganiga ishonch hosil qiling, keyin o'chiring:
+- [x] **V2-P5.S9.1** Quyidagilarni **o'qib**, kerakli mantiq ko'chirilganiga ishonch hosil qiling, keyin o'chiring:
   - `src/app/(frontend)/[locale]/admin/` (1875 qator)
   - `src/app/(frontend)/[locale]/admin-post-yaratish/`
   - `src/app/api/admin/` (comments, inquiries, posts, upload, users)
   - `src/app/api/posts/create/`
   - `src/app/api/parse-document/` (P5.S6.7 ga ko'chdi)
   - `scripts/ensureAdminReader.ts`, `src/seed/runAdminSeed.ts`, `src/seed/seedAdmin.ts` (P3.S13 seed'i bilan almashtirildi)
-- [ ] **V2-P5.S9.2** `next.config.ts` → `redirects()`: `/:locale(uz|kaa)/admin` → `/admin` (308). `/:locale/admin-post-yaratish` → `/admin/collections/posts/create`.
-- [ ] **V2-P5.S9.3** `grep -rn "api/admin\|reader-auth\|hisinf_reader_session\|displayPassword" src` — bo'sh natija berishi kerak (eskirgan maydon ta'riflaridan tashqari).
+- [x] **V2-P5.S9.2** `next.config.ts` → `redirects()`: `/:locale(uz|kaa)/admin` → `/admin` (308). `/:locale/admin-post-yaratish` → `/admin/collections/posts/create`.
+- [x] **V2-P5.S9.3** `grep -rn "api/admin\|reader-auth\|hisinf_reader_session\|displayPassword" src` — bo'sh natija berishi kerak (eskirgan maydon ta'riflaridan tashqari).
 
 ✅ **Qabul mezonlari:** o'chirilgan yo'llar 404 yoki redirect qaytaradi. `pnpm build` o'tadi. Kontent faqat `/admin` orqali boshqariladi.
 
 ## V2-P5.S10 — Qo'llanmalar
 
-- [ ] **V2-P5.S10.1** `docs/AUTHOR_GUIDE.md` (o'quvchi-mualliflar uchun, sodda tilda, skrinshotlar bilan): kirish → yangi maqola → sarlavha va qisqa tavsif → matn (`/` menyusi: Sarlavha, Iqtibos, Izoh, Manba, Rasm, Galereya, Ajratgich) → Word'dan import → davr va kategoriya → qoraqalpoqcha versiya → Preview → "Tekshiruvga yuborish" → muharrir izohlarini o'qish → manba va rasm litsenziyasi qoidalari.
-- [ ] **V2-P5.S10.2** `docs/EDITOR_GUIDE.md`: dashboard, tekshiruv navbati, tasdiqlash / qaytarish / chop etish, izohlar moderatsiyasi, javob yozish, murojaatlar, xodim taklif qilish, bloklash, "bitta brauzerda ikki akkaunt" cheklovi.
+- [x] **V2-P5.S10.1** `docs/AUTHOR_GUIDE.md` (o'quvchi-mualliflar uchun, sodda tilda, skrinshotlar bilan): kirish → yangi maqola → sarlavha va qisqa tavsif → matn (`/` menyusi: Sarlavha, Iqtibos, Izoh, Manba, Rasm, Galereya, Ajratgich) → Word'dan import → davr va kategoriya → qoraqalpoqcha versiya → Preview → "Tekshiruvga yuborish" → muharrir izohlarini o'qish → manba va rasm litsenziyasi qoidalari.
+- [x] **V2-P5.S10.2** `docs/EDITOR_GUIDE.md`: dashboard, tekshiruv navbati, tasdiqlash / qaytarish / chop etish, izohlar moderatsiyasi, javob yozish, murojaatlar, xodim taklif qilish, bloklash, "bitta brauzerda ikki akkaunt" cheklovi.
 
 ---
 
@@ -2496,8 +2496,8 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 | V2-P2 | Dizayn tizimi | ✅ | 2026-10-09 | S1–S7 to'liq bajarildi: tokenlar, shriftlar, tema, UI primitivlar, effektlar, dev sahifalar |
 | V2-P3 | Ma'lumotlar modeli va ko'chirish | ✅ | 2026-10-09 | S1–S13 to'liq bajarildi: yangi modellar, globallar, migratsiya va seed skriptlari |
 | V2-P4 | Auth, rollar, workflow | ✅ | 2026-10-09 | S1–S8 to'liq bajarildi: Payload auth, turnstile, rate-limit, invite, preview, email shablonlari |
-| V2-P5 | Tahririyat (admin) | 🟨 | 2026-10-09 | Boshlanmoqda |
-| V2-P6 | Ommaviy sayt | ⬜ | | |
+| V2-P5 | Tahririyat (admin) | ✅ | 2026-10-09 | S1–S10 to'liq bajarildi: tema, logo, sidebar, dashboard, Lexical bloklar, muharrir ekrani, users/readers, izohlar, qo'llanmalar |
+| V2-P6 | Ommaviy sayt | 🟨 | 2026-10-09 | Boshlanmoqda |
 | V2-P7 | Interaktiv funksiyalar | ⬜ | | |
 | V2-P8 | i18n, SEO, tezlik, a11y | ⬜ | | |
 | V2-P9 | Testlar va QA | ⬜ | | |

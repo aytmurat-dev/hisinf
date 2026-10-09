@@ -1,5 +1,5 @@
 import type { CollectionConfig, Where } from 'payload'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { simpleEditor } from '../editor/config'
 import { publishedOrStaff, isStaff, isEditorOrAdmin, isStaffUser } from '../access'
 import { slugField } from '../fields/slug'
 import { yearField } from '../fields/years'
@@ -123,7 +123,7 @@ export const Events: CollectionConfig = {
       type: 'richText',
       localized: true,
       label: 'Batafsil tavsif',
-      editor: lexicalEditor(),
+      editor: simpleEditor,
     },
     {
       name: 'image',

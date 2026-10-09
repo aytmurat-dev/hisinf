@@ -1,6 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { resendAdapter } from '@payloadcms/email-resend'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { seoPlugin } from '@payloadcms/plugin-seo'
@@ -34,6 +33,11 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { SiteSettings } from './globals/SiteSettings'
 import { HomePage } from './globals/HomePage'
+
+import { hasRole, isStaffUser } from './access'
+import { getAdminStats } from './lib/admin-stats'
+import { processDocumentImport } from './lib/import-document'
+import { postEditor } from './editor/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -122,12 +126,61 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
-      titleSuffix: ' — HISINF Admin',
+      titleSuffix: ' — hisinf.uz Tahririyat',
+      icons: [{ url: '/favicon.svg' }],
+    },
+    components: {
+      graphics: {
+        Logo: '/components/admin/AdminLogo#AdminLogo',
+        Icon: '/components/admin/AdminIcon#AdminIcon',
+      },
+      beforeNavLinks: [
+        '/components/admin/NavWorkdesk#NavWorkdesk',
+        '/components/admin/NavThemeToggle#NavThemeToggle',
+      ],
+      afterNavLinks: ['/components/admin/NavUserCard#NavUserCard'],
+      beforeDashboard: ['/components/admin/Dashboard#Dashboard'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
+  endpoints: [
+    {
+      path: '/admin-stats',
+      method: 'get',
+      handler: async (req) => {
+        if (!hasRole(req.user, 'admin', 'editor')) {
+          return Response.json({ error: 'forbidden' }, { status: 403 })
+        }
+        const range = Number(new URL(req.url!).searchParams.get('range') ?? 30)
+        return Response.json(await getAdminStats(req.payload, range))
+      },
+    },
+    {
+      path: '/import-document',
+      method: 'post',
+      handler: async (req) => {
+        if (!isStaffUser(req.user)) {
+          return Response.json({ error: 'forbidden' }, { status: 403 })
+        }
+        try {
+          const formData = await req.formData?.()
+          const file = formData?.get('file') as File | null
+          if (!file) {
+            return Response.json({ error: 'Fayl tanlanmadi' }, { status: 400 })
+          }
+          const result = await processDocumentImport(req.payload, file)
+          return Response.json({ success: true, ...result })
+        } catch (err: unknown) {
+          return Response.json(
+            { error: err instanceof Error ? err.message : 'Import xatosi' },
+            { status: 400 },
+          )
+        }
+      },
+    },
+  ],
   i18n: {
     supportedLanguages: { en, ru },
   },
@@ -152,7 +205,7 @@ export default buildConfig({
     DailyStats,
   ],
   globals: [Header, Footer, SiteSettings, HomePage],
-  editor: lexicalEditor(),
+  editor: postEditor,
   secret,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

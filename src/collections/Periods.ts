@@ -12,7 +12,7 @@ export const Periods: CollectionConfig = {
   defaultSort: 'order',
   admin: {
     useAsTitle: 'title',
-    group: 'Taksonomiya',
+    group: 'Tarix',
     defaultColumns: ['order', 'title', 'yearsLabel', 'color'],
   },
   access: {

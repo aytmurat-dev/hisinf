@@ -22,8 +22,11 @@ export const Users: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'displayName',
-    group: 'Foydalanuvchilar',
+    group: 'Tizim',
     defaultColumns: ['displayName', 'username', 'email', 'role', 'isActive'],
+    components: {
+      beforeListTable: ['/components/admin/UsersListHeader#UsersListHeader'],
+    },
   },
   auth: {
     loginWithUsername: {
@@ -133,6 +136,11 @@ export const Users: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Koʻrsatiladigan toʻliq ism',
+      admin: {
+        components: {
+          Cell: '/components/admin/UserCell#UserCell',
+        },
+      },
     },
     slugField('displayName', 'xodim'),
     {
@@ -144,6 +152,11 @@ export const Users: CollectionConfig = {
       access: {
         create: ({ req }) => !req.user || hasRole(req.user, 'admin'),
         update: fieldAdminOnly,
+      },
+      admin: {
+        components: {
+          Cell: '/components/admin/RoleCell#RoleCell',
+        },
       },
       options: [
         { label: 'Administrator', value: 'admin' },
@@ -160,6 +173,11 @@ export const Users: CollectionConfig = {
       access: {
         create: fieldAdminOnly,
         update: fieldAdminOnly,
+      },
+      admin: {
+        components: {
+          Cell: '/components/admin/StatusCell#StatusCell',
+        },
       },
     },
     {

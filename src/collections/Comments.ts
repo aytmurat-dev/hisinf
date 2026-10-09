@@ -12,6 +12,9 @@ export const Comments: CollectionConfig = {
     useAsTitle: 'body',
     group: 'Muloqot',
     defaultColumns: ['body', 'authorName', 'context', 'post', 'status', 'flagged', 'createdAt'],
+    components: {
+      beforeListTable: ['/components/admin/CommentsListHeader#CommentsListHeader'],
+    },
   },
   defaultSort: '-createdAt',
   access: {
@@ -132,11 +135,25 @@ export const Comments: CollectionConfig = {
       label: 'Izoh matni',
     },
     {
+      name: 'staffReplyUI',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '/components/admin/StaffReplyField#StaffReplyField',
+        },
+      },
+    },
+    {
       name: 'status',
       type: 'select',
       required: true,
       defaultValue: 'pending',
       index: true,
+      admin: {
+        components: {
+          Cell: '/components/admin/CommentStatusCell#CommentStatusCell',
+        },
+      },
       options: [
         { label: 'Moderatsiyada (Kutilmoqda)', value: 'pending' },
         { label: 'Tasdiqlangan (Koʻrinadi)', value: 'approved' },

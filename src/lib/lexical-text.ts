@@ -1,33 +1,33 @@
 export function extractPlainText(node: unknown): string {
   if (!node || typeof node !== 'object') return ''
-
-  const obj = node as Record<string, unknown>
-
-  if (typeof obj.text === 'string') {
-    return obj.text
+  const n = node as { text?: unknown; children?: unknown[]; root?: unknown }
+  
+  if (n.root) {
+    return extractPlainText(n.root)
   }
 
-  // If node has root property: { root: { children: [...] } }
-  if (obj.root && typeof obj.root === 'object') {
-    return extractPlainText(obj.root)
+  let result = ''
+  if (typeof n.text === 'string') {
+    result += n.text + ' '
   }
-
-  if (Array.isArray(obj.children)) {
-    const parts = obj.children
-      .map((child) => extractPlainText(child).trim())
-      .filter(Boolean)
-
-    if (obj.type === 'root') {
-      return parts.join('\n\n')
+  if (Array.isArray(n.children)) {
+    for (const child of n.children) {
+      result += extractPlainText(child) + ' '
     }
-    return parts.join(' ')
   }
-
-  return ''
+  return result.replace(/\s+/g, ' ').trim()
 }
 
 export function countWords(text: string): number {
-  if (!text) return 0
-  const words = text.trim().split(/\s+/).filter(Boolean)
-  return words.length
+  const clean = text.trim()
+  if (!clean) return 0
+  return clean.split(/\s+/).filter(Boolean).length
+}
+
+export function calculateWordCountAndMinutes(text: string): { words: number; minutes: number } {
+  const clean = text.trim()
+  if (!clean) return { words: 0, minutes: 0 }
+  const words = clean.split(/\s+/).filter(Boolean).length
+  const minutes = Math.max(1, Math.ceil(words / 180))
+  return { words, minutes }
 }

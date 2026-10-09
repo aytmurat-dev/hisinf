@@ -11,6 +11,9 @@ export const Inquiries: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Muloqot',
     defaultColumns: ['name', 'type', 'subject', 'email', 'status', 'createdAt'],
+    components: {
+      beforeListTable: ['/components/admin/InquiriesListHeader#InquiriesListHeader'],
+    },
   },
   defaultSort: '-createdAt',
   access: {
@@ -92,6 +95,16 @@ export const Inquiries: CollectionConfig = {
       label: 'Qaysi mavzuda yozmoqchi',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'author_application',
+      },
+    },
+    {
+      name: 'inviteAuthorUI',
+      type: 'ui',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'author_application',
+        components: {
+          Field: '/components/admin/InviteAuthorField#InviteAuthorField',
+        },
       },
     },
     {

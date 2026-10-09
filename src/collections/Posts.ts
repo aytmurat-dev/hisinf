@@ -1,5 +1,5 @@
 import type { CollectionConfig, Where } from 'payload'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { postEditor } from '../editor/config'
 import { isStaff, isAdmin, isStaffUser, fieldEditorOrAdmin } from '../access'
 import { slugField } from '../fields/slug'
 import { enforcePostWorkflow } from '../hooks/enforcePostWorkflow'
@@ -39,6 +39,11 @@ export const Posts: CollectionConfig = {
       const code = locale ?? 'uz'
       const path = `/${code}/maqolalar/${(data as { slug?: string })?.slug || ''}`
       return `${serverUrl}/next/preview?path=${encodeURIComponent(path)}&previewSecret=${secret}`
+    },
+    components: {
+      edit: {
+        PublishButton: '/components/admin/WorkflowPublishButton#WorkflowPublishButton',
+      },
     },
   },
   versions: {
@@ -132,11 +137,29 @@ export const Posts: CollectionConfig = {
               label: 'Muqova rasmi',
             },
             {
+              name: 'translationStatusUI',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/components/admin/TranslationStatusField#TranslationStatusField',
+                },
+              },
+            },
+            {
+              name: 'importDocumentUI',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/components/admin/ImportDocumentField#ImportDocumentField',
+                },
+              },
+            },
+            {
               name: 'body',
               type: 'richText',
               localized: true,
               label: 'Maqola matni',
-              editor: lexicalEditor(),
+              editor: postEditor,
             },
             {
               name: 'content',
@@ -180,6 +203,11 @@ export const Posts: CollectionConfig = {
               type: 'relationship',
               relationTo: 'periods',
               label: 'Tarixiy davr',
+              admin: {
+                components: {
+                  Field: '/components/admin/PeriodChipsField#PeriodChipsField',
+                },
+              },
             },
             {
               name: 'categories',
@@ -229,14 +257,6 @@ export const Posts: CollectionConfig = {
           label: 'Tekshiruv',
           fields: [
             {
-              name: 'noteToEditor',
-              type: 'textarea',
-              label: 'Muharrir uchun izoh',
-              admin: {
-                description: 'Muallif tomonidan muharrir uchun eslatmalar',
-              },
-            },
-            {
               name: 'reviewNotes',
               type: 'array',
               label: 'Tekshiruv qaydlari',
@@ -274,6 +294,36 @@ export const Posts: CollectionConfig = {
       ],
     },
     slugField('title'),
+    {
+      name: 'wordCountUI',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '/components/admin/WordCountField#WordCountField',
+        },
+      },
+    },
+    {
+      name: 'workflowTimelineUI',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '/components/admin/WorkflowTimelineField#WorkflowTimelineField',
+        },
+      },
+    },
+    {
+      name: 'noteToEditor',
+      type: 'textarea',
+      label: 'Muharrir uchun izoh',
+      admin: {
+        position: 'sidebar',
+        placeholder: 'Masalan: 2-manbani tekshirib bering',
+        description: 'Muallif tomonidan muharrir uchun eslatmalar',
+      },
+    },
     {
       name: 'workflowStatus',
       type: 'select',

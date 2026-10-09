@@ -11,8 +11,11 @@ export const Readers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'displayName',
-    group: 'Foydalanuvchilar',
+    group: 'Tizim',
     defaultColumns: ['displayName', 'email', 'username', '_verified', 'isBanned', 'createdAt'],
+    components: {
+      beforeListTable: ['/components/admin/ReadersListHeader#ReadersListHeader'],
+    },
   },
   auth: {
     loginWithUsername: {

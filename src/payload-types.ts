@@ -389,10 +389,6 @@ export interface Post {
   events?: (number | Event)[] | null;
   places?: (number | Place)[] | null;
   regions?: (number | Region)[] | null;
-  /**
-   * Muallif tomonidan muharrir uchun eslatmalar
-   */
-  noteToEditor?: string | null;
   reviewNotes?:
     | {
         note: string;
@@ -413,6 +409,10 @@ export interface Post {
    * Avtomatik. Chop etilgandan keyin o'zgartirmang.
    */
   slug?: string | null;
+  /**
+   * Muallif tomonidan muharrir uchun eslatmalar
+   */
+  noteToEditor?: string | null;
   workflowStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved' | 'published';
   author: number | User;
   coAuthors?: (number | User)[] | null;
@@ -1117,7 +1117,6 @@ export interface PostsSelect<T extends boolean = true> {
   events?: T;
   places?: T;
   regions?: T;
-  noteToEditor?: T;
   reviewNotes?:
     | T
     | {
@@ -1134,6 +1133,7 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
       };
   slug?: T;
+  noteToEditor?: T;
   workflowStatus?: T;
   author?: T;
   coAuthors?: T;
@@ -2041,6 +2041,137 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock".
+ */
+export interface QuoteBlock {
+  text: string;
+  source?: string | null;
+  author?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SourceBlock".
+ */
+export interface SourceBlock {
+  type: 'book' | 'article' | 'archive' | 'website' | 'interview' | 'newspaper' | 'other';
+  title: string;
+  author?: string | null;
+  year?: number | null;
+  publisher?: string | null;
+  pages?: string | null;
+  archiveRef?: string | null;
+  url?: string | null;
+  accessedAt?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'source';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  images: (number | Media)[];
+  layout?: ('grid' | 'carousel') | null;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock".
+ */
+export interface CalloutBlock {
+  variant?: ('info' | 'tip' | 'warning' | 'quote') | null;
+  title?: string | null;
+  body: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentEmbedBlock".
+ */
+export interface DocumentEmbedBlock {
+  file: number | Media;
+  title?: string | null;
+  showPreview?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'document-embed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "YouTubeBlock".
+ */
+export interface YouTubeBlock {
+  url: string;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'youtube';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PersonCardBlock".
+ */
+export interface PersonCardBlock {
+  person: number | Person;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'person-card';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsTimelineBlock".
+ */
+export interface EventsTimelineBlock {
+  title?: string | null;
+  events: (number | Event)[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'events-timeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapEmbedBlock".
+ */
+export interface MapEmbedBlock {
+  places?: (number | Place)[] | null;
+  height?: ('sm' | 'md') | null;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map-embed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveItemBlock".
+ */
+export interface ArchiveItemBlock {
+  item: number | ArchiveItem;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archive-item';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FootnoteBlock".
+ */
+export interface FootnoteBlock {
+  text: string;
+  sourceUrl?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'footnote';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
