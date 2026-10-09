@@ -22,6 +22,7 @@ import {
   Globe,
   ImageIcon,
   UserPlus,
+  ShieldAlert,
 } from 'lucide-react'
 
 interface PostItem {
@@ -45,6 +46,7 @@ interface UserItem {
   username: string
   phone: string
   role?: string
+  isSuperAdmin?: boolean
   displayPassword: string
   createdAt: string
 }
@@ -76,6 +78,7 @@ export default function AdminDashboardPage() {
   const locale = (params.locale as string) || 'uz'
 
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
 
   // Login form if not admin
@@ -140,7 +143,6 @@ export default function AdminDashboardPage() {
   const [newAdminUsername, setNewAdminUsername] = useState('')
   const [newAdminPhone, setNewAdminPhone] = useState('')
   const [newAdminPassword, setNewAdminPassword] = useState('')
-  const [newAdminRole, setNewAdminRole] = useState<'admin' | 'reader'>('admin')
   const [savingNewAdmin, setSavingNewAdmin] = useState(false)
 
   // Reply modal states
@@ -166,6 +168,9 @@ export default function AdminDashboardPage() {
       if (resUsers.ok) {
         const d = await resUsers.json()
         setUsers(d.users || [])
+        if (d.isSuperAdmin !== undefined) {
+          setIsSuperAdmin(Boolean(d.isSuperAdmin))
+        }
       }
       if (resComments.ok) {
         const d = await resComments.json()
@@ -186,14 +191,29 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch('/api/readers/me')
       const data = await res.json()
-      if (data.user && (data.user.role === 'admin' || data.user.username === 'admin')) {
+      if (
+        data.user &&
+        (data.user.role === 'admin' ||
+          data.user.role === 'superadmin' ||
+          data.user.username === 'admin' ||
+          data.user.isSuperAdmin)
+      ) {
         setIsAdmin(true)
+        setIsSuperAdmin(
+          Boolean(
+            data.user.isSuperAdmin ||
+              data.user.role === 'superadmin' ||
+              data.user.username === 'admin',
+          ),
+        )
         loadAllData()
       } else {
         setIsAdmin(false)
+        setIsSuperAdmin(false)
       }
     } catch (_e) {
       setIsAdmin(false)
+      setIsSuperAdmin(false)
     } finally {
       setCheckingAuth(false)
     }
@@ -218,12 +238,24 @@ export default function AdminDashboardPage() {
 
       const data = await res.json()
 
-      if (!res.ok || (data.reader?.role !== 'admin' && data.reader?.username !== 'admin')) {
+      if (
+        !res.ok ||
+        (data.reader?.role !== 'admin' &&
+          data.reader?.role !== 'superadmin' &&
+          data.reader?.username !== 'admin')
+      ) {
         setLoginError(data.error || t('authOnlyAdmin'))
         return
       }
 
       setIsAdmin(true)
+      setIsSuperAdmin(
+        Boolean(
+          data.reader?.isSuperAdmin ||
+            data.reader?.role === 'superadmin' ||
+            data.reader?.username === 'admin',
+        ),
+      )
       loadAllData()
       router.refresh()
     } catch (_err) {
@@ -295,6 +327,7 @@ export default function AdminDashboardPage() {
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p.id !== id))
         showNotification(t('msgPostDeleted'))
+        router.refresh()
       }
     } catch (_e) {
       alert('Maqolani oʻchirishda xatolik')
@@ -346,6 +379,7 @@ export default function AdminDashboardPage() {
           setPostModalOpen(false)
           showNotification(t('msgPostUpdated'))
           loadAllData()
+          router.refresh()
         } else {
           alert(data.error || 'Tahrirlashda xatolik')
         }
@@ -359,6 +393,7 @@ export default function AdminDashboardPage() {
           setPostModalOpen(false)
           showNotification(t('msgPostCreated'))
           loadAllData()
+          router.refresh()
         } else {
           alert(data.error || 'Post yaratishda xatolik')
         }
@@ -500,14 +535,8 @@ export default function AdminDashboardPage() {
 
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (
-      !newAdminFirstName.trim() ||
-      !newAdminLastName.trim() ||
-      !newAdminUsername.trim() ||
-      !newAdminPhone.trim() ||
-      !newAdminPassword.trim()
-    ) {
-      alert('Barcha maydonlarni toʻldirish majburiy!')
+    if (!newAdminUsername.trim() || !newAdminPassword.trim()) {
+      alert('Foydalanuvchi nomi (login) va parol kiritilishi shart!')
       return
     }
 
@@ -518,12 +547,12 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create',
-          firstName: newAdminFirstName,
-          lastName: newAdminLastName,
-          username: newAdminUsername,
-          phone: newAdminPhone,
-          password: newAdminPassword,
-          role: newAdminRole,
+          firstName: newAdminFirstName.trim() || newAdminUsername.trim(),
+          lastName: newAdminLastName.trim(),
+          username: newAdminUsername.trim(),
+          phone: newAdminPhone.trim(),
+          password: newAdminPassword.trim(),
+          role: 'admin',
         }),
       })
 
@@ -973,14 +1002,16 @@ export default function AdminDashboardPage() {
                 {t('usersSubtitle')}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleOpenCreateAdmin}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-md self-start sm:self-auto"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>{t('addAdmin')}</span>
-            </button>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={handleOpenCreateAdmin}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--gold)] text-black font-semibold text-xs rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-md self-start sm:self-auto"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>{t('addAdmin')}</span>
+              </button>
+            )}
           </div>
 
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm">
@@ -1007,9 +1038,13 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="p-3.5 font-mono text-[var(--foreground)]">@{u.username}</td>
                       <td className="p-3.5">
-                        {u.role === 'admin' || u.username === 'admin' ? (
+                        {u.role === 'superadmin' || u.username === 'admin' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--gold)]/20 text-[var(--gold)] text-[10px] font-bold border border-[var(--gold)]/30">
-                            👑 {t('roleAdmin')}
+                            👑 {t('roleSuperAdmin')}
+                          </span>
+                        ) : u.role === 'admin' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold border border-blue-500/30">
+                            🛡️ {t('roleAdmin')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--muted-foreground)] text-[10px] font-medium border border-[var(--border)]">
@@ -1017,7 +1052,6 @@ export default function AdminDashboardPage() {
                           </span>
                         )}
                       </td>
-                      <td className="p-3.5 font-mono text-[var(--foreground)]">@{u.username}</td>
                       <td className="p-3.5 font-mono font-bold text-[var(--gold)] bg-[var(--gold)]/5 px-2.5 py-1 rounded">
                         {u.displayPassword || '******'}
                       </td>
@@ -1026,14 +1060,16 @@ export default function AdminDashboardPage() {
                         {new Date(u.createdAt).toLocaleString()}
                       </td>
                       <td className="p-3.5 text-right space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditUser(u)}
-                          className="px-2.5 py-1 rounded bg-[var(--secondary)] hover:text-[var(--gold)] border border-[var(--border)] transition-colors cursor-pointer"
-                        >
-                          {t('edit')}
-                        </button>
-                        {u.username !== 'admin' && (
+                        {(isSuperAdmin || (u.role !== 'admin' && !u.isSuperAdmin && u.username !== 'admin')) && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditUser(u)}
+                            className="px-2.5 py-1 rounded bg-[var(--secondary)] hover:text-[var(--gold)] border border-[var(--border)] transition-colors cursor-pointer"
+                          >
+                            {t('edit')}
+                          </button>
+                        )}
+                        {!u.isSuperAdmin && u.username !== 'admin' && (isSuperAdmin || u.role !== 'admin') && (
                           <button
                             type="button"
                             onClick={() => handleDeleteUser(u.id)}
@@ -1648,17 +1684,19 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">{t('role')}</label>
-                <select
-                  value={userRole}
-                  onChange={(e) => setUserRole(e.target.value as 'admin' | 'reader')}
-                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
-                >
-                  <option value="admin">👑 {t('roleAdmin')}</option>
-                  <option value="reader">{t('roleReader')}</option>
-                </select>
-              </div>
+              {isSuperAdmin && userUsername !== 'admin' && (
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-[var(--foreground)]">{t('role')}</label>
+                  <select
+                    value={userRole}
+                    onChange={(e) => setUserRole(e.target.value as 'admin' | 'reader')}
+                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
+                  >
+                    <option value="admin">🛡️ {t('roleAdmin')}</option>
+                    <option value="reader">{t('roleReader')}</option>
+                  </select>
+                </div>
+              )}
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--gold)] flex items-center justify-between">
@@ -1732,29 +1770,67 @@ export default function AdminDashboardPage() {
             </div>
 
             <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-xs text-[var(--foreground)] flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-[var(--gold)] shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  {t('adminModalDesc')}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--foreground)] flex items-center justify-between">
+                  <span>{t('colUsername')} (Login) *</span>
+                  <span className="text-[10px] text-[var(--gold)]">{t('required')}</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAdminUsername}
+                  onChange={(e) => setNewAdminUsername(e.target.value)}
+                  required
+                  placeholder="masalan: admin_sherzod"
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] font-mono outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--gold)] flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>{t('colPassword')} *</span>
+                  </span>
+                  <span className="text-[10px] text-[var(--gold)]">{t('required')}</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAdminPassword}
+                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                  required
+                  placeholder="Yangi admin uchun parol"
+                  className="w-full bg-[var(--background)] border border-[var(--gold)]/50 rounded-lg p-2.5 text-xs text-[var(--foreground)] font-mono outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-[var(--foreground)]">
-                    {t('firstName')} *
+                    {t('firstName')} ({t('optional')})
                   </label>
                   <input
                     type="text"
                     value={newAdminFirstName}
                     onChange={(e) => setNewAdminFirstName(e.target.value)}
-                    required
                     placeholder="Ism"
                     className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-[var(--foreground)]">
-                    {t('lastName')} *
+                    {t('lastName')} ({t('optional')})
                   </label>
                   <input
                     type="text"
                     value={newAdminLastName}
                     onChange={(e) => setNewAdminLastName(e.target.value)}
-                    required
                     placeholder="Familiya"
                     className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)]"
                   />
@@ -1763,57 +1839,15 @@ export default function AdminDashboardPage() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--foreground)]">
-                  {t('colUsername')} (Login) *
-                </label>
-                <input
-                  type="text"
-                  value={newAdminUsername}
-                  onChange={(e) => setNewAdminUsername(e.target.value)}
-                  required
-                  placeholder="masalan: admin2"
-                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] font-mono outline-none focus:border-[var(--gold)]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--gold)] flex items-center justify-between">
-                  <span>{t('colPassword')} *</span>
-                  <KeyRound className="w-3.5 h-3.5" />
-                </label>
-                <input
-                  type="text"
-                  value={newAdminPassword}
-                  onChange={(e) => setNewAdminPassword(e.target.value)}
-                  required
-                  placeholder="Parol kiriting"
-                  className="w-full bg-[var(--background)] border border-[var(--gold)]/50 rounded-lg p-2.5 text-xs text-[var(--foreground)] font-mono outline-none focus:border-[var(--gold)]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">
-                  {t('colPhone')} *
+                  {t('colPhone')} ({t('optional')})
                 </label>
                 <input
                   type="text"
                   value={newAdminPhone}
                   onChange={(e) => setNewAdminPhone(e.target.value)}
-                  required
                   placeholder="+998901234567"
                   className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)] font-mono"
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[var(--foreground)]">{t('role')}</label>
-                <select
-                  value={newAdminRole}
-                  onChange={(e) => setNewAdminRole(e.target.value as 'admin' | 'reader')}
-                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--gold)] font-medium"
-                >
-                  <option value="admin">👑 {t('roleAdmin')} (Barcha huquqlar)</option>
-                  <option value="reader">{t('roleReader')}</option>
-                </select>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[var(--border)]">

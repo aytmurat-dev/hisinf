@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { isCurrentReaderAdmin } from '@/lib/reader-auth'
@@ -145,6 +146,9 @@ export async function POST(req: NextRequest) {
         id: Number(id),
         overrideAccess: true,
       })
+      try {
+        revalidatePath('/', 'layout')
+      } catch (_e) {}
       return NextResponse.json({ success: true, message: 'Post muvaffaqiyatli oʻchirildi' })
     }
 
@@ -216,6 +220,10 @@ export async function POST(req: NextRequest) {
           overrideAccess: true,
         })
       }
+
+      try {
+        revalidatePath('/', 'layout')
+      } catch (_e) {}
 
       return NextResponse.json({
         success: true,

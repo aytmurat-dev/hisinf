@@ -211,11 +211,11 @@ export interface Media {
  */
 export interface Reader {
   id: number;
-  firstName: string;
-  lastName: string;
-  phone: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
   displayPassword?: string | null;
-  role?: ('reader' | 'admin') | null;
+  role?: ('reader' | 'admin' | 'superadmin') | null;
   savedPosts?: (number | Post)[] | null;
   updatedAt: string;
   createdAt: string;

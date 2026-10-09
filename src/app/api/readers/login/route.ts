@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
       const reader = loginResult.user
       const sessionToken = Buffer.from(`${reader.id}:${Date.now()}`).toString('base64')
 
+      const readerData = reader as unknown as { role?: string }
+      const rawRole = readerData.role || (reader.username === 'admin' ? 'superadmin' : 'reader')
+      const isSuperAdmin = rawRole === 'superadmin' || reader.username === 'admin'
+      const role = isSuperAdmin ? 'superadmin' : rawRole
+
       const response = NextResponse.json({
         success: true,
         reader: {
@@ -42,7 +47,8 @@ export async function POST(req: NextRequest) {
           lastName: reader.lastName,
           username: reader.username,
           phone: reader.phone,
-          role: (reader as unknown as { role?: string }).role || (reader.username === 'admin' ? 'admin' : 'reader'),
+          role,
+          isSuperAdmin,
         },
       })
 

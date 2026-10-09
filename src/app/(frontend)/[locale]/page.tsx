@@ -8,6 +8,9 @@ import { Link } from '@/i18n/navigation'
 import { BookOpen, Calendar, ArrowRight, Compass, Sparkles, MessageSquare } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function HomePage({
   params,
 }: {
@@ -25,25 +28,24 @@ export default async function HomePage({
   const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
 
   // Fetch posts for current locale (excluding internal discussion post)
-  const { docs: posts } = await payload.find({
+  const { docs: allPosts } = await payload.find({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
     where: {
-      and: [
-        { slug: { not_equals: 'bosh-sahifa-izohlari' } },
-        {
-          or: [
-            { language: { equals: targetLanguage } },
-            { language: { equals: 'both' } },
-            { language: { exists: false } },
-          ],
-        },
-      ],
+      slug: { not_equals: 'bosh-sahifa-izohlari' },
     },
-    limit: 6,
+    limit: 20,
     sort: '-publishedAt',
     overrideAccess: true,
   })
+
+  const posts = allPosts
+    .filter((post) => {
+      const postLang = (post as unknown as { language?: string | null }).language
+      if (!postLang || postLang === 'both') return true
+      return postLang === targetLanguage
+    })
+    .slice(0, 6)
 
   // Fetch periods
   const { docs: periods } = await payload.find({

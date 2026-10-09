@@ -34,19 +34,21 @@ export const Readers: CollectionConfig = {
     {
       name: 'firstName',
       type: 'text',
-      required: true,
+      required: false,
+      defaultValue: 'Foydalanuvchi',
       label: 'Ism',
     },
     {
       name: 'lastName',
       type: 'text',
-      required: true,
+      required: false,
+      defaultValue: '',
       label: 'Familiya',
     },
     {
       name: 'phone',
       type: 'text',
-      required: true,
+      required: false,
       label: 'Telefon raqam',
     },
     {
@@ -61,6 +63,7 @@ export const Readers: CollectionConfig = {
       options: [
         { label: 'Oʻquvchi', value: 'reader' },
         { label: 'Administrator', value: 'admin' },
+        { label: 'Asosiy Administrator', value: 'superadmin' },
       ],
       admin: {
         position: 'sidebar',

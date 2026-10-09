@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { isCurrentReaderAdmin } from '@/lib/reader-auth'
+import { isCurrentReaderAdmin, isCurrentReaderSuperAdmin } from '@/lib/reader-auth'
 
 export async function GET() {
   try {
@@ -9,6 +9,8 @@ export async function GET() {
     if (!isAdmin) {
       return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
     }
+
+    const isSuperAdmin = await isCurrentReaderSuperAdmin()
 
     const payload = await getPayload({ config })
     const { docs: readers } = await payload.find({
@@ -20,19 +22,24 @@ export async function GET() {
 
     const users = readers.map((r) => {
       const readerData = r as unknown as { role?: string }
+      const rawRole = readerData.role || (r.username === 'admin' ? 'superadmin' : 'reader')
+      const userIsSuper = rawRole === 'superadmin' || r.username === 'admin'
+      const finalRole = userIsSuper ? 'superadmin' : rawRole
+
       return {
         id: r.id,
         firstName: r.firstName,
         lastName: r.lastName,
         username: r.username,
         phone: r.phone,
-        role: readerData.role || (r.username === 'admin' ? 'admin' : 'reader'),
+        role: finalRole,
+        isSuperAdmin: userIsSuper,
         displayPassword: r.displayPassword || '******',
         createdAt: r.createdAt,
       }
     })
 
-    return NextResponse.json({ users })
+    return NextResponse.json({ users, isSuperAdmin })
   } catch (error) {
     console.error('Admin users fetch error:', error)
     return NextResponse.json({ error: 'Xatolik yuz berdi' }, { status: 500 })
@@ -46,6 +53,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
     }
 
+    const isSuperAdmin = await isCurrentReaderSuperAdmin()
+
     const body = await req.json()
     const { action, id, firstName, lastName, username, phone, password, role } = body
 
@@ -55,6 +64,32 @@ export async function POST(req: NextRequest) {
       if (!id) {
         return NextResponse.json({ error: 'ID talab qilinadi' }, { status: 400 })
       }
+
+      // Foydalanuvchini tekshiramiz
+      const targetUser = await payload.findByID({
+        collection: 'readers',
+        id: Number(id),
+        overrideAccess: true,
+      })
+
+      if (!targetUser) {
+        return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
+      }
+
+      const targetRole = (targetUser as unknown as { role?: string }).role || (targetUser.username === 'admin' ? 'superadmin' : 'reader')
+      const targetIsSuper = targetRole === 'superadmin' || targetUser.username === 'admin'
+
+      if (targetIsSuper) {
+        return NextResponse.json({ error: 'Asosiy adminni oʻchirib boʻlmaydi!' }, { status: 400 })
+      }
+
+      // Agar o'chirilayotgan user admin bo'lsa, faqat asosiy admin o'chira oladi
+      if (targetRole === 'admin') {
+        if (!isSuperAdmin) {
+          return NextResponse.json({ error: 'Adminni oʻchirish faqat asosiy admin huquqiga kiradi!' }, { status: 403 })
+        }
+      }
+
       await payload.delete({
         collection: 'readers',
         id: Number(id),
@@ -64,14 +99,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'create') {
-      if (!firstName || !lastName || !username || !password || !phone) {
+      const cleanUsername = String(username || '').trim().toLowerCase()
+      const cleanPassword = String(password || '').trim()
+
+      if (!cleanUsername || !cleanPassword) {
         return NextResponse.json(
-          { error: 'Barcha maydonlarni toʻldirish majburiy!' },
+          { error: 'Foydalanuvchi nomi (username) va parol kiritilishi shart!' },
           { status: 400 },
         )
       }
 
-      const cleanUsername = String(username).trim().toLowerCase()
+      const selectedRole = role === 'admin' ? 'admin' : 'reader'
+
+      // Admin qo'shish faqat asosiy admin huquqida
+      if (selectedRole === 'admin' && !isSuperAdmin) {
+        return NextResponse.json(
+          { error: 'Yangi admin qoʻshish faqat asosiy admin huquqiga kiradi!' },
+          { status: 403 },
+        )
+      }
 
       const existingReaders = await payload.find({
         collection: 'readers',
@@ -86,23 +132,25 @@ export async function POST(req: NextRequest) {
         )
       }
 
-      const selectedRole = role === 'admin' ? 'admin' : 'reader'
+      const cleanFirstName = String(firstName || cleanUsername).trim()
+      const cleanLastName = String(lastName || '').trim()
+      const cleanPhone = String(phone || '').trim()
 
       const created = await payload.create({
         collection: 'readers',
         data: {
-          firstName: String(firstName).trim(),
-          lastName: String(lastName).trim(),
+          firstName: cleanFirstName,
+          lastName: cleanLastName,
           username: cleanUsername,
-          phone: String(phone).trim(),
-          password: String(password),
-          displayPassword: String(password),
+          phone: cleanPhone,
+          password: cleanPassword,
+          displayPassword: cleanPassword,
           role: selectedRole,
         },
         overrideAccess: true,
       })
 
-      // Agar rol admin bo'lsa, Payload CMS Users kolleksiyasiga ham qo'shib qo'yamiz
+      // Agar rol admin bo'lsa, Payload CMS Users kolleksiyasiga ham sinxronizatsiya qilamiz
       if (selectedRole === 'admin') {
         try {
           const existingStaff = await payload.find({
@@ -116,8 +164,8 @@ export async function POST(req: NextRequest) {
               data: {
                 username: cleanUsername,
                 email: `${cleanUsername}@hisinf.uz`,
-                password: String(password),
-                displayName: `${String(firstName).trim()} ${String(lastName).trim()}`,
+                password: cleanPassword,
+                displayName: `${cleanFirstName} ${cleanLastName}`.trim(),
                 role: 'admin',
               },
               overrideAccess: true,
@@ -137,7 +185,7 @@ export async function POST(req: NextRequest) {
           username: created.username,
           phone: created.phone,
           role: selectedRole,
-          displayPassword: created.displayPassword || password,
+          displayPassword: created.displayPassword || cleanPassword,
           createdAt: created.createdAt,
         },
       })
@@ -148,11 +196,36 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'ID talab qilinadi' }, { status: 400 })
       }
 
+      const targetUser = await payload.findByID({
+        collection: 'readers',
+        id: Number(id),
+        overrideAccess: true,
+      })
+
+      if (!targetUser) {
+        return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
+      }
+
+      const targetRole = (targetUser as unknown as { role?: string }).role || (targetUser.username === 'admin' ? 'superadmin' : 'reader')
+      const targetIsSuper = targetRole === 'superadmin' || targetUser.username === 'admin'
+
+      if (targetIsSuper && role && role !== 'superadmin') {
+        return NextResponse.json({ error: 'Asosiy admin rolini oʻzgartirib boʻlmaydi!' }, { status: 400 })
+      }
+
+      // Agar rolni adminga/adminlikdan o'zgartirmoqchi bo'lsa, faqat asosiy admin qila oladi
+      if ((targetRole === 'admin' || role === 'admin') && !isSuperAdmin) {
+        return NextResponse.json(
+          { error: 'Admin rolini boshqarish faqat asosiy admin huquqiga kiradi!' },
+          { status: 403 },
+        )
+      }
+
       const updateData: Record<string, unknown> = {}
-      if (firstName) updateData.firstName = String(firstName).trim()
-      if (lastName) updateData.lastName = String(lastName).trim()
+      if (firstName !== undefined) updateData.firstName = String(firstName).trim()
+      if (lastName !== undefined) updateData.lastName = String(lastName).trim()
       if (username) updateData.username = String(username).trim().toLowerCase()
-      if (phone) updateData.phone = String(phone).trim()
+      if (phone !== undefined) updateData.phone = String(phone).trim()
       if (role) updateData.role = role === 'admin' ? 'admin' : 'reader'
       if (password) {
         updateData.password = String(password)
@@ -194,6 +267,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      const finalRole = (updated.username === 'admin' || updatedData.role === 'superadmin') ? 'superadmin' : (updatedData.role || 'reader')
+
       return NextResponse.json({
         success: true,
         user: {
@@ -202,7 +277,7 @@ export async function POST(req: NextRequest) {
           lastName: updated.lastName,
           username: updated.username,
           phone: updated.phone,
-          role: updatedData.role || (updated.username === 'admin' ? 'admin' : 'reader'),
+          role: finalRole,
           displayPassword: updated.displayPassword || password,
           createdAt: updated.createdAt,
         },

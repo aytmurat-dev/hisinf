@@ -6,6 +6,9 @@ import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function ArticlesListPage({
   params,
 }: {
@@ -20,24 +23,21 @@ export default async function ArticlesListPage({
 
   const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
 
-  const { docs: posts } = await payload.find({
+  const { docs: allPosts } = await payload.find({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
     where: {
-      and: [
-        { slug: { not_equals: 'bosh-sahifa-izohlari' } },
-        {
-          or: [
-            { language: { equals: targetLanguage } },
-            { language: { equals: 'both' } },
-            { language: { exists: false } },
-          ],
-        },
-      ],
+      slug: { not_equals: 'bosh-sahifa-izohlari' },
     },
     sort: '-publishedAt',
-    limit: 50,
+    limit: 100,
     overrideAccess: true,
+  })
+
+  const posts = allPosts.filter((post) => {
+    const postLang = (post as unknown as { language?: string | null }).language
+    if (!postLang || postLang === 'both') return true
+    return postLang === targetLanguage
   })
 
   const subtitleText =

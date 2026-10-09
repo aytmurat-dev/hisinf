@@ -19,21 +19,12 @@ export async function GET(req: NextRequest) {
     const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
 
     // Fetch published posts
-    const { docs: posts } = await payload.find({
+    const { docs: allPosts } = await payload.find({
       collection: 'posts',
       locale,
-      limit: 30,
+      limit: 50,
       where: {
-        and: [
-          { slug: { not_equals: 'bosh-sahifa-izohlari' } },
-          {
-            or: [
-              { language: { equals: targetLanguage } },
-              { language: { equals: 'both' } },
-              { language: { exists: false } },
-            ],
-          },
-        ],
+        slug: { not_equals: 'bosh-sahifa-izohlari' },
       },
       overrideAccess: true,
       select: {
@@ -42,10 +33,17 @@ export async function GET(req: NextRequest) {
         slug: true,
         content: true,
         excerpt: true,
+        language: true,
         coverImageUrl: true,
         coverImage: true,
         publishedAt: true,
       },
+    })
+
+    const posts = allPosts.filter((post) => {
+      const postLang = (post as unknown as { language?: string | null }).language
+      if (!postLang || postLang === 'both') return true
+      return postLang === targetLanguage
     })
 
     const results = []

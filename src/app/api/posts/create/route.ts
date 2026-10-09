@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { slugify } from '@/lib/slugify'
@@ -93,6 +94,12 @@ export async function POST(req: NextRequest) {
         },
         overrideAccess: true,
       })
+    }
+
+    try {
+      revalidatePath('/', 'layout')
+    } catch (_revalidateErr) {
+      // ignore
     }
 
     return NextResponse.json({

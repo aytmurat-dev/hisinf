@@ -9,6 +9,7 @@ export interface ReaderUser {
   username: string
   phone: string
   role?: string
+  isSuperAdmin?: boolean
 }
 
 export async function getCurrentReader(): Promise<ReaderUser | null> {
@@ -32,14 +33,18 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
     if (!reader) return null
 
     const readerData = reader as unknown as { role?: string }
+    const rawRole = readerData.role || (reader.username === 'admin' ? 'superadmin' : 'reader')
+    const isSuperAdmin = rawRole === 'superadmin' || reader.username === 'admin'
+    const finalRole = isSuperAdmin ? 'superadmin' : rawRole
 
     return {
       id: reader.id,
-      firstName: reader.firstName,
-      lastName: reader.lastName,
+      firstName: reader.firstName || '',
+      lastName: reader.lastName || '',
       username: reader.username,
-      phone: reader.phone,
-      role: readerData.role || (reader.username === 'admin' ? 'admin' : 'reader'),
+      phone: reader.phone || '',
+      role: finalRole,
+      isSuperAdmin,
     }
   } catch (_e) {
     return null
@@ -48,6 +53,22 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
 
 export async function isCurrentReaderAdmin(): Promise<boolean> {
   const reader = await getCurrentReader()
-  return Boolean(reader && (reader.role === 'admin' || reader.username === 'admin'))
+  return Boolean(
+    reader &&
+      (reader.role === 'admin' ||
+        reader.role === 'superadmin' ||
+        reader.username === 'admin' ||
+        reader.isSuperAdmin),
+  )
+}
+
+export async function isCurrentReaderSuperAdmin(): Promise<boolean> {
+  const reader = await getCurrentReader()
+  return Boolean(
+    reader &&
+      (reader.isSuperAdmin ||
+        reader.username === 'admin' ||
+        reader.role === 'superadmin'),
+  )
 }
 
