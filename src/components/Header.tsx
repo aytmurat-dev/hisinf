@@ -14,7 +14,7 @@ export function Header() {
   const router = useRouter()
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<{ firstName: string; username: string } | null>(null)
+  const [currentUser, setCurrentUser] = useState<{ firstName: string; username: string; role?: string } | null>(null)
 
   useEffect(() => {
     fetch('/api/readers/me')
@@ -35,7 +35,7 @@ export function Header() {
     router.refresh()
   }
 
-  const isAdmin = currentUser?.username === 'admin'
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin'
 
   return (
     <header className="sticky top-0 z-40 bg-[var(--background)]/90 backdrop-blur-md border-b border-[var(--border)] transition-colors">

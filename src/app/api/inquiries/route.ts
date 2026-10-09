@@ -1,28 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPayload, type Where } from 'payload'
+import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { getCurrentReader } from '@/lib/reader-auth'
 
-export async function GET(req: NextRequest) {
+// Faqat kirgan o'quvchi o'z murojaatlarini ko'radi (P3 da `reader` bog'lanishiga o'tkaziladi)
+export async function GET() {
   try {
     const reader = await getCurrentReader()
-    const { searchParams } = new URL(req.url)
-    const phone = searchParams.get('phone')
-
-    const payload = await getPayload({ config })
-
-    let whereClause: Where = {}
-    if (reader && reader.phone) {
-      whereClause = { phone: { equals: reader.phone } }
-    } else if (phone) {
-      whereClause = { phone: { equals: phone.trim() } }
-    } else {
+    if (!reader || !reader.phone) {
       return NextResponse.json({ inquiries: [] })
     }
 
+    const payload = await getPayload({ config })
+
     const { docs: inquiries } = await payload.find({
       collection: 'inquiries',
-      where: whereClause,
+      where: { phone: { equals: reader.phone } },
       sort: '-createdAt',
       limit: 20,
       overrideAccess: true,

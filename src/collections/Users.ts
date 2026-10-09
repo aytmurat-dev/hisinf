@@ -1,4 +1,8 @@
-import type { CollectionConfig } from 'payload'
+import type { Access, CollectionConfig, FieldAccess } from 'payload'
+
+const isStaffAdmin: Access = ({ req }) => req.user?.collection === 'users' && req.user.role === 'admin'
+const isStaffAdminField: FieldAccess = ({ req }) =>
+  req.user?.collection === 'users' && req.user.role === 'admin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -19,6 +23,16 @@ export const Users: CollectionConfig = {
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
   },
+  access: {
+    read: ({ req }) => req.user?.collection === 'users',
+    create: isStaffAdmin,
+    // Admin hammani, qolgan xodimlar faqat o'zini tahrirlaydi
+    update: ({ req }) =>
+      req.user?.collection === 'users'
+        ? req.user.role === 'admin' || { id: { equals: req.user.id } }
+        : false,
+    delete: isStaffAdmin,
+  },
   fields: [
     {
       name: 'displayName',
@@ -29,7 +43,12 @@ export const Users: CollectionConfig = {
       name: 'role',
       type: 'select',
       required: true,
-      defaultValue: 'admin',
+      defaultValue: 'author',
+      access: {
+        // Birinchi foydalanuvchi (create-first-user, req.user yo'q) o'ziga admin rolini tanlay oladi
+        create: ({ req, ...rest }) => !req.user || isStaffAdminField({ req, ...rest }),
+        update: isStaffAdminField,
+      },
       options: [
         { label: 'Administrator', value: 'admin' },
         { label: 'Muharrir', value: 'editor' },

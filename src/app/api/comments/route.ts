@@ -17,9 +17,16 @@ export async function POST(req: NextRequest) {
 
     const { postId, body } = await req.json()
 
-    if (!postId || !body || !body.trim()) {
+    const text = typeof body === 'string' ? body.trim() : ''
+    if (!postId || !text) {
       return NextResponse.json(
         { error: 'Izoh matni boʻsh boʻlmasligi kerak' },
+        { status: 400 },
+      )
+    }
+    if (text.length < 3 || text.length > 1000) {
+      return NextResponse.json(
+        { error: 'Izoh 3 dan 1000 belgigacha boʻlishi kerak' },
         { status: 400 },
       )
     }
@@ -32,7 +39,7 @@ export async function POST(req: NextRequest) {
         post: Number(postId),
         reader: reader.id,
         authorName: `${reader.firstName} ${reader.lastName}`,
-        body: body.trim(),
+        body: text,
         createdAt: new Date().toISOString(),
       },
       overrideAccess: true,

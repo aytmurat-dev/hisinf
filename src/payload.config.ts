@@ -28,6 +28,9 @@ const serverURL =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
   'http://localhost:3000'
 
+const secret = process.env.PAYLOAD_SECRET
+if (!secret) throw new Error('PAYLOAD_SECRET env oʻzgaruvchisi majburiy')
+
 const plugins: Plugin[] = []
 
 if (
@@ -91,7 +94,7 @@ export default buildConfig({
   },
   collections: [Users, Media, Readers, Posts, Comments, Inquiries, Periods],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || 'fallback-secret-for-hisinf-2026-development-token',
+  secret,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -99,7 +102,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    push: true,
+    // push o'chirilgan: sxema faqat migratsiyalar orqali o'zgaradi (pnpm migrate)
+    push: false,
   }),
   sharp,
   plugins,

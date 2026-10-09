@@ -1,4 +1,7 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldAccess } from 'payload'
+
+// Faqat xodimlar (Payload admin). Custom route'lar overrideAccess bilan ishlaydi.
+const staffOnly: FieldAccess = ({ req }) => req.user?.collection === 'users'
 
 export const Readers: CollectionConfig = {
   slug: 'readers',
@@ -25,9 +28,20 @@ export const Readers: CollectionConfig = {
     },
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: ({ req }) => Boolean(req.user),
+    // Faqat xodimlar (Payload admin) yoki o'quvchining o'zi
+    read: ({ req }) =>
+      req.user?.collection === 'users'
+        ? true
+        : req.user?.collection === 'readers'
+          ? { id: { equals: req.user.id } }
+          : false,
+    create: ({ req }) => req.user?.collection === 'users', // ro'yxatdan o'tish custom route orqali (overrideAccess)
+    update: ({ req }) =>
+      req.user?.collection === 'users'
+        ? true
+        : req.user?.collection === 'readers'
+          ? { id: { equals: req.user.id } }
+          : false,
     delete: ({ req }) => req.user?.collection === 'users',
   },
   fields: [
@@ -52,14 +66,18 @@ export const Readers: CollectionConfig = {
       label: 'Telefon raqam',
     },
     {
+      // ESKIRGAN: endi yozilmaydi va ko'rsatilmaydi. Ustun V2-P10 da o'chiriladi.
       name: 'displayPassword',
       type: 'text',
-      label: 'Parol (admin nazorati uchun)',
+      label: 'Eskirgan maydon',
+      access: { read: staffOnly, update: staffOnly, create: staffOnly },
+      admin: { hidden: true },
     },
     {
       name: 'role',
       type: 'select',
       defaultValue: 'reader',
+      access: { read: staffOnly, update: staffOnly, create: staffOnly },
       options: [
         { label: 'Oʻquvchi', value: 'reader' },
         { label: 'Administrator', value: 'admin' },

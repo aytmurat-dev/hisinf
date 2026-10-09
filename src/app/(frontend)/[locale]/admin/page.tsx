@@ -47,7 +47,6 @@ interface UserItem {
   phone: string
   role?: string
   isSuperAdmin?: boolean
-  displayPassword: string
   createdAt: string
 }
 
@@ -82,8 +81,8 @@ export default function AdminDashboardPage() {
   const [checkingAuth, setCheckingAuth] = useState(true)
 
   // Login form if not admin
-  const [loginUsername, setLoginUsername] = useState('admin')
-  const [loginPassword, setLoginPassword] = useState('admin123')
+  const [loginUsername, setLoginUsername] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
 
@@ -193,19 +192,10 @@ export default function AdminDashboardPage() {
       const data = await res.json()
       if (
         data.user &&
-        (data.user.role === 'admin' ||
-          data.user.role === 'superadmin' ||
-          data.user.username === 'admin' ||
-          data.user.isSuperAdmin)
+        (data.user.role === 'admin' || data.user.role === 'superadmin')
       ) {
         setIsAdmin(true)
-        setIsSuperAdmin(
-          Boolean(
-            data.user.isSuperAdmin ||
-              data.user.role === 'superadmin' ||
-              data.user.username === 'admin',
-          ),
-        )
+        setIsSuperAdmin(data.user.role === 'superadmin')
         loadAllData()
       } else {
         setIsAdmin(false)
@@ -240,22 +230,14 @@ export default function AdminDashboardPage() {
 
       if (
         !res.ok ||
-        (data.reader?.role !== 'admin' &&
-          data.reader?.role !== 'superadmin' &&
-          data.reader?.username !== 'admin')
+        (data.reader?.role !== 'admin' && data.reader?.role !== 'superadmin')
       ) {
         setLoginError(data.error || t('authOnlyAdmin'))
         return
       }
 
       setIsAdmin(true)
-      setIsSuperAdmin(
-        Boolean(
-          data.reader?.isSuperAdmin ||
-            data.reader?.role === 'superadmin' ||
-            data.reader?.username === 'admin',
-        ),
-      )
+      setIsSuperAdmin(data.reader?.role === 'superadmin')
       loadAllData()
       router.refresh()
     } catch (_err) {
@@ -447,8 +429,9 @@ export default function AdminDashboardPage() {
     setUserLastName(user.lastName)
     setUserUsername(user.username)
     setUserPhone(user.phone)
-    setUserRole((user.role as 'admin' | 'reader') || (user.username === 'admin' ? 'admin' : 'reader'))
-    setUserPassword(user.displayPassword && user.displayPassword !== '******' ? user.displayPassword : '')
+    setUserRole(user.role === 'admin' ? 'admin' : 'reader')
+    // Parol hech qachon ko'rsatilmaydi; bo'sh qoldirilsa o'zgarmaydi
+    setUserPassword('')
     setUserModalOpen(true)
   }
 
@@ -505,7 +488,6 @@ export default function AdminDashboardPage() {
                   username: userUsername,
                   phone: userPhone,
                   role: userRole,
-                  displayPassword: userPassword || u.displayPassword,
                 }
               : u,
           ),
@@ -529,7 +511,6 @@ export default function AdminDashboardPage() {
     setNewAdminUsername('')
     setNewAdminPhone('')
     setNewAdminPassword('')
-    setNewAdminRole('admin')
     setNewAdminModalOpen(true)
   }
 
@@ -672,7 +653,7 @@ export default function AdminDashboardPage() {
               {t('loginTitle')}
             </h1>
             <p className="text-xs text-[var(--muted-foreground)]">
-              {t('loginSubtitle')} (username: <span className="text-[var(--gold)] font-mono">admin</span>, parol: <span className="text-[var(--gold)] font-mono">admin123</span>)
+              {t('loginSubtitle')}
             </p>
           </div>
 
@@ -707,7 +688,7 @@ export default function AdminDashboardPage() {
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="admin123"
+                placeholder="••••••••"
                 required
                 className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors font-mono"
               />
@@ -1038,7 +1019,7 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="p-3.5 font-mono text-[var(--foreground)]">@{u.username}</td>
                       <td className="p-3.5">
-                        {u.role === 'superadmin' || u.username === 'admin' ? (
+                        {u.role === 'superadmin' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--gold)]/20 text-[var(--gold)] text-[10px] font-bold border border-[var(--gold)]/30">
                             👑 {t('roleSuperAdmin')}
                           </span>
@@ -1053,7 +1034,7 @@ export default function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="p-3.5 font-mono font-bold text-[var(--gold)] bg-[var(--gold)]/5 px-2.5 py-1 rounded">
-                        {u.displayPassword || '******'}
+                        ••••••
                       </td>
                       <td className="p-3.5 text-[var(--muted-foreground)] font-mono">{u.phone}</td>
                       <td className="p-3.5 text-[var(--muted-foreground)]">

@@ -36,7 +36,7 @@ function LoginForm() {
         return
       }
 
-      if (data.reader?.username === 'admin' && redirect === '/') {
+      if ((data.reader?.role === 'admin' || data.reader?.role === 'superadmin') && redirect === '/') {
         router.push('/admin')
       } else {
         router.push(redirect)

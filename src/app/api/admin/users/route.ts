@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
+import { randomBytes } from 'crypto'
 import config from '@/payload.config'
 import { isCurrentReaderAdmin, isCurrentReaderSuperAdmin } from '@/lib/reader-auth'
 
@@ -21,10 +22,7 @@ export async function GET() {
     })
 
     const users = readers.map((r) => {
-      const readerData = r as unknown as { role?: string }
-      const rawRole = readerData.role || (r.username === 'admin' ? 'superadmin' : 'reader')
-      const userIsSuper = rawRole === 'superadmin' || r.username === 'admin'
-      const finalRole = userIsSuper ? 'superadmin' : rawRole
+      const finalRole = r.role ?? 'reader'
 
       return {
         id: r.id,
@@ -33,8 +31,7 @@ export async function GET() {
         username: r.username,
         phone: r.phone,
         role: finalRole,
-        isSuperAdmin: userIsSuper,
-        displayPassword: r.displayPassword || '******',
+        isSuperAdmin: finalRole === 'superadmin',
         createdAt: r.createdAt,
       }
     })
@@ -76,8 +73,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
       }
 
-      const targetRole = (targetUser as unknown as { role?: string }).role || (targetUser.username === 'admin' ? 'superadmin' : 'reader')
-      const targetIsSuper = targetRole === 'superadmin' || targetUser.username === 'admin'
+      const targetRole = targetUser.role ?? 'reader'
+      const targetIsSuper = targetRole === 'superadmin'
 
       if (targetIsSuper) {
         return NextResponse.json({ error: 'Asosiy adminni oʻchirib boʻlmaydi!' }, { status: 400 })
@@ -144,7 +141,6 @@ export async function POST(req: NextRequest) {
           username: cleanUsername,
           phone: cleanPhone,
           password: cleanPassword,
-          displayPassword: cleanPassword,
           role: selectedRole,
         },
         overrideAccess: true,
@@ -185,7 +181,6 @@ export async function POST(req: NextRequest) {
           username: created.username,
           phone: created.phone,
           role: selectedRole,
-          displayPassword: created.displayPassword || cleanPassword,
           createdAt: created.createdAt,
         },
       })
@@ -206,8 +201,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 })
       }
 
-      const targetRole = (targetUser as unknown as { role?: string }).role || (targetUser.username === 'admin' ? 'superadmin' : 'reader')
-      const targetIsSuper = targetRole === 'superadmin' || targetUser.username === 'admin'
+      const targetRole = targetUser.role ?? 'reader'
+      const targetIsSuper = targetRole === 'superadmin'
 
       if (targetIsSuper && role && role !== 'superadmin') {
         return NextResponse.json({ error: 'Asosiy admin rolini oʻzgartirib boʻlmaydi!' }, { status: 400 })
@@ -226,10 +221,10 @@ export async function POST(req: NextRequest) {
       if (lastName !== undefined) updateData.lastName = String(lastName).trim()
       if (username) updateData.username = String(username).trim().toLowerCase()
       if (phone !== undefined) updateData.phone = String(phone).trim()
-      if (role) updateData.role = role === 'admin' ? 'admin' : 'reader'
+      // Asosiy admin rolini bu yerdan o'zgartirib bo'lmaydi
+      if (role && !targetIsSuper) updateData.role = role === 'admin' ? 'admin' : 'reader'
       if (password) {
         updateData.password = String(password)
-        updateData.displayPassword = String(password)
       }
 
       const updated = await payload.update({
@@ -239,9 +234,8 @@ export async function POST(req: NextRequest) {
         overrideAccess: true,
       })
 
-      const updatedData = updated as unknown as { role?: string }
-
       // Agar adminga o'zgartirilgan bo'lsa va users da bo'lmasa, uni yaratish
+      let staffPasswordNotice: string | undefined
       if (updateData.role === 'admin' && updated.username) {
         try {
           const existingStaff = await payload.find({
@@ -255,19 +249,23 @@ export async function POST(req: NextRequest) {
               data: {
                 username: updated.username,
                 email: `${updated.username}@hisinf.uz`,
-                password: String(password || 'admin123'),
+                // Parol berilmasa tasodifiy parol; xodim uni "Parolni tiklash" orqali o'rnatadi
+                password: password ? String(password) : randomBytes(18).toString('base64url'),
                 displayName: `${updated.firstName} ${updated.lastName}`.trim(),
                 role: 'admin',
               },
               overrideAccess: true,
             })
+            if (!password) {
+              staffPasswordNotice = 'Payload admin paroli Parolni tiklash orqali oʻrnatiladi'
+            }
           }
         } catch (_staffErr) {
           // ignore
         }
       }
 
-      const finalRole = (updated.username === 'admin' || updatedData.role === 'superadmin') ? 'superadmin' : (updatedData.role || 'reader')
+      const finalRole = updated.role ?? 'reader'
 
       return NextResponse.json({
         success: true,
@@ -278,9 +276,9 @@ export async function POST(req: NextRequest) {
           username: updated.username,
           phone: updated.phone,
           role: finalRole,
-          displayPassword: updated.displayPassword || password,
           createdAt: updated.createdAt,
         },
+        notice: staffPasswordNotice,
       })
     }
 

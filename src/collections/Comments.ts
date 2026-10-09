@@ -13,7 +13,7 @@ export const Comments: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: ({ req }) => Boolean(req.user),
+    create: ({ req }) => req.user?.collection === 'users', // o'quvchilar /api/comments orqali yozadi
     update: ({ req }) => req.user?.collection === 'users',
     delete: ({ req }) => req.user?.collection === 'users',
   },
@@ -41,6 +41,7 @@ export const Comments: CollectionConfig = {
       name: 'body',
       type: 'textarea',
       required: true,
+      maxLength: 1000,
       label: 'Izoh matni',
     },
     {

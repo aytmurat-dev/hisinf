@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { createSessionToken } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,14 +45,13 @@ export async function POST(req: NextRequest) {
         lastName: lastName.trim(),
         username: username.trim().toLowerCase(),
         password,
-        displayPassword: password,
         phone: phone.trim(),
       },
       overrideAccess: true,
     })
 
     // Create session token
-    const sessionToken = Buffer.from(`${reader.id}:${Date.now()}`).toString('base64')
+    const sessionToken = createSessionToken(reader.id)
 
     const response = NextResponse.json({
       success: true,

@@ -4,8 +4,13 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { slugify } from '@/lib/slugify'
 import { normalizeSearch } from '@/lib/normalize-search'
+import { isCurrentReaderAdmin } from '@/lib/reader-auth'
 
 export async function POST(req: NextRequest) {
+  if (!(await isCurrentReaderAdmin())) {
+    return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
+  }
+
   try {
     const formData = await req.formData()
     const title = (formData.get('title') as string) || ''

@@ -16,6 +16,7 @@ export default function AdminChatPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [inquiries, setInquiries] = useState<Array<{
     id: number
     name: string
@@ -34,16 +35,17 @@ export default function AdminChatPage() {
         if (data.user) {
           setName(`${data.user.firstName} ${data.user.lastName}`)
           setPhone(data.user.phone || '')
-          loadUserInquiries(data.user.phone)
+          setIsLoggedIn(true)
+          loadUserInquiries()
         }
       })
       .catch(() => {})
   }, [])
 
-  const loadUserInquiries = async (userPhone?: string) => {
+  // Server faqat kirgan o'quvchining o'z murojaatlarini qaytaradi
+  const loadUserInquiries = async () => {
     try {
-      const q = userPhone ? `?phone=${encodeURIComponent(userPhone)}` : ''
-      const res = await fetch(`/api/inquiries${q}`)
+      const res = await fetch('/api/inquiries')
       if (res.ok) {
         const d = await res.json()
         setInquiries(d.inquiries || [])
@@ -77,7 +79,7 @@ export default function AdminChatPage() {
 
       setSuccess(true)
       setMessage('')
-      loadUserInquiries(phone)
+      if (isLoggedIn) loadUserInquiries()
     } catch (_err) {
       setError('Serverga ulanishda xatolik yuz berdi')
     } finally {
@@ -190,6 +192,12 @@ export default function AdminChatPage() {
             <span>{loading ? t('sending') : t('send')}</span>
           </button>
         </form>
+
+        {!isLoggedIn && (
+          <p className="pt-6 border-t border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+            {t('loginToSeeReplies')}
+          </p>
+        )}
 
         {/* Oldingi murojaatlar va Admin javoblari */}
         {inquiries.length > 0 && (

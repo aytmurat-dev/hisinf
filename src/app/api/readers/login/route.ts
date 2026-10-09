@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { createSessionToken } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,12 +33,10 @@ export async function POST(req: NextRequest) {
       }
 
       const reader = loginResult.user
-      const sessionToken = Buffer.from(`${reader.id}:${Date.now()}`).toString('base64')
+      const sessionToken = createSessionToken(reader.id)
 
-      const readerData = reader as unknown as { role?: string }
-      const rawRole = readerData.role || (reader.username === 'admin' ? 'superadmin' : 'reader')
-      const isSuperAdmin = rawRole === 'superadmin' || reader.username === 'admin'
-      const role = isSuperAdmin ? 'superadmin' : rawRole
+      const role = reader.role ?? 'reader'
+      const isSuperAdmin = role === 'superadmin'
 
       const response = NextResponse.json({
         success: true,

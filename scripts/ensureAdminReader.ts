@@ -2,7 +2,16 @@ import 'dotenv/config'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
 
+function getSeedPassword(): string {
+  const password = process.env.SEED_ADMIN_PASSWORD
+  if (!password || password.length < 12) {
+    throw new Error('SEED_ADMIN_PASSWORD env oʻzgaruvchisi kamida 12 belgidan iborat boʻlishi shart')
+  }
+  return password
+}
+
 async function ensureAdminReader() {
+  const password = getSeedPassword()
   const payload = await getPayload({ config })
   const existing = await payload.find({
     collection: 'readers',
@@ -16,11 +25,8 @@ async function ensureAdminReader() {
       collection: 'readers',
       id: adminUser.id,
       data: {
-        password: 'admin123',
-        displayPassword: 'admin123',
-        firstName: 'Bosh',
-        lastName: 'Admin',
-        phone: '+998901234567',
+        password,
+        role: 'superadmin',
       },
       overrideAccess: true,
     })
@@ -30,11 +36,10 @@ async function ensureAdminReader() {
       collection: 'readers',
       data: {
         username: 'admin',
-        password: 'admin123',
-        displayPassword: 'admin123',
+        password,
+        role: 'superadmin',
         firstName: 'Bosh',
         lastName: 'Admin',
-        phone: '+998901234567',
       },
       overrideAccess: true,
     })

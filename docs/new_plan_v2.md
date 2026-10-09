@@ -447,7 +447,7 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P0.S2 — Imzolangan sessiya (K1)
 
-- [ ] **V2-P0.S2.1** Yangi fayl `src/lib/session.ts`:
+- [x] **V2-P0.S2.1** Yangi fayl `src/lib/session.ts`:
   ```ts
   import { createHmac, timingSafeEqual } from 'crypto'
 
@@ -485,9 +485,9 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
     return Number.isInteger(id) && id > 0 ? id : null
   }
   ```
-- [ ] **V2-P0.S2.2** `src/app/api/readers/login/route.ts` va `src/app/api/readers/register/route.ts`: `Buffer.from(\`${reader.id}:${Date.now()}\`).toString('base64')` qatorini `createSessionToken(reader.id)` bilan almashtiring.
-- [ ] **V2-P0.S2.3** `src/lib/reader-auth.ts` → `getCurrentReader()`: token'ni `verifySessionToken(token)` bilan tekshiring. `null` bo'lsa `return null`. Eski `Buffer.from(token,'base64')…split(':')` mantig'ini **o'chiring**. Natijada eski (imzosiz) cookie'lar bekor bo'ladi va hamma qayta kiradi. Bu kutilgan holat.
-- [ ] **V2-P0.S2.4** Shu faylda va `src/app/api/readers/login/route.ts`, `src/app/api/admin/users/route.ts` ichida **`username === 'admin'` sehrli qoidasini olib tashlang**. Rol faqat bazadagi `role` maydonidan olinadi: `const role = readerData.role ?? 'reader'`, `const isSuperAdmin = role === 'superadmin'`.
+- [x] **V2-P0.S2.2** `src/app/api/readers/login/route.ts` va `src/app/api/readers/register/route.ts`: `Buffer.from(\`${reader.id}:${Date.now()}\`).toString('base64')` qatorini `createSessionToken(reader.id)` bilan almashtiring.
+- [x] **V2-P0.S2.3** `src/lib/reader-auth.ts` → `getCurrentReader()`: token'ni `verifySessionToken(token)` bilan tekshiring. `null` bo'lsa `return null`. Eski `Buffer.from(token,'base64')…split(':')` mantig'ini **o'chiring**. Natijada eski (imzosiz) cookie'lar bekor bo'ladi va hamma qayta kiradi. Bu kutilgan holat.
+- [x] **V2-P0.S2.4** Shu faylda va `src/app/api/readers/login/route.ts`, `src/app/api/admin/users/route.ts` ichida **`username === 'admin'` sehrli qoidasini olib tashlang**. Rol faqat bazadagi `role` maydonidan olinadi: `const role = readerData.role ?? 'reader'`, `const isSuperAdmin = role === 'superadmin'`.
 - [ ] **V2-P0.S2.5** Prod bazasida `admin` username'li reader'ning `role` maydoni `superadmin` ekanini Payload `/admin` → "Foydalanuvchilar (Sayt)" orqali tekshiring. Bo'lmasa, qo'lda `superadmin` qilib qo'ying (aks holda sehrli qoida o'chgach admin huquqi yo'qoladi).
 
 ✅ **Qabul mezonlari:**
@@ -496,22 +496,22 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P0.S3 — Ochiq endpoint'larni yopish (K2, H1, H2)
 
-- [ ] **V2-P0.S3.1** `src/app/api/posts/create/route.ts` — `POST` funksiyasining eng boshiga:
+- [x] **V2-P0.S3.1** `src/app/api/posts/create/route.ts` — `POST` funksiyasining eng boshiga:
   ```ts
   if (!(await isCurrentReaderAdmin())) {
     return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 403 })
   }
   ```
   (`import { isCurrentReaderAdmin } from '@/lib/reader-auth'`)
-- [ ] **V2-P0.S3.2** `src/app/api/parse-document/route.ts` — xuddi shu admin tekshiruvi. Qo'shimcha: `if (file.size > 10 * 1024 * 1024) return 413` ("Fayl 10 MB dan katta"). Faqat `.docx`, `.pdf`, `.txt` qabul qilinadi (`.doc` ni olib tashlang — mammoth uni o'qimaydi).
-- [ ] **V2-P0.S3.3** `src/app/api/inquiries/route.ts` → `GET`: `?phone=` parametri bo'yicha qidirish **butunlay olib tashlanadi**. Faqat kirgan o'quvchi uchun ishlaydi: `if (!reader) return NextResponse.json({ inquiries: [] })`, so'ng `where: { phone: { equals: reader.phone } }` (P3 da `reader` bog'lanishiga o'tkaziladi). `src/app/(frontend)/[locale]/chat/page.tsx` dagi telefon bo'yicha qidirish formasini ham olib tashlang. Mehmonga "Javoblarni ko'rish uchun kiring" matni ko'rsatiladi.
-- [ ] **V2-P0.S3.4** `src/app/api/comments/route.ts`: `body` uzunligini 3–1000 belgi bilan cheklang (400 qaytaradi). `authorName` ni klientdan **olmang** (hozir ham readerdan olinadi — tekshiring).
+- [x] **V2-P0.S3.2** `src/app/api/parse-document/route.ts` — xuddi shu admin tekshiruvi. Qo'shimcha: `if (file.size > 10 * 1024 * 1024) return 413` ("Fayl 10 MB dan katta"). Faqat `.docx`, `.pdf`, `.txt` qabul qilinadi (`.doc` ni olib tashlang — mammoth uni o'qimaydi).
+- [x] **V2-P0.S3.3** `src/app/api/inquiries/route.ts` → `GET`: `?phone=` parametri bo'yicha qidirish **butunlay olib tashlanadi**. Faqat kirgan o'quvchi uchun ishlaydi: `if (!reader) return NextResponse.json({ inquiries: [] })`, so'ng `where: { phone: { equals: reader.phone } }` (P3 da `reader` bog'lanishiga o'tkaziladi). `src/app/(frontend)/[locale]/chat/page.tsx` dagi telefon bo'yicha qidirish formasini ham olib tashlang. Mehmonga "Javoblarni ko'rish uchun kiring" matni ko'rsatiladi.
+- [x] **V2-P0.S3.4** `src/app/api/comments/route.ts`: `body` uzunligini 3–1000 belgi bilan cheklang (400 qaytaradi). `authorName` ni klientdan **olmang** (hozir ham readerdan olinadi — tekshiring).
 
 ✅ **Qabul mezonlari:** mehmon sifatida `POST /api/posts/create` → 403, `POST /api/parse-document` → 403, `GET /api/inquiries?phone=+998…` → `{"inquiries":[]}`.
 
 ## V2-P0.S4 — Kolleksiya ruxsatlari va ochiq parollar (K3, H3, H4)
 
-- [ ] **V2-P0.S4.1** `src/collections/Readers.ts` → `access` ni almashtiring:
+- [x] **V2-P0.S4.1** `src/collections/Readers.ts` → `access` ni almashtiring:
   ```ts
   access: {
     // Faqat xodimlar (Payload admin) yoki o'quvchining o'zi
@@ -527,7 +527,7 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
     delete: ({ req }) => req.user?.collection === 'users',
   },
   ```
-- [ ] **V2-P0.S4.2** Shu faylda `role` va `displayPassword` maydonlariga field access qo'shing:
+- [x] **V2-P0.S4.2** Shu faylda `role` va `displayPassword` maydonlariga field access qo'shing:
   ```ts
   access: {
     read: ({ req }) => req.user?.collection === 'users',
@@ -535,7 +535,7 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
     create: ({ req }) => req.user?.collection === 'users',
   },
   ```
-- [ ] **V2-P0.S4.3** **Ochiq parollarni o'chirish.** `displayPassword` ga yozadigan **barcha** joylarni olib tashlang. `grep -rn "displayPassword" src scripts` bilan toping (`register`, `admin/users`, `ensureAdminReader`). `/api/admin/users` GET javobida `displayPassword` maydonini **qaytarmang**. Admin sahifasidagi (`src/app/(frontend)/[locale]/admin/page.tsx`) parol ustunini olib tashlang yoki `••••••` ko'rsating.
+- [x] **V2-P0.S4.3** **Ochiq parollarni o'chirish.** `displayPassword` ga yozadigan **barcha** joylarni olib tashlang. `grep -rn "displayPassword" src scripts` bilan toping (`register`, `admin/users`, `ensureAdminReader`). `/api/admin/users` GET javobida `displayPassword` maydonini **qaytarmang**. Admin sahifasidagi (`src/app/(frontend)/[locale]/admin/page.tsx`) parol ustunini olib tashlang yoki `••••••` ko'rsating.
 - [ ] **V2-P0.S4.4** Bazadagi mavjud ochiq parollarni tozalash — bir martalik skript `scripts/v2/00-wipe-display-passwords.ts`:
   ```ts
   import 'dotenv/config'
@@ -555,14 +555,14 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
   process.exit(0)
   ```
   Ishga tushirish: `pnpm payload run scripts/v2/00-wipe-display-passwords.ts` (avval `dev`, keyin prod `DATABASE_URI` bilan). Agar `as never` typecheck'da muammo bersa, `payload-types` dagi `Reader` turidan foydalaning.
-- [ ] **V2-P0.S4.5** `src/collections/Comments.ts` → `create: ({ req }) => req.user?.collection === 'users'` (o'quvchilar faqat `/api/comments` custom route orqali yozadi). `body` maydoniga `maxLength: 1000`.
-- [ ] **V2-P0.S4.6** `src/collections/Users.ts` → `role.defaultValue` ni `'author'` qiling (hozir `'admin'`). `role` maydoniga `access: { update: ({ req }) => req.user?.collection === 'users' && req.user.role === 'admin' }`.
+- [x] **V2-P0.S4.5** `src/collections/Comments.ts` → `create: ({ req }) => req.user?.collection === 'users'` (o'quvchilar faqat `/api/comments` custom route orqali yozadi). `body` maydoniga `maxLength: 1000`.
+- [x] **V2-P0.S4.6** `src/collections/Users.ts` → `role.defaultValue` ni `'author'` qiling (hozir `'admin'`). `role` maydoniga `access: { update: ({ req }) => req.user?.collection === 'users' && req.user.role === 'admin' }`.
 
 ✅ **Qabul mezonlari:** `curl https://<prod>/api/readers` → 403 yoki `docs: []`. Javobda `displayPassword` va `phone` yo'q.
 
 ## V2-P0.S5 — Qattiq yozilgan parol va secret (K4, K5, H5)
 
-- [ ] **V2-P0.S5.1** `src/payload.config.ts`:
+- [x] **V2-P0.S5.1** `src/payload.config.ts`:
   ```ts
   const secret = process.env.PAYLOAD_SECRET
   if (!secret) throw new Error('PAYLOAD_SECRET env o‘zgaruvchisi majburiy')
@@ -570,8 +570,8 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
   secret,
   db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URI || '' } }), // push: true OLIB TASHLANDI
   ```
-- [ ] **V2-P0.S5.2** `src/seed/seedAdmin.ts` va `scripts/ensureAdminReader.ts`: `'admin123'` o'rniga `process.env.SEED_ADMIN_PASSWORD` ishlatiladi. U yo'q yoki 12 belgidan qisqa bo'lsa, `throw new Error(...)`. `.env.example` ga `SEED_ADMIN_PASSWORD=` qo'shing.
-- [ ] **V2-P0.S5.3** `src/app/api/admin/users/route.ts` dagi `String(password || 'admin123')` → `password` bo'lmasa `crypto.randomBytes(18).toString('base64url')` ishlatiladi va javobda "Parolni tiklash orqali o'rnating" deyiladi.
+- [x] **V2-P0.S5.2** `src/seed/seedAdmin.ts` va `scripts/ensureAdminReader.ts`: `'admin123'` o'rniga `process.env.SEED_ADMIN_PASSWORD` ishlatiladi. U yo'q yoki 12 belgidan qisqa bo'lsa, `throw new Error(...)`. `.env.example` ga `SEED_ADMIN_PASSWORD=` qo'shing.
+- [x] **V2-P0.S5.3** `src/app/api/admin/users/route.ts` dagi `String(password || 'admin123')` → `password` bo'lmasa `crypto.randomBytes(18).toString('base64url')` ishlatiladi va javobda "Parolni tiklash orqali o'rnating" deyiladi.
 - [ ] **V2-P0.S5.4** **Prod parollarini almashtiring:** `admin` reader va `admin` user (agar mavjud bo'lsa) parollarini 16+ belgili yangi parolga o'zgartiring. Bu qo'lda bajariladi va yangi parol parol menejerida saqlanadi.
 - [ ] **V2-P0.S5.5** Lokal `.env` dagi `DATABASE_URI` **Neon `dev` branch'iga** ishora qilishini tekshiring. Prod `main` ga ishora qilsa, darhol almashtiring.
 
@@ -2637,7 +2637,7 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 
 | Phase | Nomi | Holat | Sana | Izoh |
 |-------|------|-------|------|------|
-| V2-P0 | Xavfsizlik hotfix'i | ⬜ | | **shoshilinch** |
+| V2-P0 | Xavfsizlik hotfix'i | 🟡 | 2026-10-09 | Kod tayyor (S2–S5). Qo'lda qoldi: S1, S2.5, S4.4 ishga tushirish, S5.4, S5.5, S6 |
 | V2-P1 | Poydevor | ⬜ | | |
 | V2-P2 | Dizayn tizimi | ⬜ | | |
 | V2-P3 | Ma'lumotlar modeli va ko'chirish | ⬜ | | |

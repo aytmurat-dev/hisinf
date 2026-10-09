@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { verifySessionToken } from '@/lib/session'
 
 export interface ReaderUser {
   id: number
@@ -15,27 +16,19 @@ export interface ReaderUser {
 export async function getCurrentReader(): Promise<ReaderUser | null> {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get('hisinf_reader_session')?.value
-    if (!token) return null
-
-    const payload = await getPayload({ config })
-    const parts = Buffer.from(token, 'base64').toString('utf-8').split(':')
-    if (parts.length < 2) return null
-    const id = Number(parts[0])
+    const id = verifySessionToken(cookieStore.get('hisinf_reader_session')?.value)
     if (!id) return null
 
+    const payload = await getPayload({ config })
     const reader = await payload.findByID({
       collection: 'readers',
       id,
-      overrideAccess: true,
+      overrideAccess: true, // sessiya imzosi yuqorida tekshirildi; o'quvchi o'z yozuvini o'qiydi
     })
 
     if (!reader) return null
 
-    const readerData = reader as unknown as { role?: string }
-    const rawRole = readerData.role || (reader.username === 'admin' ? 'superadmin' : 'reader')
-    const isSuperAdmin = rawRole === 'superadmin' || reader.username === 'admin'
-    const finalRole = isSuperAdmin ? 'superadmin' : rawRole
+    const role = reader.role ?? 'reader'
 
     return {
       id: reader.id,
@@ -43,8 +36,8 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
       lastName: reader.lastName || '',
       username: reader.username,
       phone: reader.phone || '',
-      role: finalRole,
-      isSuperAdmin,
+      role,
+      isSuperAdmin: role === 'superadmin',
     }
   } catch (_e) {
     return null
@@ -53,22 +46,10 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
 
 export async function isCurrentReaderAdmin(): Promise<boolean> {
   const reader = await getCurrentReader()
-  return Boolean(
-    reader &&
-      (reader.role === 'admin' ||
-        reader.role === 'superadmin' ||
-        reader.username === 'admin' ||
-        reader.isSuperAdmin),
-  )
+  return reader?.role === 'admin' || reader?.role === 'superadmin'
 }
 
 export async function isCurrentReaderSuperAdmin(): Promise<boolean> {
   const reader = await getCurrentReader()
-  return Boolean(
-    reader &&
-      (reader.isSuperAdmin ||
-        reader.username === 'admin' ||
-        reader.role === 'superadmin'),
-  )
+  return reader?.role === 'superadmin'
 }
-
