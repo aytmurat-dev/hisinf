@@ -593,9 +593,9 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P1.S1 — Branch va muhit
 
-- [ ] **V2-P1.S1.1** `git switch main && git pull && git switch -c v2 && git push -u origin v2`.
+- [x] **V2-P1.S1.1** `git switch main && git pull && git switch -c v2 && git push -u origin v2`.
 - [ ] **V2-P1.S1.2** Neon: P0 dan keyingi `main` dan `v2` branch yarating. Vercel → Environment Variables → **Preview** muhiti uchun (Git branch: `v2`) `DATABASE_URI` = Neon `v2` branch pooled URL.
-- [ ] **V2-P1.S1.3** Lokal `.env` → `DATABASE_URI` = Neon `v2` branch'ining **dev uchun nusxasi** (`v2-dev` branch) yoki `dev`. **Hech qachon** `main` emas.
+- [x] **V2-P1.S1.3** Lokal `.env` → `DATABASE_URI` = Neon `v2` branch'ining **dev uchun nusxasi** (`v2-dev` branch) yoki `dev`. **Hech qachon** `main` emas.
 - [x] **V2-P1.S1.4** *(reja tuzilganda bajarildi — tekshiring)* `.gitignore` ga qo'shing: `*.zip`, `/docs/design/uploads/`.
 - [x] **V2-P1.S1.5** *(reja tuzilganda bajarildi — tekshiring)* `docs/plan/README.md` boshiga qo'shing: `> ⚠️ Bu reja v2 tomonidan almashtirildi: docs/new_plan_v2.md. Bu fayllar faqat ma'lumotnoma.`
 - [x] **V2-P1.S1.6** *(reja tuzilganda bajarildi — tekshiring)* `AGENTS.md` dagi "Ishni boshlashdan oldin" bo'limini yangilang: 1-qadam `docs/new_plan_v2.md`, progress jadvali — uning 8-bo'limi. 0.5-bo'limdagi qo'shimcha qoidalarni ham qisqacha qo'shing.
@@ -604,15 +604,15 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P1.S2 — Layout tuzilmasini to'g'rilash
 
-- [ ] **V2-P1.S2.1** O'chiring: `src/app/(frontend)/layout.tsx`, `src/app/(frontend)/page.tsx`, `src/app/(frontend)/styles.css` (agar ishlatilmasa — `grep -rn "styles.css" src`).
-- [ ] **V2-P1.S2.2** `src/app/(frontend)/[locale]/layout.tsx` yagona root layout bo'lib qoladi. `import '../globals.css'` shu yerda turadi. Root `/` → `/uz` redirect'ini middleware bajaradi: `curl -I http://localhost:3000/` → `307 Location: /uz`.
-- [ ] **V2-P1.S2.3** `src/middleware.ts` matcher'i: `['/((?!api|admin|next|cron|_next|_vercel|.*\\..*).*)']` — tekshiring, o'zgartirmang.
+- [x] **V2-P1.S2.1** O'chiring: `src/app/(frontend)/layout.tsx`, `src/app/(frontend)/page.tsx`, `src/app/(frontend)/styles.css` (agar ishlatilmasa — `grep -rn "styles.css" src`).
+- [x] **V2-P1.S2.2** `src/app/(frontend)/[locale]/layout.tsx` yagona root layout bo'lib qoladi. `import '../globals.css'` shu yerda turadi. Root `/` → `/uz` redirect'ini middleware bajaradi: `curl -I http://localhost:3000/` → `307 Location: /uz`.
+- [x] **V2-P1.S2.3** `src/middleware.ts` matcher'i: `['/((?!api|admin|next|cron|_next|_vercel|.*\\..*).*)']` — tekshiring, o'zgartirmang.
 
 ✅ **Qabul mezonlari:** `pnpm dev` da konsolda "Missing <html> tags" ogohlantirishi yo'q. `/`, `/uz`, `/kaa` va `/admin` ishlaydi.
 
 ## V2-P1.S3 — Paketlar
 
-- [ ] **V2-P1.S3.1** O'rnating (3.3-bo'lim):
+- [x] **V2-P1.S3.1** O'rnating (3.3-bo'lim):
   ```bash
   pnpm add @payloadcms/plugin-seo@3.90.2 @payloadcms/plugin-nested-docs@3.90.2 @payloadcms/live-preview-react@3.90.2
   pnpm add zod @upstash/ratelimit @upstash/redis @marsidev/react-turnstile resend leaflet react-leaflet
@@ -620,8 +620,8 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
   pnpm add -D @types/leaflet
   ```
   **Eslatma:** shadcn CLI **ishlatilmaydi**. Radix primitivlari to'g'ridan-to'g'ri, o'zimizning tokenlar bilan o'raladi (P2.S4). Sabab: shadcn'ning `--muted` tokeni dizaynnikiga zid (shadcn'da fon, dizaynda matn rangi).
-- [ ] **V2-P1.S3.2** `react-leaflet` versiyasi React 19 bilan mos ekanini tekshiring (`pnpm why react-leaflet`, peerDependencies). Mos bo'lmasa `react-leaflet@next` ni sinang yoki `docs/BLOCKERS.md` ga yozing.
-- [ ] **V2-P1.S3.3** `src/lib/cn.ts`:
+- [x] **V2-P1.S3.2** `react-leaflet` versiyasi React 19 bilan mos ekanini tekshiring (`pnpm why react-leaflet`, peerDependencies). Mos bo'lmasa `react-leaflet@next` ni sinang yoki `docs/BLOCKERS.md` ga yozing.
+- [x] **V2-P1.S3.3** `src/lib/cn.ts`:
   ```ts
   import { clsx, type ClassValue } from 'clsx'
   import { twMerge } from 'tailwind-merge'
@@ -632,15 +632,15 @@ Easing: `cubic-bezier(.2,.7,.2,1)`. `prefers-reduced-motion: reduce` da **hammas
 
 ## V2-P1.S4 — Env va skriptlar
 
-- [ ] **V2-P1.S4.1** `.env.example` ni yangilang (izohlar bilan): mavjudlariga qo'shimcha `SEED_ADMIN_PASSWORD`, `PREVIEW_SECRET`, `CRON_SECRET`, `TRACK_SALT` (ko'rishlar hisoblagichi uchun tasodifiy satr), `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DIGEST_DAILY_LIMIT=90`.
-- [ ] **V2-P1.S4.2** `package.json` scripts'ga qo'shing:
+- [x] **V2-P1.S4.1** `.env.example` ni yangilang (izohlar bilan): mavjudlariga qo'shimcha `SEED_ADMIN_PASSWORD`, `PREVIEW_SECRET`, `CRON_SECRET`, `TRACK_SALT` (ko'rishlar hisoblagichi uchun tasodifiy satr), `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DIGEST_DAILY_LIMIT=90`.
+- [x] **V2-P1.S4.2** `package.json` scripts'ga qo'shing:
   ```json
   "check": "pnpm lint && pnpm typecheck && pnpm test",
   "v2:script": "cross-env NODE_OPTIONS=\"--no-deprecation --require ./scripts/swc-fix.cjs\" payload run"
   ```
   Foydalanish: `pnpm v2:script scripts/v2/02-convert-content.ts`.
-- [ ] **V2-P1.S4.3** `vitest.config.mts` da unit testlar (`tests/unit/**`) DB'siz ishlashini tekshiring. Int testlar (`tests/int/**`) alohida: `pnpm test:int`.
-- [ ] **V2-P1.S4.4** `src/lib/payload.ts` dagi `getPayloadClient` dan foydalaning. Yangi kodda `getPayload({ config })` ni to'g'ridan-to'g'ri chaqirmang.
+- [x] **V2-P1.S4.3** `vitest.config.mts` da unit testlar (`tests/unit/**`) DB'siz ishlashini tekshiring. Int testlar (`tests/int/**`) alohida: `pnpm test:int`.
+- [x] **V2-P1.S4.4** `src/lib/payload.ts` dagi `getPayloadClient` dan foydalaning. Yangi kodda `getPayload({ config })` ni to'g'ridan-to'g'ri chaqirmang.
 
 ✅ **Qabul mezonlari:** `pnpm check` o'tadi.
 
@@ -2638,7 +2638,7 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 | Phase | Nomi | Holat | Sana | Izoh |
 |-------|------|-------|------|------|
 | V2-P0 | Xavfsizlik hotfix'i | 🟡 | 2026-10-09 | Kod tayyor (S2–S5). Qo'lda qoldi: S1, S2.5, S4.4 ishga tushirish, S5.4, S5.5, S6 |
-| V2-P1 | Poydevor | ⬜ | | |
+| V2-P1 | Poydevor | ✅ | 2026-10-09 | S1–S4 to'liq bajarildi, paketlar, layout, cn.ts, env |
 | V2-P2 | Dizayn tizimi | ⬜ | | |
 | V2-P3 | Ma'lumotlar modeli va ko'chirish | ⬜ | | |
 | V2-P4 | Auth, rollar, workflow | ⬜ | | |
