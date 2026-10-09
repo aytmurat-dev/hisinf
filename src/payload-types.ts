@@ -69,26 +69,64 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    media: Media;
     readers: Reader;
     posts: Post;
-    comments: Comment;
-    inquiries: Inquiry;
+    pages: Page;
     periods: Period;
+    persons: Person;
+    events: Event;
+    places: Place;
+    'archive-items': ArchiveItem;
+    categories: Category;
+    tags: Tag;
+    regions: Region;
+    media: Media;
+    comments: Comment;
+    'comment-likes': CommentLike;
+    inquiries: Inquiry;
+    subscribers: Subscriber;
+    'daily-stats': DailyStat;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    periods: {
+      posts: 'posts';
+      persons: 'persons';
+      events: 'events';
+    };
+    persons: {
+      posts: 'posts';
+    };
+    events: {
+      posts: 'posts';
+    };
+    places: {
+      posts: 'posts';
+      events: 'events';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
     readers: ReadersSelect<false> | ReadersSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    comments: CommentsSelect<false> | CommentsSelect<true>;
-    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     periods: PeriodsSelect<false> | PeriodsSelect<true>;
+    persons: PersonsSelect<false> | PersonsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    places: PlacesSelect<false> | PlacesSelect<true>;
+    'archive-items': ArchiveItemsSelect<false> | ArchiveItemsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    regions: RegionsSelect<false> | RegionsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
+    'comment-likes': CommentLikesSelect<false> | CommentLikesSelect<true>;
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    'daily-stats': DailyStatsSelect<false> | DailyStatsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -98,8 +136,18 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('uz' | 'kaa') | ('uz' | 'kaa')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    header: Header;
+    footer: Footer;
+    'site-settings': SiteSetting;
+    'home-page': HomePage;
+  };
+  globalsSelect: {
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'home-page': HomePageSelect<false> | HomePageSelect<true>;
+  };
   locale: 'uz' | 'kaa';
   widgets: {
     collections: CollectionsWidget;
@@ -141,20 +189,34 @@ export interface UserAuthOperations {
       };
 }
 export interface ReaderAuthOperations {
-  forgotPassword: {
-    username: string;
-  };
-  login: {
-    password: string;
-    username: string;
-  };
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
   registerFirstUser: {
     password: string;
-    username: string;
+    username?: string;
+    email?: string;
   };
-  unlock: {
-    username: string;
-  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -162,9 +224,16 @@ export interface ReaderAuthOperations {
  */
 export interface User {
   id: number;
-  displayName?: string | null;
+  displayName: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
   role: 'admin' | 'editor' | 'author';
+  isActive?: boolean | null;
   avatar?: (number | null) | Media;
+  bio?: string | null;
+  classInfo?: string | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -192,7 +261,16 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
+  alt?: string | null;
+  altText?: string | null;
+  caption?: string | null;
+  credit?: string | null;
+  license?: ('public-domain' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'permission' | 'own' | 'unknown') | null;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  year?: number | null;
+  uploadedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -204,6 +282,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -211,21 +315,27 @@ export interface Media {
  */
 export interface Reader {
   id: number;
+  displayName?: string | null;
+  locale?: ('uz' | 'kaa') | null;
+  acceptedTermsAt?: string | null;
+  isBanned?: boolean | null;
+  savedPosts?: (number | Post)[] | null;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   displayPassword?: string | null;
   role?: ('reader' | 'admin' | 'superadmin') | null;
-  savedPosts?: (number | Post)[] | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
-  username: string;
+  username?: string | null;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
   resetPasswordRequestedAt?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -245,28 +355,76 @@ export interface Reader {
 export interface Post {
   id: number;
   title?: string | null;
-  /**
-   * Avtomatik yaratiladi.
-   */
-  slug?: string | null;
-  content: string;
   excerpt?: string | null;
   coverImage?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
-   * Masalan: https://example.com/rasm.jpg
+   * ESKIRGAN matn — bodyʼga koʻchirildi
+   */
+  content?: string | null;
+  /**
+   * ESKIRGAN rasm URL
    */
   coverImageUrl?: string | null;
-  /**
-   * Post qaysi tilda ekanligini belgilash
-   */
   language?: ('both' | 'uz' | 'kaa') | null;
   period?: (number | null) | Period;
+  categories?: (number | Category)[] | null;
+  tags?: (number | Tag)[] | null;
+  persons?: (number | Person)[] | null;
+  events?: (number | Event)[] | null;
+  places?: (number | Place)[] | null;
+  regions?: (number | Region)[] | null;
+  /**
+   * Muallif tomonidan muharrir uchun eslatmalar
+   */
+  noteToEditor?: string | null;
+  reviewNotes?:
+    | {
+        note: string;
+        by?: (number | null) | User;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  workflowStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved' | 'published';
+  author: number | User;
+  coAuthors?: (number | User)[] | null;
+  reviewedBy?: (number | null) | User;
   publishedAt?: string | null;
+  featured?: boolean | null;
   commentsEnabled?: boolean | null;
-  author?: (number | null) | User;
+  readingTime?: number | null;
+  views?: number | null;
   searchText?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -274,20 +432,369 @@ export interface Post {
  */
 export interface Period {
   id: number;
+  order: number;
   title: string;
+  shortTitle?: string | null;
   /**
-   * Avtomatik yaratiladi.
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
    */
   slug?: string | null;
+  yearsLabel?: string | null;
   /**
    * Miloddan avvalgi boʻlsa manfiy (masalan, -329)
    */
   startYear?: number | null;
   endYear?: number | null;
+  timelineWeight?: number | null;
   description?: string | null;
-  color?: ('ochre' | 'teal' | 'brick' | 'olive' | 'indigo') | null;
+  color?: ('ochre' | 'teal' | 'brick' | 'olive' | 'indigo' | 'sand') | null;
+  cover?: (number | null) | Media;
+  coverCaption?: string | null;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  mapYear?: number | null;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  persons?: {
+    docs?: (number | Person)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "persons".
+ */
+export interface Person {
+  id: number;
+  name: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  personType: 'scholar' | 'ruler' | 'poet' | 'commander' | 'enlightener' | 'statesman' | 'other';
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  birthYear?: number | null;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  deathYear?: number | null;
+  yearsApproximate?: boolean | null;
+  /**
+   * Masalan: "? – mil. avv. 328"
+   */
+  lifespanLabel?: string | null;
+  /**
+   * Masalan: "Kat", "Kesh"
+   */
+  birthPlace?: string | null;
+  portrait?: (number | null) | Media;
+  shortBio?: string | null;
+  biography?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  period?: (number | null) | Period;
+  regions?: (number | Region)[] | null;
+  featured?: boolean | null;
+  author?: (number | null) | User;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  searchText?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "regions".
+ */
+export interface Region {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  year: number;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  endYear?: number | null;
+  month?: number | null;
+  day?: number | null;
+  approximate?: boolean | null;
+  /**
+   * Mavjud boʻlsa, raqam oʻrniga shu matn koʻrsatiladi
+   */
+  yearLabel?: string | null;
+  importance?: ('1' | '2' | '3') | null;
+  summary: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  image?: (number | null) | Media;
+  period: number | Period;
+  place?: (number | null) | Place;
+  persons?: (number | Person)[] | null;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  author?: (number | null) | User;
+  searchText?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places".
+ */
+export interface Place {
+  id: number;
+  name: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  lat: number;
+  lng: number;
+  placeType:
+    | 'palace'
+    | 'fortress'
+    | 'city'
+    | 'square'
+    | 'port'
+    | 'mausoleum'
+    | 'mosque'
+    | 'archaeological'
+    | 'battle'
+    | 'natural'
+    | 'other';
+  fromLabel?: string | null;
+  appearsIn: number | Period;
+  summary?: string | null;
+  image?: (number | null) | Media;
+  region?: (number | null) | Region;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  author?: (number | null) | User;
+  searchText?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  description?: string | null;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  kicker?: string | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  showInFooter?: boolean | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archive-items".
+ */
+export interface ArchiveItem {
+  id: number;
+  title: string;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  kind: 'photo' | 'document' | 'map' | 'engraving' | 'video' | 'manuscript' | 'newspaper';
+  files?: (number | Media)[] | null;
+  /**
+   * Faqat "video" turi tanlanganda toʻldiriladi
+   */
+  videoUrl?: string | null;
+  /**
+   * Miloddan avvalgi yil manfiy: −329
+   */
+  year?: number | null;
+  yearText?: string | null;
+  description?: string | null;
+  provenance: string;
+  license: 'public-domain' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'permission' | 'own' | 'unknown';
+  period?: (number | null) | Period;
+  region?: (number | null) | Region;
+  persons?: (number | Person)[] | null;
+  places?: (number | Place)[] | null;
+  relatedPost?: (number | null) | Post;
+  author?: (number | null) | User;
+  searchText?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -295,12 +802,32 @@ export interface Period {
  */
 export interface Comment {
   id: number;
-  post: number | Post;
+  context: 'post' | 'home';
+  post?: (number | null) | Post;
+  parent?: (number | null) | Comment;
   reader?: (number | null) | Reader;
+  staffAuthor?: (number | null) | User;
   authorName: string;
   body: string;
+  status: 'pending' | 'approved' | 'rejected' | 'spam';
+  flagged?: boolean | null;
+  flagReason?: string | null;
+  likesCount?: number | null;
+  moderatedBy?: (number | null) | User;
+  moderatedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comment-likes".
+ */
+export interface CommentLike {
+  id: number;
+  comment: number | Comment;
+  reader: number | Reader;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -308,15 +835,51 @@ export interface Comment {
  */
 export interface Inquiry {
   id: number;
+  type: 'contact' | 'author_application';
+  reader?: (number | null) | Reader;
   name: string;
-  phone?: string | null;
+  email?: string | null;
+  subject?: string | null;
   message: string;
+  school?: string | null;
+  topic?: string | null;
   status?: ('new' | 'read' | 'replied') | null;
-  createdAt: string;
   reply?: string | null;
   repliedAt?: string | null;
+  repliedByUser?: (number | null) | User;
   repliedBy?: string | null;
+  phone?: string | null;
+  createdAt: string;
   updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  locale?: ('uz' | 'kaa') | null;
+  status?: ('pending' | 'active' | 'unsubscribed') | null;
+  confirmToken?: string | null;
+  unsubscribeToken?: string | null;
+  confirmedAt?: string | null;
+  lastDigestAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "daily-stats".
+ */
+export interface DailyStat {
+  id: number;
+  day: string;
+  locale: 'uz' | 'kaa';
+  post?: (number | null) | Post;
+  views?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -347,10 +910,6 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
         relationTo: 'readers';
         value: number | Reader;
       } | null)
@@ -359,16 +918,64 @@ export interface PayloadLockedDocument {
         value: number | Post;
       } | null)
     | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'periods';
+        value: number | Period;
+      } | null)
+    | ({
+        relationTo: 'persons';
+        value: number | Person;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'places';
+        value: number | Place;
+      } | null)
+    | ({
+        relationTo: 'archive-items';
+        value: number | ArchiveItem;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
+        relationTo: 'regions';
+        value: number | Region;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
         relationTo: 'comments';
         value: number | Comment;
+      } | null)
+    | ({
+        relationTo: 'comment-likes';
+        value: number | CommentLike;
       } | null)
     | ({
         relationTo: 'inquiries';
         value: number | Inquiry;
       } | null)
     | ({
-        relationTo: 'periods';
-        value: number | Period;
+        relationTo: 'subscribers';
+        value: number | Subscriber;
+      } | null)
+    | ({
+        relationTo: 'daily-stats';
+        value: number | DailyStat;
       } | null);
   globalSlug?: string | null;
   user:
@@ -428,8 +1035,12 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   displayName?: T;
+  slug?: T;
   role?: T;
+  isActive?: T;
   avatar?: T;
+  bio?: T;
+  classInfo?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -451,33 +1062,19 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "readers_select".
  */
 export interface ReadersSelect<T extends boolean = true> {
+  displayName?: T;
+  locale?: T;
+  acceptedTermsAt?: T;
+  isBanned?: T;
+  savedPosts?: T;
   firstName?: T;
   lastName?: T;
   phone?: T;
   displayPassword?: T;
   role?: T;
-  savedPosts?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -487,6 +1084,8 @@ export interface ReadersSelect<T extends boolean = true> {
   salt?: T;
   hash?: T;
   resetPasswordRequestedAt?: T;
+  _verified?: T;
+  _verificationToken?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -503,58 +1102,400 @@ export interface ReadersSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
-  content?: T;
   excerpt?: T;
   coverImage?: T;
+  body?: T;
+  content?: T;
   coverImageUrl?: T;
   language?: T;
   period?: T;
-  publishedAt?: T;
-  commentsEnabled?: T;
+  categories?: T;
+  tags?: T;
+  persons?: T;
+  events?: T;
+  places?: T;
+  regions?: T;
+  noteToEditor?: T;
+  reviewNotes?:
+    | T
+    | {
+        note?: T;
+        by?: T;
+        at?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  slug?: T;
+  workflowStatus?: T;
   author?: T;
+  coAuthors?: T;
+  reviewedBy?: T;
+  publishedAt?: T;
+  featured?: T;
+  commentsEnabled?: T;
+  readingTime?: T;
+  views?: T;
   searchText?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments_select".
+ * via the `definition` "pages_select".
  */
-export interface CommentsSelect<T extends boolean = true> {
-  post?: T;
-  reader?: T;
-  authorName?: T;
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  kicker?: T;
   body?: T;
-  createdAt?: T;
+  showInFooter?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inquiries_select".
- */
-export interface InquiriesSelect<T extends boolean = true> {
-  name?: T;
-  phone?: T;
-  message?: T;
-  status?: T;
   createdAt?: T;
-  reply?: T;
-  repliedAt?: T;
-  repliedBy?: T;
-  updatedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "periods_select".
  */
 export interface PeriodsSelect<T extends boolean = true> {
+  order?: T;
   title?: T;
+  shortTitle?: T;
   slug?: T;
+  yearsLabel?: T;
   startYear?: T;
   endYear?: T;
+  timelineWeight?: T;
   description?: T;
   color?: T;
+  cover?: T;
+  coverCaption?: T;
+  mapYear?: T;
+  posts?: T;
+  persons?: T;
+  events?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "persons_select".
+ */
+export interface PersonsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  personType?: T;
+  birthYear?: T;
+  deathYear?: T;
+  yearsApproximate?: T;
+  lifespanLabel?: T;
+  birthPlace?: T;
+  portrait?: T;
+  shortBio?: T;
+  biography?: T;
+  period?: T;
+  regions?: T;
+  featured?: T;
+  author?: T;
+  posts?: T;
+  searchText?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  year?: T;
+  endYear?: T;
+  month?: T;
+  day?: T;
+  approximate?: T;
+  yearLabel?: T;
+  importance?: T;
+  summary?: T;
+  description?: T;
+  image?: T;
+  period?: T;
+  place?: T;
+  persons?: T;
+  posts?: T;
+  author?: T;
+  searchText?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places_select".
+ */
+export interface PlacesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  lat?: T;
+  lng?: T;
+  placeType?: T;
+  fromLabel?: T;
+  appearsIn?: T;
+  summary?: T;
+  image?: T;
+  region?: T;
+  posts?: T;
+  events?: T;
+  author?: T;
+  searchText?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archive-items_select".
+ */
+export interface ArchiveItemsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  kind?: T;
+  files?: T;
+  videoUrl?: T;
+  year?: T;
+  yearText?: T;
+  description?: T;
+  provenance?: T;
+  license?: T;
+  period?: T;
+  region?: T;
+  persons?: T;
+  places?: T;
+  relatedPost?: T;
+  author?: T;
+  searchText?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "regions_select".
+ */
+export interface RegionsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  altText?: T;
+  caption?: T;
+  credit?: T;
+  license?: T;
+  year?: T;
+  uploadedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  context?: T;
+  post?: T;
+  parent?: T;
+  reader?: T;
+  staffAuthor?: T;
+  authorName?: T;
+  body?: T;
+  status?: T;
+  flagged?: T;
+  flagReason?: T;
+  likesCount?: T;
+  moderatedBy?: T;
+  moderatedAt?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comment-likes_select".
+ */
+export interface CommentLikesSelect<T extends boolean = true> {
+  comment?: T;
+  reader?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  type?: T;
+  reader?: T;
+  name?: T;
+  email?: T;
+  subject?: T;
+  message?: T;
+  school?: T;
+  topic?: T;
+  status?: T;
+  reply?: T;
+  repliedAt?: T;
+  repliedByUser?: T;
+  repliedBy?: T;
+  phone?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  locale?: T;
+  status?: T;
+  confirmToken?: T;
+  unsubscribeToken?: T;
+  confirmedAt?: T;
+  lastDigestAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "daily-stats_select".
+ */
+export interface DailyStatsSelect<T extends boolean = true> {
+  day?: T;
+  locale?: T;
+  post?: T;
+  views?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -597,6 +1538,497 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header".
+ */
+export interface Header {
+  id: number;
+  navItems?:
+    | {
+        label: string;
+        link?: {
+          type?: ('route' | 'internal' | 'custom') | null;
+          route?:
+            | (
+                | 'home'
+                | 'posts'
+                | 'timeline'
+                | 'persons'
+                | 'archive'
+                | 'map'
+                | 'search'
+                | 'authors'
+                | 'contact'
+                | 'become-author'
+              )
+            | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'categories';
+                value: number | Category;
+              } | null);
+          url?: string | null;
+          newTab?: boolean | null;
+        };
+        children?:
+          | {
+              label: string;
+              description?: string | null;
+              link?: {
+                type?: ('route' | 'internal' | 'custom') | null;
+                route?:
+                  | (
+                      | 'home'
+                      | 'posts'
+                      | 'timeline'
+                      | 'persons'
+                      | 'archive'
+                      | 'map'
+                      | 'search'
+                      | 'authors'
+                      | 'contact'
+                      | 'become-author'
+                    )
+                  | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null)
+                  | ({
+                      relationTo: 'categories';
+                      value: number | Category;
+                    } | null);
+                url?: string | null;
+                newTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  about?: string | null;
+  columns?:
+    | {
+        title?: string | null;
+        links?:
+          | {
+              label: string;
+              link?: {
+                type?: ('route' | 'internal' | 'custom') | null;
+                route?:
+                  | (
+                      | 'home'
+                      | 'posts'
+                      | 'timeline'
+                      | 'persons'
+                      | 'archive'
+                      | 'map'
+                      | 'search'
+                      | 'authors'
+                      | 'contact'
+                      | 'become-author'
+                    )
+                  | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null)
+                  | ({
+                      relationTo: 'categories';
+                      value: number | Category;
+                    } | null);
+                url?: string | null;
+                newTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  digestTitle?: string | null;
+  digestText?: string | null;
+  note?: string | null;
+  rights?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName?: string | null;
+  tagline?: string | null;
+  editionLabel?: string | null;
+  telegramUrl?: string | null;
+  telegramHandle?: string | null;
+  contactEmail?: string | null;
+  defaultOgImage?: (number | null) | Media;
+  loginImage?: (number | null) | Media;
+  loginImageLabel?: string | null;
+  loginQuote?: string | null;
+  loginQuoteSource?: string | null;
+  popularSearches?:
+    | {
+        term: string;
+        id?: string | null;
+      }[]
+    | null;
+  digestEnabled?: boolean | null;
+  digestWeekday?: ('1' | '2' | '3' | '4' | '5' | '6' | '7') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  hero?: {
+    kicker?: string | null;
+    titleA?: string | null;
+    titleB?: string | null;
+    subtitle?: string | null;
+    image?: (number | null) | Media;
+    imageLabel?: string | null;
+    cta1Label?: string | null;
+    cta1Link?: {
+      type?: ('route' | 'internal' | 'custom') | null;
+      route?:
+        | (
+            | 'home'
+            | 'posts'
+            | 'timeline'
+            | 'persons'
+            | 'archive'
+            | 'map'
+            | 'search'
+            | 'authors'
+            | 'contact'
+            | 'become-author'
+          )
+        | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: number | Category;
+          } | null);
+      url?: string | null;
+      newTab?: boolean | null;
+    };
+    cta2Label?: string | null;
+    cta2Link?: {
+      type?: ('route' | 'internal' | 'custom') | null;
+      route?:
+        | (
+            | 'home'
+            | 'posts'
+            | 'timeline'
+            | 'persons'
+            | 'archive'
+            | 'map'
+            | 'search'
+            | 'authors'
+            | 'contact'
+            | 'become-author'
+          )
+        | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: number | Category;
+          } | null);
+      url?: string | null;
+      newTab?: boolean | null;
+    };
+    searchPlaceholder?: string | null;
+  };
+  onThisDayFallback?: (number | null) | Event;
+  periodsSection?: {
+    kicker?: string | null;
+    title?: string | null;
+    linkLabel?: string | null;
+  };
+  featuredPost?: (number | null) | Post;
+  picks?: (number | Post)[] | null;
+  picksSection?: {
+    kicker?: string | null;
+    title?: string | null;
+    linkLabel?: string | null;
+  };
+  aboutSection?: {
+    kicker?: string | null;
+    title?: string | null;
+    text?: string | null;
+    steps?:
+      | {
+          title: string;
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  personsSection?: {
+    kicker?: string | null;
+    title?: string | null;
+    linkLabel?: string | null;
+  };
+  featuredPersons?: (number | Person)[] | null;
+  authorCta?: {
+    kicker?: string | null;
+    title?: string | null;
+    text?: string | null;
+    buttonLabel?: string | null;
+    image?: (number | null) | Media;
+    imageLabel?: string | null;
+  };
+  showHomeComments?: boolean | null;
+  homeCommentsTitle?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  navItems?:
+    | T
+    | {
+        label?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              route?: T;
+              reference?: T;
+              url?: T;
+              newTab?: T;
+            };
+        children?:
+          | T
+          | {
+              label?: T;
+              description?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    route?: T;
+                    reference?: T;
+                    url?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  about?: T;
+  columns?:
+    | T
+    | {
+        title?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    route?: T;
+                    reference?: T;
+                    url?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  digestTitle?: T;
+  digestText?: T;
+  note?: T;
+  rights?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  editionLabel?: T;
+  telegramUrl?: T;
+  telegramHandle?: T;
+  contactEmail?: T;
+  defaultOgImage?: T;
+  loginImage?: T;
+  loginImageLabel?: T;
+  loginQuote?: T;
+  loginQuoteSource?: T;
+  popularSearches?:
+    | T
+    | {
+        term?: T;
+        id?: T;
+      };
+  digestEnabled?: T;
+  digestWeekday?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        kicker?: T;
+        titleA?: T;
+        titleB?: T;
+        subtitle?: T;
+        image?: T;
+        imageLabel?: T;
+        cta1Label?: T;
+        cta1Link?:
+          | T
+          | {
+              type?: T;
+              route?: T;
+              reference?: T;
+              url?: T;
+              newTab?: T;
+            };
+        cta2Label?: T;
+        cta2Link?:
+          | T
+          | {
+              type?: T;
+              route?: T;
+              reference?: T;
+              url?: T;
+              newTab?: T;
+            };
+        searchPlaceholder?: T;
+      };
+  onThisDayFallback?: T;
+  periodsSection?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        linkLabel?: T;
+      };
+  featuredPost?: T;
+  picks?: T;
+  picksSection?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        linkLabel?: T;
+      };
+  aboutSection?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        text?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+            };
+      };
+  personsSection?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        linkLabel?: T;
+      };
+  featuredPersons?: T;
+  authorCta?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        text?: T;
+        buttonLabel?: T;
+        image?: T;
+        imageLabel?: T;
+      };
+  showHomeComments?: T;
+  homeCommentsTitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

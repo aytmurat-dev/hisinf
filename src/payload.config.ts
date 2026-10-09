@@ -2,6 +2,8 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import { seoPlugin } from '@payloadcms/plugin-seo'
 import { en } from '@payloadcms/translations/languages/en'
 import { ru } from '@payloadcms/translations/languages/ru'
 import path from 'path'
@@ -10,12 +12,28 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Users } from './collections/Users'
-import { Media } from './collections/Media'
 import { Readers } from './collections/Readers'
 import { Posts } from './collections/Posts'
-import { Comments } from './collections/Comments'
-import { Inquiries } from './collections/Inquiries'
+import { Pages } from './collections/Pages'
 import { Periods } from './collections/Periods'
+import { Persons } from './collections/Persons'
+import { Events } from './collections/Events'
+import { Places } from './collections/Places'
+import { ArchiveItems } from './collections/ArchiveItems'
+import { Categories } from './collections/Categories'
+import { Tags } from './collections/Tags'
+import { Regions } from './collections/Regions'
+import { Media } from './collections/Media'
+import { Comments } from './collections/Comments'
+import { CommentLikes } from './collections/CommentLikes'
+import { Inquiries } from './collections/Inquiries'
+import { Subscribers } from './collections/Subscribers'
+import { DailyStats } from './collections/DailyStats'
+
+import { Header } from './globals/Header'
+import { Footer } from './globals/Footer'
+import { SiteSettings } from './globals/SiteSettings'
+import { HomePage } from './globals/HomePage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -65,6 +83,27 @@ if (
   )
 }
 
+plugins.push(
+  nestedDocsPlugin({
+    collections: ['categories'],
+    generateLabel: (_, doc) => String((doc as { title?: string }).title ?? ''),
+    generateURL: (docs) => docs.reduce((u, doc) => `${u}/${(doc as { slug?: string }).slug ?? ''}`, ''),
+  }),
+  seoPlugin({
+    collections: ['posts', 'pages', 'persons', 'events', 'places', 'archive-items'],
+    uploadsCollection: 'media',
+    tabbedUI: true,
+    generateTitle: ({ doc }) => {
+      const typed = doc as { title?: string; name?: string }
+      return `${typed.title ?? typed.name ?? ''} — hisinf.uz`
+    },
+    generateDescription: ({ doc }) => {
+      const typed = doc as { excerpt?: string; summary?: string; shortBio?: string }
+      return typed.excerpt ?? typed.summary ?? typed.shortBio ?? ''
+    },
+  }),
+)
+
 export default buildConfig({
   serverURL,
   cors: [serverURL],
@@ -92,7 +131,27 @@ export default buildConfig({
   i18n: {
     supportedLanguages: { en, ru },
   },
-  collections: [Users, Media, Readers, Posts, Comments, Inquiries, Periods],
+  collections: [
+    Users,
+    Readers,
+    Posts,
+    Pages,
+    Periods,
+    Persons,
+    Events,
+    Places,
+    ArchiveItems,
+    Categories,
+    Tags,
+    Regions,
+    Media,
+    Comments,
+    CommentLikes,
+    Inquiries,
+    Subscribers,
+    DailyStats,
+  ],
+  globals: [Header, Footer, SiteSettings, HomePage],
   editor: lexicalEditor(),
   secret,
   typescript: {

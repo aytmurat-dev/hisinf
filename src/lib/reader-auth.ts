@@ -34,7 +34,7 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
       id: reader.id,
       firstName: reader.firstName || '',
       lastName: reader.lastName || '',
-      username: reader.username,
+      username: reader.username || '',
       phone: reader.phone || '',
       role,
       isSuperAdmin: role === 'superadmin',

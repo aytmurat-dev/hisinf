@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
     const slug = slugify(baseTitle) || `post-${Date.now()}`
     const searchText = normalizeSearch(`${primaryTitle} ${excerpt} ${primaryContent}`)
 
+    const adminUsers = await payload.find({ collection: 'users', limit: 1, overrideAccess: true })
+    const authorId = adminUsers.docs[0]?.id || 1
+
     // 1. Asosiy postni yaratamiz (baza uchun locale: 'uz')
     const post = await payload.create({
       collection: 'posts',
@@ -68,6 +71,8 @@ export async function POST(req: NextRequest) {
       data: {
         title: (language === 'kaa' && !title ? titleKaa : title).trim(),
         slug,
+        author: authorId,
+        workflowStatus: 'published',
         content: (language === 'kaa' && !content ? contentKaa : content).trim(),
         excerpt: (language === 'kaa' && !excerpt ? excerptKaa : excerpt).trim(),
         language,

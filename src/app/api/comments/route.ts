@@ -36,9 +36,11 @@ export async function POST(req: NextRequest) {
     const comment = await payload.create({
       collection: 'comments',
       data: {
+        context: 'post',
+        status: 'pending',
         post: Number(postId),
         reader: reader.id,
-        authorName: `${reader.firstName} ${reader.lastName}`,
+        authorName: `${reader.firstName} ${reader.lastName}`.trim() || reader.username,
         body: text,
         createdAt: new Date().toISOString(),
       },

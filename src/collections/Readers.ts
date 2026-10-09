@@ -1,98 +1,195 @@
-import type { CollectionConfig, FieldAccess } from 'payload'
-
-// Faqat xodimlar (Payload admin). Custom route'lar overrideAccess bilan ishlaydi.
-const staffOnly: FieldAccess = ({ req }) => req.user?.collection === 'users'
+import type { CollectionConfig } from 'payload'
+import { isStaffUser, fieldStaffOnly } from '../access'
 
 export const Readers: CollectionConfig = {
   slug: 'readers',
   labels: {
-    singular: 'Foydalanuvchi (Sayt)',
-    plural: 'Foydalanuvchilar (Sayt)',
+    singular: 'Oʻquvchi (Sayt)',
+    plural: 'Oʻquvchilar (Sayt)',
   },
   admin: {
-    useAsTitle: 'username',
+    useAsTitle: 'displayName',
     group: 'Foydalanuvchilar',
-    defaultColumns: ['firstName', 'lastName', 'username', 'phone', 'createdAt'],
+    defaultColumns: ['displayName', 'email', 'username', '_verified', 'isBanned', 'createdAt'],
   },
   auth: {
     loginWithUsername: {
-      allowEmailLogin: false,
+      allowEmailLogin: true,
       requireEmail: false,
-      requireUsername: true,
+      requireUsername: false,
+    },
+    verify: {
+      generateEmailSubject: () => 'hisinf.uz — Akkauntingizni tasdiqlang',
+      generateEmailHTML: (args) => {
+        const token = args?.token || ''
+        const user = args?.user as { displayName?: string } | undefined
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        const verifyUrl = `${serverUrl}/uz/kirish?tasdiq=${token}`
+        return `<p>Salom ${user?.displayName || ''}!</p><p>Akkauntingizni tasdiqlash uchun quyidagi havolani bosing:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p>`
+      },
+    },
+    forgotPassword: {
+      generateEmailSubject: () => 'hisinf.uz — Parolni tiklash',
+      generateEmailHTML: (args) => {
+        const token = args?.token || ''
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        const resetUrl = `${serverUrl}/uz/kirish?parol-tiklash=${token}`
+        return `<p>Parolni tiklash havolasi:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+      },
     },
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
+    tokenExpiration: 60 * 60 * 24 * 30, // 30 kun
     cookies: {
       sameSite: 'Lax',
       secure: process.env.NODE_ENV === 'production',
     },
   },
   access: {
-    // Faqat xodimlar (Payload admin) yoki o'quvchining o'zi
-    read: ({ req }) =>
-      req.user?.collection === 'users'
-        ? true
-        : req.user?.collection === 'readers'
-          ? { id: { equals: req.user.id } }
-          : false,
-    create: ({ req }) => req.user?.collection === 'users', // ro'yxatdan o'tish custom route orqali (overrideAccess)
-    update: ({ req }) =>
-      req.user?.collection === 'users'
-        ? true
-        : req.user?.collection === 'readers'
-          ? { id: { equals: req.user.id } }
-          : false,
-    delete: ({ req }) => req.user?.collection === 'users',
+    admin: () => false,
+    read: ({ req }) => {
+      if (isStaffUser(req.user)) return true
+      if (req.user?.collection === 'readers') {
+        return { id: { equals: req.user.id } }
+      }
+      return false
+    },
+    create: ({ req }) => isStaffUser(req.user),
+    update: ({ req }) => {
+      if (isStaffUser(req.user)) return true
+      if (req.user?.collection === 'readers') {
+        return { id: { equals: req.user.id } }
+      }
+      return false
+    },
+    delete: ({ req }) => {
+      if (isStaffUser(req.user)) return true
+      if (req.user?.collection === 'readers') {
+        return { id: { equals: req.user.id } }
+      }
+      return false
+    },
+  },
+  hooks: {
+    afterDelete: [
+      async ({ req, id }) => {
+        try {
+          await req.payload.delete({
+            collection: 'comments',
+            where: { reader: { equals: id } },
+          })
+          await req.payload.delete({
+            collection: 'comment-likes',
+            where: { reader: { equals: id } },
+          })
+        } catch {
+          // ignore cascading cleanup errors
+        }
+      },
+    ],
   },
   fields: [
     {
-      name: 'firstName',
+      name: 'displayName',
       type: 'text',
-      required: false,
-      defaultValue: 'Foydalanuvchi',
-      label: 'Ism',
+      maxLength: 40,
+      label: 'Ism-familiya yoki taxallus',
     },
     {
-      name: 'lastName',
-      type: 'text',
-      required: false,
-      defaultValue: '',
-      label: 'Familiya',
-    },
-    {
-      name: 'phone',
-      type: 'text',
-      required: false,
-      label: 'Telefon raqam',
-    },
-    {
-      // ESKIRGAN: endi yozilmaydi va ko'rsatilmaydi. Ustun V2-P10 da o'chiriladi.
-      name: 'displayPassword',
-      type: 'text',
-      label: 'Eskirgan maydon',
-      access: { read: staffOnly, update: staffOnly, create: staffOnly },
-      admin: { hidden: true },
-    },
-    {
-      name: 'role',
+      name: 'locale',
       type: 'select',
-      defaultValue: 'reader',
-      access: { read: staffOnly, update: staffOnly, create: staffOnly },
+      defaultValue: 'uz',
       options: [
-        { label: 'Oʻquvchi', value: 'reader' },
-        { label: 'Administrator', value: 'admin' },
-        { label: 'Asosiy Administrator', value: 'superadmin' },
+        { label: 'Oʻzbekcha (uz)', value: 'uz' },
+        { label: 'Qoraqalpoqcha (kaa)', value: 'kaa' },
       ],
+      label: 'Xatlar va interfeys tili',
+    },
+    {
+      name: 'acceptedTermsAt',
+      type: 'date',
       admin: {
-        position: 'sidebar',
+        readOnly: true,
       },
+      label: 'Qoidalarga rozilik berilgan sana',
+    },
+    {
+      name: 'isBanned',
+      type: 'checkbox',
+      defaultValue: false,
+      access: {
+        update: fieldStaffOnly,
+      },
+      label: 'Foydalanuvchi bloklangan (Banned)',
     },
     {
       name: 'savedPosts',
       type: 'relationship',
       relationTo: 'posts',
       hasMany: true,
-      label: 'Saqlangan postlar',
+      maxRows: 500,
+      label: 'Saqlangan maqolalar',
+    },
+    // Eskirgan maydonlar (V2-P10 da o'chiriladi):
+    {
+      name: 'firstName',
+      type: 'text',
+      access: {
+        read: fieldStaffOnly,
+        update: fieldStaffOnly,
+      },
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'lastName',
+      type: 'text',
+      access: {
+        read: fieldStaffOnly,
+        update: fieldStaffOnly,
+      },
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'phone',
+      type: 'text',
+      access: {
+        read: fieldStaffOnly,
+        update: fieldStaffOnly,
+      },
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'displayPassword',
+      type: 'text',
+      access: {
+        read: fieldStaffOnly,
+        update: fieldStaffOnly,
+      },
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'role',
+      type: 'select',
+      access: {
+        read: fieldStaffOnly,
+        update: fieldStaffOnly,
+      },
+      options: [
+        { label: 'Oʻquvchi', value: 'reader' },
+        { label: 'Administrator', value: 'admin' },
+        { label: 'Asosiy Administrator', value: 'superadmin' },
+      ],
+      admin: {
+        hidden: true,
+      },
     },
   ],
 }

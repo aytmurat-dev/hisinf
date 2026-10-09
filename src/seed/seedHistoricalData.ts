@@ -8,6 +8,7 @@ async function seedData() {
   console.log('--- Seeding Historical Periods ---')
   const periodsData = [
     {
+      order: 1,
       title: 'Qadimgi davr (Mil. avv. VI asr — V asr)',
       slug: 'qadimgi-davr',
       startYear: -600,
@@ -16,6 +17,7 @@ async function seedData() {
       color: 'ochre' as const,
     },
     {
+      order: 2,
       title: 'Oʻrta asrlar va Renessans (IX — XV asrlar)',
       slug: 'orta-asrlar',
       startYear: 800,
@@ -24,6 +26,7 @@ async function seedData() {
       color: 'teal' as const,
     },
     {
+      order: 3,
       title: 'Xonliklar davri (XVI — XIX asrlar)',
       slug: 'xonliklar-davri',
       startYear: 1501,
@@ -32,6 +35,7 @@ async function seedData() {
       color: 'brick' as const,
     },
     {
+      order: 4,
       title: 'Jadidchilik va XX asr (1900 — 1991)',
       slug: 'jadidchilik-davri',
       startYear: 1900,
@@ -158,6 +162,27 @@ Ipak yoʻli orqali ipak, qogʻoz, shisha, ziravorlar va ilmiy qoʻlyozmalar duny
     },
   ]
 
+  const adminUsers = await payload.find({
+    collection: 'users',
+    limit: 1,
+    overrideAccess: true,
+  })
+  let authorId = adminUsers.docs[0]?.id
+  if (!authorId) {
+    const admin = await payload.create({
+      collection: 'users',
+      data: {
+        email: 'admin@hisinf.uz',
+        username: 'admin',
+        displayName: 'HISINF Admin',
+        password: process.env.SEED_ADMIN_PASSWORD || 'SeedAdminPass123!',
+        role: 'admin',
+      },
+      overrideAccess: true,
+    })
+    authorId = admin.id
+  }
+
   for (const p of postsData) {
     const existing = await payload.find({
       collection: 'posts',
@@ -179,6 +204,8 @@ Ipak yoʻli orqali ipak, qogʻoz, shisha, ziravorlar va ilmiy qoʻlyozmalar duny
           content: p.contentUz,
           coverImageUrl: p.coverImageUrl,
           period: periodId,
+          author: authorId,
+          workflowStatus: 'published',
           commentsEnabled: true,
           publishedAt: new Date().toISOString(),
         },

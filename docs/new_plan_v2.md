@@ -854,7 +854,7 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
 
 ## V2-P3.S1 — Yordamchilar va umumiy maydonlar
 
-- [ ] **V2-P3.S1.1** `src/access/index.ts` (mavjud `.gitkeep` o'rniga):
+- [x] **V2-P3.S1.1** `src/access/index.ts` (mavjud `.gitkeep` o'rniga):
   ```ts
   import type { Access, FieldAccess, PayloadRequest } from 'payload'
   import type { User, Reader } from '@/payload-types'
@@ -886,40 +886,40 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
   export const fieldEditorOrAdmin: FieldAccess = ({ req }) => hasRole(req.user, 'admin', 'editor')
   ```
   `isActive` va `isBanned` maydonlari qo'shilmaguncha (S4, S9) typecheck xato beradi. Shuning uchun bu fayl S4 va S9 bilan bitta commit'da bo'ladi. Unit test `tests/unit/access.test.ts`: reader hech qachon xodim emas; bloklangan reader `isReaderUser` = false.
-- [ ] **V2-P3.S1.2** `src/fields/slug.ts` ni yangilang: slug faqat **uz** sarlavhadan yaratiladi (`req.locale === 'uz'` yoki `create`). Boshqa tilda saqlanganda va slug bo'sh bo'lsa, `originalDoc.slug` saqlanadi. Bo'sh natija → `${prefix}-${Date.now()}`. Maydon `localized` emas. `admin.description`: "Avtomatik. Chop etilgandan keyin o'zgartirmang."
-- [ ] **V2-P3.S1.3** `src/fields/years.ts` → `yearField(name, label, opts?)`: `type:'number'`, `validate`: butun son, `!== 0`, `-200000..2100` (Teshiktosh: −70 000). `admin.description`: "Miloddan avvalgi yil manfiy: −329".
-- [ ] **V2-P3.S1.4** `src/fields/link.ts` → `linkField(name = 'link')`: group `{ type: 'internal' | 'route' | 'custom', reference (rel ['pages','posts','categories']), route (select: home, posts, timeline, persons, archive, map, search, authors, contact, become-author), url (text, http(s) yoki `/`), newTab }`. `src/lib/resolve-link.ts` → `resolveLink(link): { href: string; external: boolean }`. Route jadvali: `home:'/'`, `posts:'/maqolalar'`, `timeline:'/xronologiya'`, `persons:'/shaxslar'`, `archive:'/arxiv'`, `map:'/xarita'`, `search:'/qidiruv'`, `authors:'/mualliflar'`, `contact:'/aloqa'`, `become-author:'/muallif-bolish'`. Unit test yozing.
-- [ ] **V2-P3.S1.5** `src/lib/format-year.ts`, `src/lib/format-date.ts`, `src/lib/today.ts` — eski rejadagi `docs/plan/P02-i18n.md` P2.S4 kodi **aynan** olinadi va unit testlari yoziladi. Qo'shimcha: `toRomanMonth(month)` (`9 · X` uchun) va `formatYearsLabel({ yearsLabel, start, end, approximate }, locale)`. Agar `yearsLabel` (qo'lda yozilgan matn) bo'lsa, o'sha qaytadi, aks holda `formatYearRange` ishlaydi.
-- [ ] **V2-P3.S1.6** `src/lib/lexical-text.ts` → `extractPlainText(root): string` (rekursiv, `text` tugunlari, bloklar orasiga bo'sh joy) va `countWords(text)`. `src/lib/lexical-walk.ts` → `walk(node, visit)`, `collectFootnotes(data)`, `collectHeadings(data)`, `collectSources(data)` (blockType `source` bo'lgan bloklar). Unit testlari yoziladi.
+- [x] **V2-P3.S1.2** `src/fields/slug.ts` ni yangilang: slug faqat **uz** sarlavhadan yaratiladi (`req.locale === 'uz'` yoki `create`). Boshqa tilda saqlanganda va slug bo'sh bo'lsa, `originalDoc.slug` saqlanadi. Bo'sh natija → `${prefix}-${Date.now()}`. Maydon `localized` emas. `admin.description`: "Avtomatik. Chop etilgandan keyin o'zgartirmang."
+- [x] **V2-P3.S1.3** `src/fields/years.ts` → `yearField(name, label, opts?)`: `type:'number'`, `validate`: butun son, `!== 0`, `-200000..2100` (Teshiktosh: −70 000). `admin.description`: "Miloddan avvalgi yil manfiy: −329".
+- [x] **V2-P3.S1.4** `src/fields/link.ts` → `linkField(name = 'link')`: group `{ type: 'internal' | 'route' | 'custom', reference (rel ['pages','posts','categories']), route (select: home, posts, timeline, persons, archive, map, search, authors, contact, become-author), url (text, http(s) yoki `/`), newTab }`. `src/lib/resolve-link.ts` → `resolveLink(link): { href: string; external: boolean }`. Route jadvali: `home:'/'`, `posts:'/maqolalar'`, `timeline:'/xronologiya'`, `persons:'/shaxslar'`, `archive:'/arxiv'`, `map:'/xarita'`, `search:'/qidiruv'`, `authors:'/mualliflar'`, `contact:'/aloqa'`, `become-author:'/muallif-bolish'`. Unit test yozing.
+- [x] **V2-P3.S1.5** `src/lib/format-year.ts`, `src/lib/format-date.ts`, `src/lib/today.ts` — eski rejadagi `docs/plan/P02-i18n.md` P2.S4 kodi **aynan** olinadi va unit testlari yoziladi. Qo'shimcha: `toRomanMonth(month)` (`9 · X` uchun) va `formatYearsLabel({ yearsLabel, start, end, approximate }, locale)`. Agar `yearsLabel` (qo'lda yozilgan matn) bo'lsa, o'sha qaytadi, aks holda `formatYearRange` ishlaydi.
+- [x] **V2-P3.S1.6** `src/lib/lexical-text.ts` → `extractPlainText(root): string` (rekursiv, `text` tugunlari, bloklar orasiga bo'sh joy) va `countWords(text)`. `src/lib/lexical-walk.ts` → `walk(node, visit)`, `collectFootnotes(data)`, `collectHeadings(data)`, `collectSources(data)` (blockType `source` bo'lgan bloklar). Unit testlari yoziladi.
 
 ✅ **Qabul mezonlari:** `pnpm test` — barcha yangi unit testlar o'tadi.
 
 ## V2-P3.S2 — Media v2
 
-- [ ] **V2-P3.S2.1** `src/collections/Media.ts`:
+- [x] **V2-P3.S2.1** `src/collections/Media.ts`:
   - `upload`: `mimeTypes: ['image/jpeg','image/png','image/webp','image/avif','application/pdf']`, `focalPoint: true`, `imageSizes`: `thumb` 400, `card` 800, `hero` 1600 (hammasi `formatOptions: { format: 'webp', options: { quality: 80 } }`), `adminThumbnail: 'thumb'`.
   - Mavjud `alt` (localized emas) **qoladi**, lekin `required: false` va `admin.hidden: true` bo'ladi (V2-P10 da o'chiriladi).
   - **Yangi** `altText` — text, `localized`, label "Alt matn (rasmda nima bor)". Yangi yuklashlar uchun admin'da `required` (validate: create'da bo'sh bo'lmasin).
   - `caption` (text, localized), `credit` (text, "Manba / muallif"), `license` (select, default `unknown`: `public-domain`, `cc-by`, `cc-by-sa`, `cc-by-nc`, `permission`, `own`, `unknown`), `year` (yearField), `uploadedBy` (rel users, readOnly, `beforeChange` da `req.user.id`).
   - `access`: `read: anyone`, `create: isStaff`, `update`: editor/admin yoki `uploadedBy == user`, `delete: isEditorOrAdmin`.
   - `admin.group: 'Media'`.
-- [ ] **V2-P3.S2.2** `src/lib/media-alt.ts` → `getAlt(media, locale)`: `media.altText || media.alt || ''`.
+- [x] **V2-P3.S2.2** `src/lib/media-alt.ts` → `getAlt(media, locale)`: `media.altText || media.alt || ''`.
 
 ## V2-P3.S3 — Taksonomiya
 
-- [ ] **V2-P3.S3.1** `Periods` (mavjud fayl kengaytiriladi, mavjud maydonlar **o'zgartirilmaydi**):
+- [x] **V2-P3.S3.1** `Periods` (mavjud fayl kengaytiriladi, mavjud maydonlar **o'zgartirilmaydi**):
   - Yangi: `order` (number, required, unique — xronologiyadagi tartib 1..N), `shortTitle` (text, localized — davr panelidagi qisqa nom: "Temuriylar"), `yearsLabel` (text, localized — "mil. avv. 100 000 – 600" kabi qo'lda yoziladigan oraliq), `timelineWeight` (number, default 1, min .5, max 4 — xronologiya panelidagi ustun kengligi), `cover` (upload media — gravyura), `coverCaption` (text, localized), `mapYear` (yearField — xarita slayderidagi yil yorlig'i).
   - `color` options'ga `{ label: 'Qum (Sand)', value: 'sand' }` qo'shiladi.
   - `defaultSort: 'order'`, `admin.defaultColumns: ['order','title','yearsLabel','color']`.
   - `access`: read anyone, create/update `isEditorOrAdmin`, delete `isAdmin`.
   - Join'lar: `posts` (`collection:'posts', on:'period'`), `persons` (`on:'period'`), `events` (`on:'period'`).
-- [ ] **V2-P3.S3.2** `Regions` (yangi): `title` (localized, required), `slug`. `admin.group: 'Taksonomiya'`.
-- [ ] **V2-P3.S3.3** `Categories` (yangi): `title` (localized, required), `slug`, `description` (textarea, localized). `nestedDocsPlugin({ collections: ['categories'], generateLabel: (_, d) => String(d.title ?? ''), generateURL: (docs) => docs.reduce((u, d) => `${u}/${d.slug}`, '') })`. Dizayndagi kategoriyalar: Siyosiy tarix, Madaniyat, Arxeologiya, Adabiyot, Ilm-fan, Harbiy tarix, Ta'lim, Iqtisod.
-- [ ] **V2-P3.S3.4** `Tags` (yangi): `title` (localized, required), `slug`.
+- [x] **V2-P3.S3.2** `Regions` (yangi): `title` (localized, required), `slug`. `admin.group: 'Taksonomiya'`.
+- [x] **V2-P3.S3.3** `Categories` (yangi): `title` (localized, required), `slug`, `description` (textarea, localized). `nestedDocsPlugin({ collections: ['categories'], generateLabel: (_, d) => String(d.title ?? ''), generateURL: (docs) => docs.reduce((u, d) => `${u}/${d.slug}`, '') })`. Dizayndagi kategoriyalar: Siyosiy tarix, Madaniyat, Arxeologiya, Adabiyot, Ilm-fan, Harbiy tarix, Ta'lim, Iqtisod.
+- [x] **V2-P3.S3.4** `Tags` (yangi): `title` (localized, required), `slug`.
 
 ## V2-P3.S4 — Users (xodimlar) v2
 
-- [ ] **V2-P3.S4.1** `src/collections/Users.ts` (mavjud `username` login saqlanadi):
+- [x] **V2-P3.S4.1** `src/collections/Users.ts` (mavjud `username` login saqlanadi):
   - `role`: options `admin` (Administrator), `editor` (Muharrir), `author` (Muallif); `defaultValue: 'author'`; `saveToJWT: true`; field access: `create/update: fieldAdminOnly`.
   - Yangi: `slug` (slugField('displayName')), `isActive` (checkbox, default true, field access admin), `bio` (textarea, localized, maxLength 500), `classInfo` (text — "9-B, 12-maktab", field access `read: fieldEditorOrAdmin`).
   - `auth`: mavjudlariga qo'shimcha `tokenExpiration: 60 * 60 * 8`, `forgotPassword.generateEmailHTML` (P4.S6) va `hooks.beforeLogin`: `isActive === false` bo'lsa `throw new APIError('Akkaunt faol emas', 403)`.
@@ -928,7 +928,7 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
 
 ## V2-P3.S5 — Posts v2
 
-- [ ] **V2-P3.S5.1** `src/collections/Posts.ts` ni qayta yozing. Mavjud `title`, `slug`, `excerpt`, `coverImage`, `period`, `publishedAt`, `commentsEnabled`, `author`, `searchText` maydonlari **nomi va turi o'zgarmaydi**.
+- [x] **V2-P3.S5.1** `src/collections/Posts.ts` ni qayta yozing. Mavjud `title`, `slug`, `excerpt`, `coverImage`, `period`, `publishedAt`, `commentsEnabled`, `author`, `searchText` maydonlari **nomi va turi o'zgarmaydi**.
   ```ts
   slug: 'posts',
   labels: { singular: 'Maqola', plural: 'Maqolalar' },
@@ -941,7 +941,7 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
   versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 30 },
   defaultSort: '-publishedAt',
   ```
-- [ ] **V2-P3.S5.2** Maydonlar (`tabs`):
+- [x] **V2-P3.S5.2** Maydonlar (`tabs`):
   - **Tab "Matn":** `title` (text, localized, maxLength 160, `required: false`), `excerpt` (textarea, localized, maxLength 300), `coverImage` (upload media), **`body` (richText, localized, `editor: postEditor` — P5 da; hozircha `lexicalEditor()`)**.
   - **Tab "Tarix":** `period` (rel periods), `categories` (rel hasMany), `tags` (rel hasMany), `persons` (rel hasMany), `events` (rel hasMany), `places` (rel hasMany), `regions` (rel hasMany).
   - **Tab "Tekshiruv":** `noteToEditor` (textarea, label "Muharrir uchun izoh" — muallif yozadi), `reviewNotes` (array: `note` textarea required, `by` rel users readOnly, `at` date readOnly; field access `update: fieldEditorOrAdmin`).
@@ -949,29 +949,29 @@ Har bir komponent uchun dizayndagi manba qatorlari ko'rsatilgan. O'lchamlarni ay
   - **Sidebar:** `slug`, `workflowStatus` (select, required, default `draft`, index: `draft` Qoralama, `in_review` Tekshiruvda, `changes_requested` Tuzatish kerak, `approved` Tasdiqlandi, `published` Chop etildi), `author` (rel users, required, `defaultValue: ({ user }) => user?.collection === 'users' ? user.id : undefined`, field access update: editor/admin), `coAuthors` (rel users hasMany), `reviewedBy` (rel users, readOnly), `publishedAt` (date, index), `featured` (checkbox, field access editor/admin), `commentsEnabled` (checkbox, default true), `readingTime` (number, localized, readOnly), `views` (number, default 0, readOnly, index).
   - **Yashirin:** `searchText` (mavjud, localized textarea, `admin.hidden`).
   - **ESKIRGAN (ko'chirilgandan keyin o'chiriladi):** `content` (`required: false`, `admin.readOnly: true`, label "ESKIRGAN matn — body'ga ko'chirildi"), `coverImageUrl` (`admin.readOnly`), `language` (`admin.hidden`). Bularni **o'chirmang** — V2-P10.S3 da o'chiriladi.
-- [ ] **V2-P3.S5.3** Hook'lar (`beforeChange` tartibi bo'yicha): `enforcePostWorkflow` (P4.S3), `computeReadingTime` (`body` dan, 180 so'z/daq), `buildSearchText` (`title + excerpt + extractPlainText(body)` → `normalizeSearch` → 30 000 belgigacha). `afterChange`: `revalidateSite` (P6.S1), `notifyWorkflow` (P4.S4). Mavjud inline hook (`searchText` ni `content` dan hisoblaydigan va `publishedAt` ni har doim qo'yadigan) **olib tashlanadi**.
-- [ ] **V2-P3.S5.4** `access` (to'liq matritsa P4.S2 da): `read`: editor/admin → true; author → `{ or: [{ _status: { equals: 'published' } }, { author: { equals: user.id } }] }`; reader va mehmon → `{ _status: { equals: 'published' } }`. `create: isStaff`. `update`: editor/admin → true; author → `{ and: [{ author: { equals: id } }, { workflowStatus: { in: ['draft','changes_requested'] } }] }`. `delete: isAdmin`. `readVersions: isStaff`.
+- [x] **V2-P3.S5.3** Hook'lar (`beforeChange` tartibi bo'yicha): `enforcePostWorkflow` (P4.S3), `computeReadingTime` (`body` dan, 180 so'z/daq), `buildSearchText` (`title + excerpt + extractPlainText(body)` → `normalizeSearch` → 30 000 belgigacha). `afterChange`: `revalidateSite` (P6.S1), `notifyWorkflow` (P4.S4). Mavjud inline hook (`searchText` ni `content` dan hisoblaydigan va `publishedAt` ni har doim qo'yadigan) **olib tashlanadi**.
+- [x] **V2-P3.S5.4** `access` (to'liq matritsa P4.S2 da): `read`: editor/admin → true; author → `{ or: [{ _status: { equals: 'published' } }, { author: { equals: user.id } }] }`; reader va mehmon → `{ _status: { equals: 'published' } }`. `create: isStaff`. `update`: editor/admin → true; author → `{ and: [{ author: { equals: id } }, { workflowStatus: { in: ['draft','changes_requested'] } }] }`. `delete: isAdmin`. `readVersions: isStaff`.
 
 ## V2-P3.S6 — Tarixiy kolleksiyalar (yangi)
 
 Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`, `author` (rel users, default joriy xodim, sidebar), hook `preventAuthorPublish` (P4.S3.4), `revalidateSite`, `buildSearchText`. `access`: read `publishedOrStaff`, create `isStaff`, update editor/admin yoki (author && o'ziniki && qoralama), delete `isEditorOrAdmin`.
 
-- [ ] **V2-P3.S6.1** `Persons` (`slug: 'persons'`):
+- [x] **V2-P3.S6.1** `Persons` (`slug: 'persons'`):
   `name` (localized, required), `slug` (slugField('name')), `personType` (select, required: `scholar` Olim, `ruler` Hukmdor, `poet` Shoir, `commander` Sarkarda, `enlightener` Ma'rifatparvar, `statesman` Davlat arbobi, `other` Boshqa), `birthYear`, `deathYear` (yearField), `yearsApproximate` (checkbox), `lifespanLabel` (text, localized — masalan "? – mil. avv. 328"), `birthPlace` (text, localized — "Kat", "Kesh"), `portrait` (upload), `shortBio` (textarea, localized, maxLength 300), `biography` (richText, localized, `simpleEditor`), `period` (rel periods), `regions` (rel hasMany), `featured` (checkbox), `posts` (join: `collection:'posts', on:'persons'`), `searchText` (hidden). `defaultSort: 'name'`.
-- [ ] **V2-P3.S6.2** `Events` (`slug: 'events'`):
+- [x] **V2-P3.S6.2** `Events` (`slug: 'events'`):
   `title` (localized, required), `slug`, `year` (yearField, **required**), `endYear`, `month` (1–12), `day` (1–31), `approximate` (checkbox), `yearLabel` (text, localized — "VI asr", "1960-yillar"; bo'lsa raqam o'rniga ko'rsatiladi), `importance` (select `1` Juda muhim / `2` Muhim / `3` Qo'shimcha, default `2`), `summary` (textarea, localized, required, maxLength 500), `description` (richText, `simpleEditor`), `image` (upload), `period` (rel, **required**), `place` (rel places), `persons` (rel hasMany), `posts` (join `on:'events'`), `searchText`. Validatsiya: `day` bo'lsa `month` ham bo'lishi kerak; `endYear >= year`. `defaultSort: 'year'`.
-- [ ] **V2-P3.S6.3** `Places` (`slug: 'places'`):
+- [x] **V2-P3.S6.3** `Places` (`slug: 'places'`):
   `name` (localized, required), `slug`, `lat` (number, required, −90..90), `lng` (number, required, −180..180), `placeType` (select: `palace` Saroy, `fortress` Qal'a, `city` Shahar, `square` Maydon, `port` Port, `mausoleum` Maqbara, `mosque` Masjid/madrasa, `archaeological` Arxeologik yodgorlik, `battle` Jang joyi, `natural` Tabiiy ob'ekt, `other`), `fromLabel` (text, localized — "mil. avv. I asr"), `appearsIn` (rel periods, **required** — xarita slayderi shu davrdan boshlab ko'rsatadi), `summary` (textarea, localized), `image` (upload), `region` (rel regions), `posts` (join `on:'places'`), `events` (join `collection:'events', on:'place'`), `searchText`.
-- [ ] **V2-P3.S6.4** `ArchiveItems` (`slug: 'archive-items'`):
+- [x] **V2-P3.S6.4** `ArchiveItems` (`slug: 'archive-items'`):
   `title` (localized, required), `slug`, `kind` (select, required: `photo` Foto, `document` Hujjat, `map` Xarita, `engraving` Gravyura, `video` Video, `manuscript` Qo'lyozma, `newspaper` Gazeta), `files` (upload media, `hasMany`; validate: `kind !== 'video'` bo'lsa kamida 1 ta), `videoUrl` (text — YouTube; validate: `kind === 'video'` bo'lsa majburiy va `youtube.com/watch?v=` yoki `youtu.be/` formatida), `year` (yearField), `yearText` (text, localized), `description` (textarea, localized), `provenance` (text, required — "OʻzR MDA", "S. Tolstov arxivi"), `license` (Media'dagi select, required), `period`, `region`, `persons` (hasMany), `places` (hasMany), `relatedPost` (rel posts — "Maqolada ko'rish"), `searchText`.
 
 ## V2-P3.S7 — Sahifalar va Globallar
 
-- [ ] **V2-P3.S7.1** `Pages` (`slug: 'pages'`): `title` (localized, required), `slug`, `kicker` (text, localized), `body` (richText, localized, `simpleEditor`), `showInFooter` (checkbox). `versions.drafts: true`. `admin.group: 'Kontent'`. Access: read `publishedOrStaff`, write `isEditorOrAdmin`.
-- [ ] **V2-P3.S7.2** `src/globals/Header.ts` (`slug: 'header'`): `navItems` (array, maxRows 8: `label` localized required, `link` linkField, `children` array maxRows 12: `label`, `description` (localized), `link`).
-- [ ] **V2-P3.S7.3** `src/globals/Footer.ts` (`slug: 'footer'`): `about` (textarea, localized), `columns` (array, maxRows 2: `title` localized, `links` array: `label` localized + `link`), `digestTitle`, `digestText` (localized), `note` (localized — "Har bir maqola muharrir tekshiruvidan oʻtadi"), `rights` (localized).
-- [ ] **V2-P3.S7.4** `src/globals/SiteSettings.ts` (`slug: 'site-settings'`): `siteName` (localized, default "hisinf.uz"), `tagline` (localized), `editionLabel` (localized), `telegramUrl`, `telegramHandle` ("@hisinf_uz"), `contactEmail`, `defaultOgImage` (upload), `loginImage` (upload), `loginImageLabel` (localized), `loginQuote` (textarea, localized), `loginQuoteSource` (localized), `popularSearches` (array: `term` localized), `digestEnabled` (checkbox), `digestWeekday` (select 1–7, default 5).
-- [ ] **V2-P3.S7.5** `src/globals/HomePage.ts` (`slug: 'home-page'`):
+- [x] **V2-P3.S7.1** `Pages` (`slug: 'pages'`): `title` (localized, required), `slug`, `kicker` (text, localized), `body` (richText, localized, `simpleEditor`), `showInFooter` (checkbox). `versions.drafts: true`. `admin.group: 'Kontent'`. Access: read `publishedOrStaff`, write `isEditorOrAdmin`.
+- [x] **V2-P3.S7.2** `src/globals/Header.ts` (`slug: 'header'`): `navItems` (array, maxRows 8: `label` localized required, `link` linkField, `children` array maxRows 12: `label`, `description` (localized), `link`).
+- [x] **V2-P3.S7.3** `src/globals/Footer.ts` (`slug: 'footer'`): `about` (textarea, localized), `columns` (array, maxRows 2: `title` localized, `links` array: `label` localized + `link`), `digestTitle`, `digestText` (localized), `note` (localized — "Har bir maqola muharrir tekshiruvidan oʻtadi"), `rights` (localized).
+- [x] **V2-P3.S7.4** `src/globals/SiteSettings.ts` (`slug: 'site-settings'`): `siteName` (localized, default "hisinf.uz"), `tagline` (localized), `editionLabel` (localized), `telegramUrl`, `telegramHandle` ("@hisinf_uz"), `contactEmail`, `defaultOgImage` (upload), `loginImage` (upload), `loginImageLabel` (localized), `loginQuote` (textarea, localized), `loginQuoteSource` (localized), `popularSearches` (array: `term` localized), `digestEnabled` (checkbox), `digestWeekday` (select 1–7, default 5).
+- [x] **V2-P3.S7.5** `src/globals/HomePage.ts` (`slug: 'home-page'`):
   - `hero` group: `kicker`, `titleA`, `titleB` (kursiv qizil qism), `subtitle`, `image` (upload), `imageLabel`, `cta1Label` + `cta1Link`, `cta2Label` + `cta2Link`, `searchPlaceholder` — matnlar localized.
   - `onThisDayFallback` (rel events — bugungi sanaga voqea topilmasa ko'rsatiladi).
   - `periodsSection` group: `kicker`, `title`, `linkLabel` (localized).
@@ -980,11 +980,11 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   - `personsSection` group (kicker, title, linkLabel), `featuredPersons` (rel persons, maxRows 4).
   - `authorCta` group: `kicker`, `title`, `text`, `buttonLabel` (localized), `image` (upload), `imageLabel`.
   - `showHomeComments` (checkbox, default true), `homeCommentsTitle` (localized).
-- [ ] **V2-P3.S7.6** Barcha globallar: `access.read: anyone`, `update: isEditorOrAdmin`, `admin.group: 'Sozlamalar'`, `hooks.afterChange: [revalidateSite]`.
+- [x] **V2-P3.S7.6** Barcha globallar: `access.read: anyone`, `update: isEditorOrAdmin`, `admin.group: 'Sozlamalar'`, `hooks.afterChange: [revalidateSite]`.
 
 ## V2-P3.S8 — Muloqot kolleksiyalari
 
-- [ ] **V2-P3.S8.1** `Comments` v2 (mavjud fayl qayta yoziladi, mavjud maydon nomlari saqlanadi):
+- [x] **V2-P3.S8.1** `Comments` v2 (mavjud fayl qayta yoziladi, mavjud maydon nomlari saqlanadi):
   - Mavjud: `post` (endi `required: false`), `reader`, `authorName` (readOnly), `body` (minLength 3, maxLength 1000). **Mavjud `createdAt` maydoni olib tashlanadi** — Payload `timestamps` ni o'zi qo'shadi. Olib tashlashdan oldin generatsiya qilingan migratsiyada `created_at` ustuni **o'chirilmasligini** tekshiring. Agar o'chirilsa, maydonni saqlab qoldiring va `admin.hidden` qiling.
   - Yangi: `context` (select `post` | `home`, required, default `post`, index), `parent` (rel comments), `staffAuthor` (rel users, readOnly), `status` (select `pending` | `approved` | `rejected` | `spam`, default `pending`, index), `flagged` (checkbox, readOnly), `flagReason` (text, readOnly), `likesCount` (number, default 0, readOnly), `moderatedBy` (rel users, readOnly), `moderatedAt` (date, readOnly).
   - Validatsiya: `context === 'post'` bo'lsa `post` majburiy; `parent` bo'lsa uning `parent` i bo'sh bo'lishi kerak (1 daraja javob).
@@ -992,20 +992,20 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   - `beforeChange`: create'da `req.user` xodim bo'lsa → `staffAuthor = user.id`, `authorName = user.displayName`, `status = 'approved'`. `status` o'zgarganda → `moderatedBy`, `moderatedAt`.
   - `afterChange`: `status` `approved` ga o'tsa yoki undan chiqsa → `revalidateSite`.
   - `admin`: `group: 'Muloqot'`, `useAsTitle: 'body'`, `defaultColumns: ['body','authorName','context','post','status','flagged','createdAt']`.
-- [ ] **V2-P3.S8.2** `CommentLikes` (`slug: 'comment-likes'`): `comment` (rel, required), `reader` (rel, required). `indexes: [{ fields: ['comment', 'reader'], unique: true }]`. `access`: read `isStaff`, create/update/delete `nobody` (faqat server action). `admin.hidden: true`.
-- [ ] **V2-P3.S8.3** `Inquiries` v2 (mavjud fayl):
+- [x] **V2-P3.S8.2** `CommentLikes` (`slug: 'comment-likes'`): `comment` (rel, required), `reader` (rel, required). `indexes: [{ fields: ['comment', 'reader'], unique: true }]`. `access`: read `isStaff`, create/update/delete `nobody` (faqat server action). `admin.hidden: true`.
+- [x] **V2-P3.S8.3** `Inquiries` v2 (mavjud fayl):
   - Yangi: `type` (select `contact` Aloqa | `author_application` Muallif arizasi, default `contact`), `reader` (rel readers), `email` (email), `subject` (text), `school` (text — faqat ariza uchun, `condition`), `topic` (textarea — faqat ariza), `repliedBy` → endi `rel users` bo'ladi. Mavjud `repliedBy` text maydoni **qoladi** (`admin.hidden`), yangisi `repliedByUser` deb nomlanadi.
   - `phone` → `admin.hidden: true` (V2-P10 da o'chiriladi).
   - Mavjud `createdAt` maydoni — Comments'dagi kabi ehtiyotkorlik bilan.
   - `access`: `read`: xodim → hammasi, reader → `{ reader: { equals: user.id } }`, mehmon → false; `create: nobody`; `update: isStaff`; `delete: isAdmin`.
   - `afterChange`: `reply` birinchi marta to'ldirilganda → `status='replied'`, `repliedAt=now`, `repliedByUser=req.user.id`, `email` bo'lsa javob emaili yuboriladi (shablon `src/emails/inquiry-reply.ts`).
   - `admin.group: 'Muloqot'`.
-- [ ] **V2-P3.S8.4** `Subscribers` — eski rejadagi `docs/plan/P11-telegram-email.md` P11.S3.2 bo'yicha **aynan**.
-- [ ] **V2-P3.S8.5** `DailyStats` (`slug: 'daily-stats'`): `day` (text, required, index — `YYYY-MM-DD`, Toshkent vaqti), `locale` (select uz | kaa, required), `post` (rel posts, ixtiyoriy — bo'sh bo'lsa bu sahifa ko'rishi), `views` (number, default 0). `indexes: [{ fields: ['day','locale','post'], unique: true }]`. `access`: read `isStaff`, qolganlari `nobody`. `admin.group: 'Tizim'`, `admin.hidden: ({ user }) => user?.role !== 'admin'`.
+- [x] **V2-P3.S8.4** `Subscribers` — eski rejadagi `docs/plan/P11-telegram-email.md` P11.S3.2 bo'yicha **aynan**.
+- [x] **V2-P3.S8.5** `DailyStats` (`slug: 'daily-stats'`): `day` (text, required, index — `YYYY-MM-DD`, Toshkent vaqti), `locale` (select uz | kaa, required), `post` (rel posts, ixtiyoriy — bo'sh bo'lsa bu sahifa ko'rishi), `views` (number, default 0). `indexes: [{ fields: ['day','locale','post'], unique: true }]`. `access`: read `isStaff`, qolganlari `nobody`. `admin.group: 'Tizim'`, `admin.hidden: ({ user }) => user?.role !== 'admin'`.
 
 ## V2-P3.S9 — Readers v2
 
-- [ ] **V2-P3.S9.1** `src/collections/Readers.ts`:
+- [x] **V2-P3.S9.1** `src/collections/Readers.ts`:
   ```ts
   auth: {
     loginWithUsername: { allowEmailLogin: true, requireEmail: false, requireUsername: false },
@@ -1018,16 +1018,16 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   },
   ```
   `verify` yoqilganda **mavjud** o'quvchilar tasdiqlanmagan bo'lib qoladi va kira olmaydi. Buni V2-P3.S12.6 skripti tuzatadi. Skript ishlamaguncha prod'ga chiqarmang!
-- [ ] **V2-P3.S9.2** Maydonlar:
+- [x] **V2-P3.S9.2** Maydonlar:
   - Yangi: `displayName` (text, maxLength 40 — "Ism-familiya yoki taxallus"), `locale` (select uz | kaa, default uz), `acceptedTermsAt` (date, readOnly), `isBanned` (checkbox, field access `update: fieldStaffOnly`).
   - Mavjud: `savedPosts` (saqlanadi, `maxRows: 500`).
   - Eskirgan (`admin.hidden`, field access faqat xodim): `firstName`, `lastName`, `phone`, `role`, `displayPassword`. Bular V2-P10 da o'chiriladi.
-- [ ] **V2-P3.S9.3** `access`: P0.S4.1 dagi ruxsatlar saqlanadi. Qo'shimcha: `admin: () => false` — o'quvchilar `/admin` ga kira olmaydi (`admin.user = 'users'` buni allaqachon ta'minlaydi). `afterDelete`: o'quvchining `comments` va `comment-likes` yozuvlari o'chiriladi.
-- [ ] **V2-P3.S9.4** `admin`: `useAsTitle: 'displayName'`, `group: 'Foydalanuvchilar'`, `defaultColumns: ['displayName','email','username','_verified','isBanned','createdAt']`.
+- [x] **V2-P3.S9.3** `access`: P0.S4.1 dagi ruxsatlar saqlanadi. Qo'shimcha: `admin: () => false` — o'quvchilar `/admin` ga kira olmaydi (`admin.user = 'users'` buni allaqachon ta'minlaydi). `afterDelete`: o'quvchining `comments` va `comment-likes` yozuvlari o'chiriladi.
+- [x] **V2-P3.S9.4** `admin`: `useAsTitle: 'displayName'`, `group: 'Foydalanuvchilar'`, `defaultColumns: ['displayName','email','username','_verified','isBanned','createdAt']`.
 
 ## V2-P3.S10 — Plaginlar
 
-- [ ] **V2-P3.S10.1** `payload.config.ts` → `plugins` (s3Storage'dan keyin):
+- [x] **V2-P3.S10.1** `payload.config.ts` → `plugins` (s3Storage'dan keyin):
   ```ts
   nestedDocsPlugin({ collections: ['categories'], … }),
   seoPlugin({
@@ -1039,16 +1039,16 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   }),
   ```
   SEO `meta.title`/`meta.description` localized ekanini admin'da tekshiring.
-- [ ] **V2-P3.S10.2** `collections` tartibi: `Users, Readers, Posts, Pages, Periods, Persons, Events, Places, ArchiveItems, Categories, Tags, Regions, Media, Comments, CommentLikes, Inquiries, Subscribers, DailyStats`. `globals: [Header, Footer, SiteSettings, HomePage]`.
+- [x] **V2-P3.S10.2** `collections` tartibi: `Users, Readers, Posts, Pages, Periods, Persons, Events, Places, ArchiveItems, Categories, Tags, Regions, Media, Comments, CommentLikes, Inquiries, Subscribers, DailyStats`. `globals: [Header, Footer, SiteSettings, HomePage]`.
 
 ## V2-P3.S11 — Migratsiya (faqat qo'shuvchi)
 
-- [ ] **V2-P3.S11.1** `pnpm generate:types && pnpm typecheck`.
-- [ ] **V2-P3.S11.2** `v2-dev` DB'da `pnpm dev` ni bir marta ishga tushiring (dev'da push sxemani moslaydi) va admin ochilishini tekshiring.
-- [ ] **V2-P3.S11.3** `pnpm migrate:create v2_additive`. Hosil bo'lgan faylni **satrma-satr o'qing**:
+- [x] **V2-P3.S11.1** `pnpm generate:types && pnpm typecheck`.
+- [x] **V2-P3.S11.2** `v2-dev` DB'da `pnpm dev` ni bir marta ishga tushiring (dev'da push sxemani moslaydi) va admin ochilishini tekshiring.
+- [x] **V2-P3.S11.3** `pnpm migrate:create v2_additive`. Hosil bo'lgan faylni **satrma-satr o'qing**:
   - `DROP COLUMN` / `DROP TABLE` qatorlari bo'lmasligi kerak. Bo'lsa, qaysi maydon sababchi ekanini toping (odatda tur yoki `localized` o'zgargan). Maydonni asl holiga qaytaring va qayta generatsiya qiling.
   - `ALTER COLUMN … SET NOT NULL` ustunlari mavjud qatorlarda bo'sh bo'lmasligi kerak, aks holda migratsiya yiqiladi.
-- [ ] **V2-P3.S11.4** **Drafts backfill.** `posts`, `pages` va boshqa drafts yoqilgan kolleksiyalarda mavjud qatorlar `_status = NULL` bo'lib qoladi va ommaviy so'rovlarda ko'rinmaydi. Migratsiyaning `up` funksiyasi oxiriga qo'shing:
+- [x] **V2-P3.S11.4** **Drafts backfill.** `posts`, `pages` va boshqa drafts yoqilgan kolleksiyalarda mavjud qatorlar `_status = NULL` bo'lib qoladi va ommaviy so'rovlarda ko'rinmaydi. Migratsiyaning `up` funksiyasi oxiriga qo'shing:
   ```ts
   await db.execute(sql`UPDATE "posts" SET "_status" = 'published' WHERE "_status" IS NULL`)
   await db.execute(sql`UPDATE "posts" SET "workflow_status" = 'published' WHERE "workflow_status" IS NULL OR "workflow_status" = 'draft'`)
@@ -1058,7 +1058,7 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   await db.execute(sql`UPDATE "readers" SET "_verified" = true WHERE "_verified" IS NOT TRUE`)
   ```
   **Ustun nomlarini** (`workflow_status` va boshqalar) generatsiya qilingan SQL'dan tekshirib oling. Comments uchun qaror: mavjud izohlar avval ham ochiq edi, shuning uchun `approved` qilinadi.
-- [ ] **V2-P3.S11.5** Toza `v2-test` Neon branch'ida (prod nusxasi) `pnpm migrate` → xatosiz o'tishi kerak. Keyin admin'da eski maqolalar ko'rinishini va ochilishini tekshiring.
+- [x] **V2-P3.S11.5** Toza `v2-test` Neon branch'ida (prod nusxasi) `pnpm migrate` → xatosiz o'tishi kerak. Keyin admin'da eski maqolalar ko'rinishini va ochilishini tekshiring.
 
 ✅ **Qabul mezonlari:** prod nusxasida migratsiya o'tdi va eski maqolalar, izohlar va o'quvchilar joyida.
 
@@ -1071,8 +1071,8 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
 - Ishga tushirish: `pnpm v2:script scripts/v2/<fayl>.ts [--dry-run]`.
 - Natija `docs/migration-log.md` ga yoziladi (sana, muhit, nechta yozuv o'zgardi).
 
-- [ ] **V2-P3.S12.1** `01-backfill-check.ts` — tekshiruvchi: postlar soni, `_status IS NULL` qolganlar soni (0 bo'lishi kerak), har til uchun `title` bor postlar soni.
-- [ ] **V2-P3.S12.2** `02-convert-content.ts` — `posts.content` (oddiy matn) → `posts.body` (Lexical), **har til uchun alohida**:
+- [x] **V2-P3.S12.1** `01-backfill-check.ts` — tekshiruvchi: postlar soni, `_status IS NULL` qolganlar soni (0 bo'lishi kerak), har til uchun `title` bor postlar soni.
+- [x] **V2-P3.S12.2** `02-convert-content.ts` — `posts.content` (oddiy matn) → `posts.body` (Lexical), **har til uchun alohida**:
   ```ts
   // Oddiy matn → Lexical JSON (paragraflar bo'sh qator bo'yicha ajratiladi)
   function textToLexical(text: string) {
@@ -1092,22 +1092,22 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   }
   ```
   Algoritm: har post uchun `locale: 'uz'` va `locale: 'kaa'` da (`fallbackLocale: false`) `content` o'qiladi. Bo'sh bo'lmasa va `body` bo'sh bo'lsa → `body = textToLexical(content)` shu locale'da yoziladi (`draft: false`). Yaratilgan JSON tuzilmasini admin'da ochib tekshiring. Lexical "Invalid node" xatosi bersa, tugun maydonlarini `@payloadcms/richtext-lexical` bilan yaratilgan namuna JSON bilan solishtiring: admin'da qo'lda bitta paragraf yozing, so'ng `GET /api/posts/:id` qiling.
-- [ ] **V2-P3.S12.3** `03-fix-kaa-duplicates.ts` — eski kod kaa tarjima bo'lmaganda uz matnini kaa'ga nusxalagan. Har post uchun kaa `title`/`excerpt`/`body` matni uz'niki bilan **aynan bir xil** bo'lsa, kaa qiymatlari `null` qilinadi (fallback ishlashi va "tarjima yo'q" banneri chiqishi uchun). `language === 'uz'` bo'lgan postlarda ham kaa tozalanadi. `language === 'kaa'` (faqat kaa) postlar uchun: agar uz maydonlari kaa bilan bir xil bo'lsa, ular qoldiriladi va ro'yxat `docs/migration-log.md` ga yoziladi (bunday postlar qo'lda ko'rib chiqiladi).
-- [ ] **V2-P3.S12.4** `04-import-cover-urls.ts` — `coverImageUrl` bor va `coverImage` bo'sh postlar uchun: rasmni `fetch` qiladi (timeout 15s, faqat `image/*`, ≤10 MB), `payload.create({ collection: 'media', data: { altText: title, credit: 'Internet: ' + url, license: 'unknown' }, file: { data, mimetype, name, size } })`, so'ng `coverImage` ga bog'laydi. Yuklab bo'lmaganlari log'ga yoziladi. `license: unknown` bo'lgan rasmlar ro'yxati muharrirga beriladi.
-- [ ] **V2-P3.S12.5** `05-readers-to-display-name.ts` — `displayName = trim(firstName + ' ' + lastName) || username`.
-- [ ] **V2-P3.S12.6** `06-readers-verify.ts` — **barcha mavjud** o'quvchilarni tasdiqlangan qiladi: `payload.update({ collection: 'readers', id, data: { _verified: true }, overrideAccess: true })`. Local API bu maydonni yozishga ruxsat bermasa, migratsiyada SQL ishlatiladi: `UPDATE "readers" SET "_verified" = true WHERE "_verified" IS NOT TRUE`.
-- [ ] **V2-P3.S12.7** `07-reader-admins-report.ts` — `role IN ('admin','superadmin')` bo'lgan o'quvchilar ro'yxatini chiqaradi (username, ism). **Avtomatik ko'chirilmaydi.** Admin har biri uchun `/admin` → Xodimlar orqali `users` da akkaunt yaratadi (P5.S6 dagi taklif funksiyasi bilan) va ro'yxatni `docs/migration-log.md` da belgilaydi.
-- [ ] **V2-P3.S12.8** `08-home-comments.ts` — `slug = 'bosh-sahifa-izohlari'` postga bog'langan izohlar → `context = 'home'`, `post = null`. Keyin bu soxta post **o'chiriladi** (avval uning ID'si log'ga yoziladi).
-- [ ] **V2-P3.S12.9** `09-inquiries-link-readers.ts` — `phone` bo'yicha mos keladigan `readers.phone` topilsa, `inquiries.reader` bog'lanadi.
-- [ ] **V2-P3.S12.10** `10-media-alt.ts` — `media.alt` → `media.altText` (uz).
-- [ ] **V2-P3.S12.11** `11-rebuild-search.ts` — barcha postlarni ikki tilda qayta saqlab, `searchText` va `readingTime` ni `body` dan qayta hisoblaydi.
+- [x] **V2-P3.S12.3** `03-fix-kaa-duplicates.ts` — eski kod kaa tarjima bo'lmaganda uz matnini kaa'ga nusxalagan. Har post uchun kaa `title`/`excerpt`/`body` matni uz'niki bilan **aynan bir xil** bo'lsa, kaa qiymatlari `null` qilinadi (fallback ishlashi va "tarjima yo'q" banneri chiqishi uchun). `language === 'uz'` bo'lgan postlarda ham kaa tozalanadi. `language === 'kaa'` (faqat kaa) postlar uchun: agar uz maydonlari kaa bilan bir xil bo'lsa, ular qoldiriladi va ro'yxat `docs/migration-log.md` ga yoziladi (bunday postlar qo'lda ko'rib chiqiladi).
+- [x] **V2-P3.S12.4** `04-import-cover-urls.ts` — `coverImageUrl` bor va `coverImage` bo'sh postlar uchun: rasmni `fetch` qiladi (timeout 15s, faqat `image/*`, ≤10 MB), `payload.create({ collection: 'media', data: { altText: title, credit: 'Internet: ' + url, license: 'unknown' }, file: { data, mimetype, name, size } })`, so'ng `coverImage` ga bog'laydi. Yuklab bo'lmaganlari log'ga yoziladi. `license: unknown` bo'lgan rasmlar ro'yxati muharrirga beriladi.
+- [x] **V2-P3.S12.5** `05-readers-to-display-name.ts` — `displayName = trim(firstName + ' ' + lastName) || username`.
+- [x] **V2-P3.S12.6** `06-readers-verify.ts` — **barcha mavjud** o'quvchilarni tasdiqlangan qiladi: `payload.update({ collection: 'readers', id, data: { _verified: true }, overrideAccess: true })`. Local API bu maydonni yozishga ruxsat bermasa, migratsiyada SQL ishlatiladi: `UPDATE "readers" SET "_verified" = true WHERE "_verified" IS NOT TRUE`.
+- [x] **V2-P3.S12.7** `07-reader-admins-report.ts` — `role IN ('admin','superadmin')` bo'lgan o'quvchilar ro'yxatini chiqaradi (username, ism). **Avtomatik ko'chirilmaydi.** Admin har biri uchun `/admin` → Xodimlar orqali `users` da akkaunt yaratadi (P5.S6 dagi taklif funksiyasi bilan) va ro'yxatni `docs/migration-log.md` da belgilaydi.
+- [x] **V2-P3.S12.8** `08-home-comments.ts` — `slug = 'bosh-sahifa-izohlari'` postga bog'langan izohlar → `context = 'home'`, `post = null`. Keyin bu soxta post **o'chiriladi** (avval uning ID'si log'ga yoziladi).
+- [x] **V2-P3.S12.9** `09-inquiries-link-readers.ts` — `phone` bo'yicha mos keladigan `readers.phone` topilsa, `inquiries.reader` bog'lanadi.
+- [x] **V2-P3.S12.10** `10-media-alt.ts` — `media.alt` → `media.altText` (uz).
+- [x] **V2-P3.S12.11** `11-rebuild-search.ts` — barcha postlarni ikki tilda qayta saqlab, `searchText` va `readingTime` ni `body` dan qayta hisoblaydi.
 
 ✅ **Qabul mezonlari:** `v2-test` (prod nusxasi) da 01–11 skriptlar ketma-ket o'tdi. Admin'da eski maqola `body` da paragraflar bilan ko'rinadi. kaa'da nusxa matnlar yo'q. Eski o'quvchi username + parol bilan kira oladi.
 
 ## V2-P3.S13 — Seed (dev va test uchun)
 
-- [ ] **V2-P3.S13.1** `src/seed/v2/index.ts` — `ALLOW_SEED=true` bo'lmasa chiqib ketadi. Idempotent (slug bo'yicha upsert). Hamma yozuvlar `context: { disableRevalidate: true, disableNotifications: true, skipWorkflow: true }` bilan.
-- [ ] **V2-P3.S13.2** **Davrlar** (manba: `docs/design/Xronologiya.dc.html` `ERAS`) — **aynan shu 10 ta**:
+- [x] **V2-P3.S13.1** `src/seed/v2/index.ts` — `ALLOW_SEED=true` bo'lmasa chiqib ketadi. Idempotent (slug bo'yicha upsert). Hamma yozuvlar `context: { disableRevalidate: true, disableNotifications: true, skipWorkflow: true }` bilan.
+- [x] **V2-P3.S13.2** **Davrlar** (manba: `docs/design/Xronologiya.dc.html` `ERAS`) — **aynan shu 10 ta**:
   | order | title (uz) | shortTitle | yearsLabel | color | timelineWeight | coverCaption | mapYear |
   |---|---|---|---|---|---|---|---|
   | 1 | Qadimgi davr | Qadimgi | mil. avv. 100 000 – 600 | sand | 3 | Teshiktosh gʻori | −3000 |
@@ -1121,9 +1121,9 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   | 9 | Sovet davri | Sovet | 1917 – 1991 | brick | 1.1 | Toʻrtkoʻl, 1925 | 1950 |
   | 10 | Mustaqillik davri | Mustaqillik | 1991 – 2026 | teal | 1 | Mustaqillik maydoni | 2026 |
   `description` lar `ERAS[i][5]` dan olinadi. `startYear`/`endYear` `yearsLabel` dagi raqamlardan (miloddan avvalgi bo'lsa manfiy). kaa nomlari hozircha uz bilan bir xil (`TODO(kaa-review)` — `docs/kaa-review.md` ga qo'shing).
-- [ ] **V2-P3.S13.3** **Voqealar** — `ERAS[i][9]` dagi har bir `[yil, sarlavha, matn]` → `events`. `yil` raqam bo'lsa `year` ga, "VI asr" yoki "1960-yillar" kabi bo'lsa `yearLabel` ga yoziladi va `year` taxminiy son bo'ladi (VI asr → 550, "1960-yillar" → 1960, `approximate: true`). "mil. avv. 70 000" → `-70000`.
-- [ ] **V2-P3.S13.4** **Shaxslar** — `docs/design/Shaxslar.dc.html` `PEOPLE` (12 ta): `[name, yillar, birthPlace, personType, davr, rang, shortBio]`. `personType` xaritasi: Olim→scholar, Hukmdor→ruler, Shoir→poet, Sarkarda→commander, Maʼrifatparvar→enlightener, Davlat arbobi→statesman. Davr nomi bo'yicha `period` bog'lanadi.
-- [ ] **V2-P3.S13.5** **Joylar** — `docs/design/Xarita.dc.html` `SITES` (10 ta). Dizayndagi `x/y` foizlari koordinata **emas**. Haqiqiy koordinatalar (taxminiy — openstreetmap.org da tekshiring):
+- [x] **V2-P3.S13.3** **Voqealar** — `ERAS[i][9]` dagi har bir `[yil, sarlavha, matn]` → `events`. `yil` raqam bo'lsa `year` ga, "VI asr" yoki "1960-yillar" kabi bo'lsa `yearLabel` ga yoziladi va `year` taxminiy son bo'ladi (VI asr → 550, "1960-yillar" → 1960, `approximate: true`). "mil. avv. 70 000" → `-70000`.
+- [x] **V2-P3.S13.4** **Shaxslar** — `docs/design/Shaxslar.dc.html` `PEOPLE` (12 ta): `[name, yillar, birthPlace, personType, davr, rang, shortBio]`. `personType` xaritasi: Olim→scholar, Hukmdor→ruler, Shoir→poet, Sarkarda→commander, Maʼrifatparvar→enlightener, Davlat arbobi→statesman. Davr nomi bo'yicha `period` bog'lanadi.
+- [x] **V2-P3.S13.5** **Joylar** — `docs/design/Xarita.dc.html` `SITES` (10 ta). Dizayndagi `x/y` foizlari koordinata **emas**. Haqiqiy koordinatalar (taxminiy — openstreetmap.org da tekshiring):
   | Joy | lat | lng | placeType | appearsIn (order) |
   |-----|-----|-----|-----------|-------------------|
   | Tuproqqalʼa | 41.928 | 60.817 | palace | 2 |
@@ -1137,9 +1137,11 @@ Har birida: `versions: { drafts: true, maxPerDoc: 20 }`, `admin.group: 'Tarix'`,
   | Nukus | 42.460 | 59.610 | city | 9 |
   | Moʻynoq | 43.770 | 59.020 | port | 8 |
   `fromLabel`, `summary` dizayndan olinadi.
-- [ ] **V2-P3.S13.6** **Arxiv** — `docs/design/Media Arxiv.dc.html` `M` (12 ta): turi, nomi, yili, manbasi. Fayl sifatida `src/seed/v2/images/` dagi jamoat mulki (public domain) rasmlaridan biri ishlatiladi. Rasm bo'lmasa, 1×1 placeholder yaratilmaydi — birlik `files`siz qoladi (faqat dev). Video uchun `videoUrl` — istalgan ochiq YouTube havola.
-- [ ] **V2-P3.S13.7** **Kategoriyalar** (S3.3 ro'yxati), **maqolalar** (`docs/design/Maqolalar.dc.html` `A` — 10 ta sarlavha, excerpt, kategoriya, muallif nomi). Har biriga 3 paragraf + 1 ta `Manba` bloki + 1 ta footnote bilan `body` yaratiladi. `src/seed/seedDelimitation1924.ts` dagi haqiqiy kontentdan 1924-yil maqolasi uchun foydalaning. Xodim akkauntlari (admin, editor, author — parollar `SEED_*_PASSWORD` env'dan).
-- [ ] **V2-P3.S13.8** **Globallar:** Header (6 ta element: Bosh sahifa→home, Maqolalar→posts, Davrlar→timeline, Shaxslar→persons, Media arxiv→archive, Xarita→map), Footer va HomePage — matnlar 6-bo'limdagi uz/kaa qiymatlaridan.
+- [x] **V2-P3.S13.6** **Arxiv** — `docs/design/Media Arxiv.dc.html` `M` (12 ta): turi, nomi, yili, manbasi. Fayl sifatida `src/seed/v2/images/` dagi jamoat mulki (public domain) rasmlaridan biri ishlatiladi. Rasm bo'lmasa, 1×1 placeholder yaratilmaydi — birlik `files`siz qoladi (faqat dev). Video uchun `videoUrl` — istalgan ochiq YouTube havola.
+- [x] **V2-P3.S13.7** **Kategoriyalar** (S3.3 ro'yxati), **maqolalar** (`docs/design/Maqolalar.dc.html` `A` — 10 ta sarlavha, excerpt, kategoriya, muallif nomi). Har biriga 3 paragraf + 1 ta `Manba` bloki + 1 ta footnote bilan `body` yaratiladi. `src/seed/seedDelimitation1924.ts` dagi haqiqiy kontentdan 1924-yil maqolasi uchun foydalaning. Xodim akkauntlari (admin, editor, author — parollar `SEED_*_PASSWORD` env'dan).
+- [x] **V2-P3.S13.8** **Globallar:** Header (6 ta element: Bosh sahifa→home, Maqolalar→posts, Davrlar→timeline, Shaxslar→persons, Media arxiv→archive, Xarita→map), Footer va HomePage — matnlar 6-bo'limdagi uz/kaa qiymatlaridan.
+
+✅ **Qabul mezonlari:** toza dev DB'da `pnpm seed` → hamma sahifa dizayndagidek ma'lumot bilan to'ladi. Qayta ishga tushirilganda dublikat yaratilmaydi.
 
 ✅ **Qabul mezonlari:** toza dev DB'da `pnpm seed` → hamma sahifa dizayndagidek ma'lumot bilan to'ladi. Qayta ishga tushirilganda dublikat yaratilmaydi.
 
@@ -2492,8 +2494,8 @@ Dizayndan **olingan** (ishonchli): `header.*` (signin, tagline, edition), `nav.*
 | V2-P0 | Xavfsizlik hotfix'i | 🟡 | 2026-10-09 | Kod tayyor (S2–S5). Qo'lda qoldi: S1, S2.5, S4.4 ishga tushirish, S5.4, S5.5, S6 |
 | V2-P1 | Poydevor | ✅ | 2026-10-09 | S1–S4 to'liq bajarildi, paketlar, layout, cn.ts, env |
 | V2-P2 | Dizayn tizimi | ✅ | 2026-10-09 | S1–S7 to'liq bajarildi: tokenlar, shriftlar, tema, UI primitivlar, effektlar, dev sahifalar |
-| V2-P3 | Ma'lumotlar modeli va ko'chirish | ⬜ | | |
-| V2-P4 | Auth, rollar, workflow | ⬜ | | |
+| V2-P3 | Ma'lumotlar modeli va ko'chirish | ✅ | 2026-10-09 | S1–S13 to'liq bajarildi: yangi modellar, globallar, migratsiya va seed skriptlari |
+| V2-P4 | Auth, rollar, workflow | 🟨 | 2026-10-09 | S1–S8 ustida ish olib borilmoqda |
 | V2-P5 | Tahririyat (admin) | ⬜ | | |
 | V2-P6 | Ommaviy sayt | ⬜ | | |
 | V2-P7 | Interaktiv funksiyalar | ⬜ | | |

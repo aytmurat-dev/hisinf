@@ -89,6 +89,7 @@ async function updatePeriodsAndHomePost() {
         collection: 'periods',
         locale: 'uz',
         data: {
+          order: periodsData.indexOf(p) + 1,
           slug: p.slug,
           title: p.titleUz,
           description: p.descUz,
@@ -121,11 +122,16 @@ async function updatePeriodsAndHomePost() {
   })
 
   if (existingHomePost.docs.length === 0) {
+    const adminUsers = await payload.find({ collection: 'users', limit: 1, overrideAccess: true })
+    const authorId = adminUsers.docs[0]?.id || 1
+
     const createdPost = await payload.create({
       collection: 'posts',
       locale: 'uz',
       data: {
         slug: homeSlug,
+        author: authorId,
+        workflowStatus: 'published',
         title: 'Bosh sahifa: Tarixiy fikr-mulohazalar va muhokama',
         excerpt: 'HISINF portali boʻyicha foydalanuvchilarning umumiy fikr va mulohazalari maydoni.',
         content: 'HISINF — 1924-yilgi milliy-hududiy chegaralanish tarixi boʻyicha fikr almashish va muhokama platformasi.',

@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     const inquiry = await payload.create({
       collection: 'inquiries',
       data: {
+        type: 'contact',
         name: senderName,
         phone: senderPhone,
         message: message.trim(),

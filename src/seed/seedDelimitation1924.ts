@@ -8,6 +8,7 @@ export async function seedDelimitationData() {
   console.log('--- 1. Seeding 1924 Historical Periods ---')
   const periodsData = [
     {
+      order: 1,
       title: 'Tarixiy sharoit va zamin (1917 — 1923)',
       slug: 'tarixiy-sharoit-1917-1923',
       startYear: 1917,
@@ -16,6 +17,7 @@ export async function seedDelimitationData() {
       color: 'ochre' as const,
     },
     {
+      order: 2,
       title: 'Milliy-hududiy chegaralanish (1924-yil)',
       slug: 'chegaralanish-jarayoni-1924',
       startYear: 1924,
@@ -24,6 +26,7 @@ export async function seedDelimitationData() {
       color: 'brick' as const,
     },
     {
+      order: 3,
       title: 'Davlatchilikning tiklanishi va rivojlanish (1925 — 1936)',
       slug: 'davlatchilik-1925-1936',
       startYear: 1925,
@@ -32,6 +35,7 @@ export async function seedDelimitationData() {
       color: 'teal' as const,
     },
     {
+      order: 4,
       title: 'Tarixiy saboqlar va mustaqillik poydevori (XX — XXI asr)',
       slug: 'tarixiy-saboqlar-va-ahamiyat',
       startYear: 1937,
@@ -187,6 +191,27 @@ Biraq, usı quramalılıqlarǵa qaramastan, 1924-jılǵı shegaralanıwdıń eń
     },
   ]
 
+  const adminUsers = await payload.find({
+    collection: 'users',
+    limit: 1,
+    overrideAccess: true,
+  })
+  let authorId = adminUsers.docs[0]?.id
+  if (!authorId) {
+    const admin = await payload.create({
+      collection: 'users',
+      data: {
+        email: 'admin@hisinf.uz',
+        username: 'admin',
+        displayName: 'HISINF Admin',
+        password: process.env.SEED_ADMIN_PASSWORD || 'SeedAdminPass123!',
+        role: 'admin',
+      },
+      overrideAccess: true,
+    })
+    authorId = admin.id
+  }
+
   for (const a of articles) {
     const existing = await payload.find({
       collection: 'posts',
@@ -197,6 +222,8 @@ Biraq, usı quramalılıqlarǵa qaramastan, 1924-jılǵı shegaralanıwdıń eń
     const postData = {
       slug: a.slug,
       period: periodMap[a.periodSlug] || null,
+      author: authorId,
+      workflowStatus: 'published' as const,
       coverImageUrl: a.coverImageUrl,
       publishedAt: new Date().toISOString(),
     }
