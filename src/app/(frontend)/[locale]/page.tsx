@@ -22,12 +22,23 @@ export default async function HomePage({
 
   const payload = await getPayload({ config })
 
+  const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
+
   // Fetch posts for current locale (excluding internal discussion post)
   const { docs: posts } = await payload.find({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
     where: {
-      slug: { not_equals: 'bosh-sahifa-izohlari' },
+      and: [
+        { slug: { not_equals: 'bosh-sahifa-izohlari' } },
+        {
+          or: [
+            { language: { equals: targetLanguage } },
+            { language: { equals: 'both' } },
+            { language: { exists: false } },
+          ],
+        },
+      ],
     },
     limit: 6,
     sort: '-publishedAt',

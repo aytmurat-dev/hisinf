@@ -7,14 +7,21 @@ import { normalizeSearch } from '@/lib/normalize-search'
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    const title = formData.get('title') as string || ''
-    const content = formData.get('content') as string || ''
-    const excerpt = formData.get('excerpt') as string || ''
-    const coverImageUrl = formData.get('coverImageUrl') as string || ''
-    const locale = (formData.get('locale') as string) || 'uz'
+    const title = (formData.get('title') as string) || ''
+    const content = (formData.get('content') as string) || ''
+    const excerpt = (formData.get('excerpt') as string) || ''
+    const titleKaa = (formData.get('titleKaa') as string) || ''
+    const contentKaa = (formData.get('contentKaa') as string) || ''
+    const excerptKaa = (formData.get('excerptKaa') as string) || ''
+    const coverImageUrl = (formData.get('coverImageUrl') as string) || ''
+    const rawMediaId = formData.get('mediaId') as string | null
+    const language = ((formData.get('language') as string) || 'both') as 'both' | 'uz' | 'kaa'
     const imageFile = formData.get('imageFile') as File | null
 
-    if (!content.trim()) {
+    const primaryContent = language === 'kaa' && contentKaa ? contentKaa : content
+    const primaryTitle = language === 'kaa' && titleKaa ? titleKaa : title
+
+    if (!primaryContent.trim()) {
       return NextResponse.json(
         { error: 'Post haqida (matn) maydoni toʻldirilishi majburiy!' },
         { status: 400 },
@@ -23,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     const payload = await getPayload({ config })
 
-    let mediaId: number | undefined = undefined
+    let mediaId: number | undefined = rawMediaId ? Number(rawMediaId) : undefined
 
     // Agar qurilmadan rasm yuklangan bo'lsa
     if (imageFile && imageFile.size > 0) {
@@ -31,7 +38,7 @@ export async function POST(req: NextRequest) {
       const uploadedMedia = await payload.create({
         collection: 'media',
         data: {
-          alt: title || 'Post muqova rasmi',
+          alt: primaryTitle || 'Post muqova rasmi',
         },
         file: {
           data: buffer,
@@ -44,17 +51,20 @@ export async function POST(req: NextRequest) {
       mediaId = uploadedMedia.id
     }
 
-    const slug = slugify(title) || `post-${Date.now()}`
-    const searchText = normalizeSearch(`${title} ${excerpt} ${content}`)
+    const baseTitle = primaryTitle || title || titleKaa || 'Yangi post'
+    const slug = slugify(baseTitle) || `post-${Date.now()}`
+    const searchText = normalizeSearch(`${primaryTitle} ${excerpt} ${primaryContent}`)
 
+    // 1. Asosiy postni yaratamiz (baza uchun locale: 'uz')
     const post = await payload.create({
       collection: 'posts',
-      locale: locale as 'uz' | 'kaa',
+      locale: 'uz',
       data: {
-        title: title.trim(),
+        title: (language === 'kaa' && !title ? titleKaa : title).trim(),
         slug,
-        content: content.trim(),
-        excerpt: excerpt.trim(),
+        content: (language === 'kaa' && !content ? contentKaa : content).trim(),
+        excerpt: (language === 'kaa' && !excerpt ? excerptKaa : excerpt).trim(),
+        language,
         coverImage: mediaId,
         coverImageUrl: coverImageUrl.trim() || undefined,
         publishedAt: new Date().toISOString(),
@@ -63,6 +73,27 @@ export async function POST(req: NextRequest) {
       },
       overrideAccess: true,
     })
+
+    // 2. Agar post 'kaa' yoki 'both' bo'lsa, qoraqalpoqcha lokalini ham yangilaymiz
+    if (language === 'both' || language === 'kaa') {
+      const kaaTitle = (titleKaa || title).trim()
+      const kaaContent = (contentKaa || content).trim()
+      const kaaExcerpt = (excerptKaa || excerpt).trim()
+      const kaaSearchText = normalizeSearch(`${kaaTitle} ${kaaExcerpt} ${kaaContent}`)
+
+      await payload.update({
+        collection: 'posts',
+        id: post.id,
+        locale: 'kaa',
+        data: {
+          title: kaaTitle,
+          content: kaaContent,
+          excerpt: kaaExcerpt,
+          searchText: kaaSearchText,
+        },
+        overrideAccess: true,
+      })
+    }
 
     return NextResponse.json({
       success: true,

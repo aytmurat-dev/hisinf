@@ -8,6 +8,7 @@ export interface ReaderUser {
   lastName: string
   username: string
   phone: string
+  role?: string
 }
 
 export async function getCurrentReader(): Promise<ReaderUser | null> {
@@ -30,12 +31,15 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
 
     if (!reader) return null
 
+    const readerData = reader as unknown as { role?: string }
+
     return {
       id: reader.id,
       firstName: reader.firstName,
       lastName: reader.lastName,
       username: reader.username,
       phone: reader.phone,
+      role: readerData.role || (reader.username === 'admin' ? 'admin' : 'reader'),
     }
   } catch (_e) {
     return null
@@ -44,6 +48,6 @@ export async function getCurrentReader(): Promise<ReaderUser | null> {
 
 export async function isCurrentReaderAdmin(): Promise<boolean> {
   const reader = await getCurrentReader()
-  return Boolean(reader && reader.username === 'admin')
+  return Boolean(reader && (reader.role === 'admin' || reader.username === 'admin'))
 }
 

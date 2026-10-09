@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
           lastName: reader.lastName,
           username: reader.username,
           phone: reader.phone,
+          role: (reader as unknown as { role?: string }).role || (reader.username === 'admin' ? 'admin' : 'reader'),
         },
       })
 

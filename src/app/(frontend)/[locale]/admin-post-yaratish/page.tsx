@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import {
   Upload,
@@ -12,16 +12,24 @@ import {
   ArrowRight,
   ShieldAlert,
   Loader2,
+  Globe,
 } from 'lucide-react'
 
 export default function AdminCreatePostPage() {
   const t = useTranslations('createPost')
-  const locale = useLocale()
+  const tAdmin = useTranslations('admin')
   const router = useRouter()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [excerpt, setExcerpt] = useState('')
+
+  // Til tanlovi
+  const [language, setLanguage] = useState<'both' | 'uz' | 'kaa'>('both')
+  const [separateLangs, setSeparateLangs] = useState(false)
+  const [titleKaa, setTitleKaa] = useState('')
+  const [contentKaa, setContentKaa] = useState('')
+  const [excerptKaa, setExcerptKaa] = useState('')
 
   // Rasm turi: 'file' (qurilmadan) yoki 'url' (internetdan)
   const [imageMode, setImageMode] = useState<'file' | 'url'>('url')
@@ -94,7 +102,8 @@ export default function AdminCreatePostPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!content.trim()) {
+    const primaryContent = language === 'kaa' && contentKaa ? contentKaa : content
+    if (!primaryContent.trim()) {
       setError('Post haqida (matn) maydoni toʻldirilishi majburiy!')
       return
     }
@@ -108,7 +117,17 @@ export default function AdminCreatePostPage() {
       formData.append('title', title)
       formData.append('content', content)
       formData.append('excerpt', excerpt)
-      formData.append('locale', locale)
+      formData.append('language', language)
+
+      if (language === 'both' && separateLangs) {
+        formData.append('titleKaa', titleKaa)
+        formData.append('contentKaa', contentKaa)
+        formData.append('excerptKaa', excerptKaa)
+      } else if (language === 'kaa') {
+        formData.append('titleKaa', titleKaa || title)
+        formData.append('contentKaa', contentKaa || content)
+        formData.append('excerptKaa', excerptKaa || excerpt)
+      }
 
       if (imageMode === 'url' && coverImageUrl) {
         formData.append('coverImageUrl', coverImageUrl)
@@ -177,11 +196,73 @@ export default function AdminCreatePostPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8 bg-[var(--card)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-xl">
-        {/* 1. Muqova rasmi (Qurilmadan yoki Internetdan) */}
+        {/* 1. Post tili (O'zbek / Qoraqalpoq / Ikkala til) */}
+        <div className="space-y-3 p-4 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)]">
+          <label className="text-sm font-serif font-bold text-[var(--foreground)] flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[var(--gold)]" />
+            <span>1. {tAdmin('languageLabel')}</span>
+          </label>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage('both')}
+              className={`px-3 py-2.5 rounded-lg text-xs font-medium border text-left transition-all cursor-pointer ${
+                language === 'both'
+                  ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                  : 'border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
+            >
+              {tAdmin('langBoth')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('uz')}
+              className={`px-3 py-2.5 rounded-lg text-xs font-medium border text-left transition-all cursor-pointer ${
+                language === 'uz'
+                  ? 'bg-blue-500/15 border-blue-500 text-blue-500 font-bold'
+                  : 'border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
+            >
+              {tAdmin('langUz')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('kaa')}
+              className={`px-3 py-2.5 rounded-lg text-xs font-medium border text-left transition-all cursor-pointer ${
+                language === 'kaa'
+                  ? 'bg-emerald-500/15 border-emerald-500 text-emerald-500 font-bold'
+                  : 'border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
+            >
+              {tAdmin('langKaa')}
+            </button>
+          </div>
+
+          {language === 'both' && (
+            <div className="pt-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="createSeparateLangsCheckbox"
+                checked={separateLangs}
+                onChange={(e) => setSeparateLangs(e.target.checked)}
+                className="rounded border-[var(--border)] text-[var(--gold)] focus:ring-[var(--gold)] cursor-pointer"
+              />
+              <label
+                htmlFor="createSeparateLangsCheckbox"
+                className="text-xs text-[var(--muted-foreground)] cursor-pointer select-none"
+              >
+                {tAdmin('separateTranslation')}
+              </label>
+            </div>
+          )}
+        </div>
+
+        {/* 2. Muqova rasmi (Qurilmadan yoki Internetdan) */}
         <div className="space-y-3">
           <label className="text-sm font-serif font-bold text-[var(--foreground)] flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-[var(--gold)]" />
-            <span>1. Muqova rasmi (Telefon/Laptopdan yoki Internet orqali)</span>
+            <span>2. Muqova rasmi (Telefon/Laptopdan yoki Internet orqali)</span>
           </label>
 
           <div className="flex items-center gap-2 bg-[var(--secondary)]/60 p-1 rounded-lg w-fit text-xs font-medium">
@@ -247,21 +328,7 @@ export default function AdminCreatePostPage() {
           )}
         </div>
 
-        {/* 2. Mavzu (Majburiy emas / Ixtiyoriy) */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-serif font-bold text-[var(--foreground)]">
-            2. {t('titleOptional')}
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Masalan: Amir Temurning davlat boshqaruvi islohotlari"
-            className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
-          />
-        </div>
-
-        {/* 3. Word (.docx) yoki PDF fayldan matn ajratib olish (Foydalanuvchi talabi) */}
+        {/* 3. Word (.docx) yoki PDF fayldan matn ajratib olish */}
         <div className="p-4 sm:p-5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] space-y-3">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-[var(--gold)]" />
@@ -301,39 +368,146 @@ export default function AdminCreatePostPage() {
           )}
         </div>
 
-        {/* 4. Post haqida (Majburiy) */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-serif font-bold text-[var(--foreground)]">
-              4. {t('contentRequired')} <span className="text-[var(--destructive)]">*</span>
-            </label>
-            <span className="text-xs text-[var(--muted-foreground)]">
-              {content.length} ta belgi
-            </span>
-          </div>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Tarixiy post matnini shu yerga yozing yoki yuqoridagi tugma orqali Word/PDF yuklang..."
-            rows={10}
-            required
-            className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors font-sans leading-relaxed"
-          />
-        </div>
+        {/* 4. Kontent maydonlari */}
+        {language === 'both' && separateLangs ? (
+          <div className="space-y-6">
+            {/* O'zbekcha bo'lim */}
+            <div className="p-4 sm:p-5 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-4">
+              <div className="text-xs font-bold text-blue-500 flex items-center gap-1.5">
+                <span>🇺🇿 {tAdmin('filterUz')}</span>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-serif font-bold text-[var(--foreground)]">
+                  {tAdmin('titleUz')} ({tAdmin('optional')})
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Masalan: Amir Temurning davlat boshqaruvi"
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-serif font-bold text-blue-500">
+                  {tAdmin('contentUz')} <span className="text-[var(--destructive)]">*</span>
+                </label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Oʻzbekcha toʻliq post matni..."
+                  rows={8}
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-blue-500 transition-colors leading-relaxed"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-[var(--muted-foreground)]">
+                  {tAdmin('excerptUz')}
+                </label>
+                <textarea
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  placeholder="Oʻzbekcha qisqa mazmun..."
+                  rows={2}
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+            </div>
 
-        {/* 5. Qisqa tavsif */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[var(--muted-foreground)]">
-            Qisqa tavsif (Anons - kartochka uchun, ixtiyoriy)
-          </label>
-          <textarea
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            placeholder="Maqola haqida 1-2 jumlalik qisqacha xulosa..."
-            rows={2}
-            className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
-          />
-        </div>
+            {/* Qaraqalpaqsha bo'lim */}
+            <div className="p-4 sm:p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-4">
+              <div className="text-xs font-bold text-emerald-500 flex items-center gap-1.5">
+                <span>🇬🇪 {tAdmin('filterKaa')}</span>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-serif font-bold text-[var(--foreground)]">
+                  {tAdmin('titleKaa')} ({tAdmin('optional')})
+                </label>
+                <input
+                  type="text"
+                  value={titleKaa}
+                  onChange={(e) => setTitleKaa(e.target.value)}
+                  placeholder="Mısalı: Ámir Temurdıń mámleket basqarıwı"
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-serif font-bold text-emerald-500">
+                  {tAdmin('contentKaa')} <span className="text-[var(--destructive)]">*</span>
+                </label>
+                <textarea
+                  value={contentKaa}
+                  onChange={(e) => setContentKaa(e.target.value)}
+                  placeholder="Qaraqalpaqsha tolıq post teksti..."
+                  rows={8}
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-emerald-500 transition-colors leading-relaxed"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-[var(--muted-foreground)]">
+                  {tAdmin('excerptKaa')}
+                </label>
+                <textarea
+                  value={excerptKaa}
+                  onChange={(e) => setExcerptKaa(e.target.value)}
+                  placeholder="Qaraqalpaqsha qısqasha mazmunı..."
+                  rows={2}
+                  className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Sarlavha */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-serif font-bold text-[var(--foreground)]">
+                3. {language === 'kaa' ? tAdmin('titleKaa') : language === 'uz' ? tAdmin('titleUz') : t('titleOptional')}
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Mavzu (Sarlavha)..."
+                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
+              />
+            </div>
+
+            {/* Post haqida (Majburiy) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-serif font-bold text-[var(--foreground)]">
+                  4. {language === 'kaa' ? tAdmin('contentKaa') : t('contentRequired')}
+                </label>
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {content.length} ta belgi
+                </span>
+              </div>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Tarixiy post matnini shu yerga yozing..."
+                rows={10}
+                required
+                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors font-sans leading-relaxed"
+              />
+            </div>
+
+            {/* Qisqa tavsif */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[var(--muted-foreground)]">
+                5. Qisqa tavsif (Anons - kartochka uchun, ixtiyoriy)
+              </label>
+              <textarea
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                placeholder="Maqola haqida 1-2 jumlalik qisqacha xulosa..."
+                rows={2}
+                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--gold)] transition-colors"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Chop etish tugmasi */}
         <div className="pt-4 border-t border-[var(--border)] flex justify-end">

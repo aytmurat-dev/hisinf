@@ -55,6 +55,18 @@ export const Readers: CollectionConfig = {
       label: 'Parol (admin nazorati uchun)',
     },
     {
+      name: 'role',
+      type: 'select',
+      defaultValue: 'reader',
+      options: [
+        { label: 'Oʻquvchi', value: 'reader' },
+        { label: 'Administrator', value: 'admin' },
+      ],
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'savedPosts',
       type: 'relationship',
       relationTo: 'posts',

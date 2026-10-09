@@ -16,11 +16,25 @@ export async function GET(req: NextRequest) {
     const payload = await getPayload({ config })
     const normalizedQuery = normalizeSearch(q)
 
+    const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
+
     // Fetch published posts
     const { docs: posts } = await payload.find({
       collection: 'posts',
       locale,
       limit: 30,
+      where: {
+        and: [
+          { slug: { not_equals: 'bosh-sahifa-izohlari' } },
+          {
+            or: [
+              { language: { equals: targetLanguage } },
+              { language: { equals: 'both' } },
+              { language: { exists: false } },
+            ],
+          },
+        ],
+      },
       overrideAccess: true,
       select: {
         id: true,

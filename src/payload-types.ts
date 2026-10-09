@@ -215,6 +215,7 @@ export interface Reader {
   lastName: string;
   phone: string;
   displayPassword?: string | null;
+  role?: ('reader' | 'admin') | null;
   savedPosts?: (number | Post)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -255,6 +256,10 @@ export interface Post {
    * Masalan: https://example.com/rasm.jpg
    */
   coverImageUrl?: string | null;
+  /**
+   * Post qaysi tilda ekanligini belgilash
+   */
+  language?: ('both' | 'uz' | 'kaa') | null;
   period?: (number | null) | Period;
   publishedAt?: string | null;
   commentsEnabled?: boolean | null;
@@ -471,6 +476,7 @@ export interface ReadersSelect<T extends boolean = true> {
   lastName?: T;
   phone?: T;
   displayPassword?: T;
+  role?: T;
   savedPosts?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -502,6 +508,7 @@ export interface PostsSelect<T extends boolean = true> {
   excerpt?: T;
   coverImage?: T;
   coverImageUrl?: T;
+  language?: T;
   period?: T;
   publishedAt?: T;
   commentsEnabled?: T;

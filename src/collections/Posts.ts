@@ -79,6 +79,20 @@ export const Posts: CollectionConfig = {
       ],
     },
     {
+      name: 'language',
+      type: 'select',
+      defaultValue: 'both',
+      options: [
+        { label: 'Har ikkala til (Oʻzbekcha va Qoraqalpoqcha)', value: 'both' },
+        { label: 'Faqat Oʻzbek tili', value: 'uz' },
+        { label: 'Faqat Qoraqalpoq tili', value: 'kaa' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Post qaysi tilda ekanligini belgilash',
+      },
+    },
+    {
       name: 'period',
       type: 'relationship',
       relationTo: 'periods',
