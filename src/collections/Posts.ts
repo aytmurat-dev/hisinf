@@ -107,7 +107,6 @@ export const Posts: CollectionConfig = {
               name: 'title',
               type: 'text',
               localized: true,
-              maxLength: 250,
               required: false,
               label: 'Maqola sarlavhasi (Nomi)',
               admin: {
@@ -119,11 +118,10 @@ export const Posts: CollectionConfig = {
               name: 'excerpt',
               type: 'textarea',
               localized: true,
-              maxLength: 500,
               label: 'Qisqa tavsif (Anons)',
               admin: {
-                description: 'Sayt kartalarida koʻrinadigan qisqa matn (ixtiyoriy).',
-                placeholder: 'Maqola haqida qisqacha maʼlumot...',
+                description: 'Sayt kartalarida koʻrinadigan qisqa matn (ixtiyoriy). Cheklovlarsiz.',
+                placeholder: 'Maqola haqida maʼlumot...',
               },
             },
             {

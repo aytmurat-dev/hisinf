@@ -103,7 +103,6 @@ export const Persons: CollectionConfig = {
       name: 'shortBio',
       type: 'textarea',
       localized: true,
-      maxLength: 300,
       label: 'Qisqa biografiya',
     },
     {

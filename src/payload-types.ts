@@ -385,7 +385,7 @@ export interface Post {
    */
   title?: string | null;
   /**
-   * Sayt kartalarida koʻrinadigan qisqa matn (ixtiyoriy).
+   * Sayt kartalarida koʻrinadigan qisqa matn (ixtiyoriy). Cheklovlarsiz.
    */
   excerpt?: string | null;
   /**
