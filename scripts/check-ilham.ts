@@ -14,9 +14,12 @@ async function run() {
   await client.connect()
 
   try {
-    const res = await client.query('SELECT id, slug, _status, workflow_status FROM posts ORDER BY id ASC')
-    console.log(`TOTAL POSTS IN DB: ${res.rows.length}`)
-    console.table(res.rows)
+    const res = await client.query('SELECT * FROM posts WHERE id IN (26, 27)')
+    console.log('POSTS 26, 27:', res.rows)
+
+    const localesRes = await client.query('SELECT id, _locale, _parent_id, title, excerpt FROM posts_locales WHERE _parent_id IN (26, 27)')
+    console.log('POSTS_LOCALES 26, 27:')
+    console.table(localesRes.rows)
 
     const usersRes = await client.query('SELECT id, email, username, role, is_active FROM users ORDER BY id ASC')
     console.log(`TOTAL USERS IN DB: ${usersRes.rows.length}`)

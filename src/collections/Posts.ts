@@ -6,6 +6,7 @@ import { enforcePostWorkflow } from '../hooks/enforcePostWorkflow'
 import { computeReadingTime } from '../hooks/computeReadingTime'
 import { buildSearchText } from '../hooks/buildSearchText'
 import { revalidateSite } from '../hooks/revalidateSite'
+import { syncPostLocales } from '../hooks/syncPostLocales'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -16,7 +17,7 @@ export const Posts: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Asosiy',
-    defaultColumns: ['title', 'language', 'author', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title', 'language', 'author', 'publishedAt', 'rowActions'],
     listSearchableFields: ['title', 'slug'],
     components: {
       edit: {
@@ -55,9 +56,19 @@ export const Posts: CollectionConfig = {
       computeReadingTime,
       buildSearchText,
     ],
-    afterChange: [revalidateSite],
+    afterChange: [revalidateSite, syncPostLocales],
   },
   fields: [
+    {
+      name: 'rowActions',
+      type: 'ui',
+      label: 'Amallar',
+      admin: {
+        components: {
+          Cell: '/components/admin/PostRowActionsCell#PostRowActionsCell',
+        },
+      },
+    },
     {
       name: 'language',
       type: 'select',

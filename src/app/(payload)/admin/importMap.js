@@ -3,6 +3,7 @@ import { RoleCell as RoleCell_4bb4e82c1ae104f685e1d6fd4ad1e504 } from '../../../
 import { StatusCell as StatusCell_4da1f90de99340c8531cff72a46c36b2 } from '../../../components/admin/StatusCell'
 import { UsersListHeader as UsersListHeader_ecfc2919bf60f032d1fdaf335c861e26 } from '../../../components/admin/UsersListHeader'
 import { ReadersListHeader as ReadersListHeader_bfee4f87f4ea93b9b593587de74bd2f6 } from '../../../components/admin/ReadersListHeader'
+import { PostRowActionsCell as PostRowActionsCell_69059f8f1598edeaf626ebe16bca7cc2 } from '../../../components/admin/PostRowActionsCell'
 import { ImportDocumentField as ImportDocumentField_f1837996f6257e9ea6de9e868eb697ad } from '../../../components/admin/ImportDocumentField'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -56,6 +57,7 @@ export const importMap = {
   "/components/admin/StatusCell#StatusCell": StatusCell_4da1f90de99340c8531cff72a46c36b2,
   "/components/admin/UsersListHeader#UsersListHeader": UsersListHeader_ecfc2919bf60f032d1fdaf335c861e26,
   "/components/admin/ReadersListHeader#ReadersListHeader": ReadersListHeader_bfee4f87f4ea93b9b593587de74bd2f6,
+  "/components/admin/PostRowActionsCell#PostRowActionsCell": PostRowActionsCell_69059f8f1598edeaf626ebe16bca7cc2,
   "/components/admin/ImportDocumentField#ImportDocumentField": ImportDocumentField_f1837996f6257e9ea6de9e868eb697ad,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,

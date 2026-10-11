@@ -11,6 +11,7 @@ export type PostSummary = {
   title?: string | null
   slug?: string | null
   excerpt?: string | null
+  content?: string | null
   publishedAt?: string | null
   readingTime?: number | null
   views?: number | null
@@ -147,7 +148,7 @@ export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<
   const result = await payload.find({
     collection: 'posts',
     locale: options.locale,
-    fallbackLocale: 'uz',
+    fallbackLocale: options.locale === 'uz' ? 'kaa' : 'uz',
     where: {
       and: andConditions,
     },
@@ -160,6 +161,7 @@ export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<
       title: true,
       slug: true,
       excerpt: true,
+      content: true,
       publishedAt: true,
       readingTime: true,
       views: true,
@@ -197,7 +199,7 @@ export async function getPostBySlug(
   const result = await payload.find({
     collection: 'posts',
     locale,
-    fallbackLocale: 'uz',
+    fallbackLocale: locale === 'uz' ? 'kaa' : 'uz',
     where,
     limit: 1,
     depth: 2,
@@ -220,7 +222,7 @@ export async function getAdjacentPosts(
   const prevResult = await payload.find({
     collection: 'posts',
     locale,
-    fallbackLocale: 'uz',
+    fallbackLocale: locale === 'uz' ? 'kaa' : 'uz',
     where: {
       and: [
         { _status: { equals: 'published' } },
@@ -244,7 +246,7 @@ export async function getAdjacentPosts(
   const nextResult = await payload.find({
     collection: 'posts',
     locale,
-    fallbackLocale: 'uz',
+    fallbackLocale: locale === 'uz' ? 'kaa' : 'uz',
     where: {
       and: [
         { _status: { equals: 'published' } },
@@ -296,7 +298,7 @@ export async function getRelatedPosts(
   const result = await payload.find({
     collection: 'posts',
     locale,
-    fallbackLocale: 'uz',
+    fallbackLocale: locale === 'uz' ? 'kaa' : 'uz',
     where: {
       and: andConditions,
     },
