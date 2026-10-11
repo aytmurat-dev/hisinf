@@ -24,7 +24,10 @@ export async function GET(req: NextRequest) {
       locale,
       limit: 50,
       where: {
-        slug: { not_equals: 'bosh-sahifa-izohlari' },
+        and: [
+          { _status: { equals: 'published' } },
+          { slug: { not_equals: 'bosh-sahifa-izohlari' } },
+        ],
       },
       overrideAccess: true,
       select: {

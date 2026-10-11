@@ -7,6 +7,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowLeft, Compass } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
+import { extractPlainText } from '@/lib/lexical-text'
 
 export const revalidate = 3600
 
@@ -111,6 +112,7 @@ export default async function PostDetailPage({
             alt={post.title || 'HISINF'}
             fill
             priority
+            unoptimized
             className="object-cover"
           />
         </div>
@@ -125,7 +127,7 @@ export default async function PostDetailPage({
 
       {/* Main Historical Content */}
       <div className="prose prose-stone dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed text-[var(--foreground)] space-y-4 whitespace-pre-line font-sans pt-2">
-        {post.content}
+        {post.content || extractPlainText(post.body)}
       </div>
 
       {/* Comments Section */}

@@ -16,6 +16,7 @@ const remotePatterns: Array<{ hostname: string; protocol?: 'http' | 'https' }> =
   { hostname: 'images.unsplash.com', protocol: 'https' },
   { hostname: 'raw.githubusercontent.com', protocol: 'https' },
   { hostname: '**', protocol: 'https' },
+  { hostname: '**', protocol: 'http' },
 ]
 
 for (const urlStr of [serverURL, r2PublicURL].filter(Boolean) as string[]) {

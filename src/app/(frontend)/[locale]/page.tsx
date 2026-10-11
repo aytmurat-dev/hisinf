@@ -31,9 +31,12 @@ export default async function HomePage({
     collection: 'posts',
     locale: locale as 'uz' | 'kaa',
     where: {
-      slug: { not_equals: 'bosh-sahifa-izohlari' },
+      and: [
+        { _status: { equals: 'published' } },
+        { slug: { not_equals: 'bosh-sahifa-izohlari' } },
+      ],
     },
-    limit: 20,
+    limit: 30,
     sort: '-publishedAt',
     overrideAccess: true,
   })
@@ -202,6 +205,7 @@ export default async function HomePage({
                       src={coverUrl}
                       alt={post.title || 'HISINF'}
                       fill
+                      unoptimized
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

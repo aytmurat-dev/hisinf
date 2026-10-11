@@ -22,7 +22,7 @@ export function slugField(sourceField = 'title', prefix = 'post'): Field {
             const rawSource = data?.[sourceField]
             const source =
               typeof rawSource === 'object' && rawSource !== null
-                ? rawSource.uz || (req?.locale ? rawSource[req.locale] : '')
+                ? rawSource.uz || rawSource.kaa || (req?.locale ? rawSource[req.locale] : Object.values(rawSource).find(Boolean) || '')
                 : rawSource || originalDoc?.[sourceField]
 
             if (source && typeof source === 'string') {

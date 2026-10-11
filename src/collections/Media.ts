@@ -4,12 +4,11 @@ import { yearField } from '@/fields/years'
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'Media', plural: 'Medialar' },
+  labels: { singular: 'Media fayl (Surat)', plural: 'Media (Suratlar)' },
   admin: {
-    hidden: true,
-    group: 'Media',
-    useAsTitle: 'altText',
-    defaultColumns: ['filename', 'altText', 'credit', 'license', 'createdAt'],
+    group: 'Asosiy',
+    useAsTitle: 'filename',
+    defaultColumns: ['filename', 'altText', 'createdAt'],
   },
   access: {
     read: anyone,

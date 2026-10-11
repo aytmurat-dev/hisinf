@@ -15,6 +15,8 @@ export type PostSummary = {
   readingTime?: number | null
   views?: number | null
   coverImage?: (number | null) | Media
+  coverImageUrl?: string | null
+  language?: string | null
   period?: (number | null) | Period
   categories?: (number | Category)[] | null
   author: number | User
@@ -49,9 +51,16 @@ export type PostsStats = {
 export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<PostSummary>> {
   const payload = await getPayloadClient()
 
+  const targetLanguage = options.locale === 'kaa' ? 'kaa' : 'uz'
   const andConditions: Where[] = [
     { _status: { equals: 'published' } },
-    { workflowStatus: { equals: 'published' } },
+    {
+      or: [
+        { language: { equals: targetLanguage } },
+        { language: { equals: 'both' } },
+        { language: { exists: false } },
+      ],
+    },
   ]
 
   if (typeof options.featured === 'boolean') {
@@ -155,6 +164,8 @@ export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<
       readingTime: true,
       views: true,
       coverImage: true,
+      coverImageUrl: true,
+      language: true,
       period: true,
       categories: true,
       author: true,
@@ -181,7 +192,6 @@ export async function getPostBySlug(
 
   if (!isDraft) {
     where._status = { equals: 'published' }
-    where.workflowStatus = { equals: 'published' }
   }
 
   const result = await payload.find({
@@ -214,7 +224,6 @@ export async function getAdjacentPosts(
     where: {
       and: [
         { _status: { equals: 'published' } },
-        { workflowStatus: { equals: 'published' } },
         { publishedAt: { less_than: post.publishedAt } },
         { id: { not_equals: post.id } },
       ],
@@ -239,7 +248,6 @@ export async function getAdjacentPosts(
     where: {
       and: [
         { _status: { equals: 'published' } },
-        { workflowStatus: { equals: 'published' } },
         { publishedAt: { greater_than: post.publishedAt } },
         { id: { not_equals: post.id } },
       ],
@@ -278,7 +286,6 @@ export async function getRelatedPosts(
 
   const andConditions: Where[] = [
     { _status: { equals: 'published' } },
-    { workflowStatus: { equals: 'published' } },
     { id: { not_equals: post.id } },
   ]
 
@@ -319,7 +326,6 @@ export async function getPostsStats(): Promise<PostsStats> {
     collection: 'posts',
     where: {
       _status: { equals: 'published' },
-      workflowStatus: { equals: 'published' },
     },
     overrideAccess: false,
   })
@@ -329,7 +335,6 @@ export async function getPostsStats(): Promise<PostsStats> {
     collection: 'posts',
     where: {
       _status: { equals: 'published' },
-      workflowStatus: { equals: 'published' },
     },
     limit: 1000,
     depth: 0,

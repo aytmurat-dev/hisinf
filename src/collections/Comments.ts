@@ -9,6 +9,7 @@ export const Comments: CollectionConfig = {
     plural: 'Izohlar',
   },
   admin: {
+    hidden: true,
     useAsTitle: 'body',
     group: 'Muloqot',
     defaultColumns: ['body', 'authorName', 'context', 'post', 'status', 'flagged', 'createdAt'],

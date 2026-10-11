@@ -1,9 +1,16 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 import { APIError } from 'payload'
 import { isStaffUser } from '../access'
-import { canTransition, getReviewProblems, type WorkflowStatus } from '../lib/workflow'
+import type { WorkflowStatus } from '../lib/workflow'
+import { extractPlainText } from '../lib/lexical-text'
+import { textToLexical } from '../lib/text-to-lexical'
 
-export const enforcePostWorkflow: CollectionBeforeChangeHook = ({ data, originalDoc, req, operation }) => {
+export const enforcePostWorkflow: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  req,
+  operation: _operation,
+}) => {
   if (req.context?.skipWorkflow) return data
   const user = req.user
   if (!user) return data // server kodi (seed, cron) — ishonchli
@@ -13,30 +20,27 @@ export const enforcePostWorkflow: CollectionBeforeChangeHook = ({ data, original
   const from = (originalDoc?.workflowStatus ?? 'draft') as WorkflowStatus
   let to = (data.workflowStatus ?? from) as WorkflowStatus
 
-  if (user.role === 'author' && data._status === 'published') {
-    throw new APIError('Faqat muharrir chop eta oladi. «Tekshiruvga yuborish» tugmasini bosing.', 403)
-  }
-  if (!canTransition(user.role, from, to)) {
-    throw new APIError(`Holatni «${from}» dan «${to}» ga oʻzgartirib boʻlmaydi`, 403)
-  }
-  if (operation === 'create' && user.role === 'author') {
+  // Agar muallif ko'rsatilmagan bo'lsa, avtomatik joriy adminga bog'laymiz
+  if (!data.author && user.id) {
     data.author = user.id
   }
-  if (to === 'in_review' && from !== 'in_review') {
-    if (req.locale && req.locale !== 'uz') {
-      throw new APIError('Tekshiruvga yuborishni Oʻzbekcha versiyada bajaring', 400)
+
+  // Matn sinxronizatsiyasi: body (Lexical) va content (oddiy matn) o'rtasida
+  if (data.body && (!data.content || typeof data.content !== 'string' || !data.content.trim())) {
+    const plain = extractPlainText(data.body)
+    if (plain) {
+      data.content = plain
     }
-    const problems = getReviewProblems(merged)
-    if (problems.length) {
-      throw new APIError(`Yuborishdan oldin tuzating: ${problems.join('; ')}`, 400)
-    }
+  } else if (data.content && typeof data.content === 'string' && data.content.trim() && (!data.body || !(data.body as { root?: unknown })?.root)) {
+    data.body = textToLexical(data.content)
   }
-  if (from === 'in_review' && to === 'changes_requested') {
-    const before = originalDoc?.reviewNotes?.length ?? 0
-    if ((data.reviewNotes?.length ?? 0) <= before) {
-      throw new APIError('Qaytarishdan oldin izoh yozing', 400)
-    }
+
+  // Agar muallif (author) o'zi chop etmoqchi bo'lsa, ogohlantirish (admin va muharrir esa to'g'ridan-to'g'ri chop etadi)
+  if (user.role === 'author' && data._status === 'published') {
+    throw new APIError('Faqat muharrir yoki admin chop eta oladi.', 403)
   }
+
+  // Review notes kiritilgan bo'lsa author va vaqtni belgilaymiz
   if (Array.isArray(data.reviewNotes)) {
     const now = new Date().toISOString()
     data.reviewNotes = data.reviewNotes.map((item: Record<string, unknown>) => ({
@@ -45,11 +49,14 @@ export const enforcePostWorkflow: CollectionBeforeChangeHook = ({ data, original
       at: item.at ?? now,
     }))
   }
+
+  // Agar chop etish tanlangan bo'lsa:
   if (data._status === 'published') {
     to = 'published'
     data.reviewedBy = user.id
     data.publishedAt = merged.publishedAt ?? new Date().toISOString()
   }
+
   data.workflowStatus = to
   return data
 }

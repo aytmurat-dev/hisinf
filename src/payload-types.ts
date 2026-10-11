@@ -371,19 +371,33 @@ export interface Reader {
 export interface Post {
   id: number;
   /**
-   * Maqolaning asosiy nomi (masalan: "Amir Temur davlati va harbiy yurishlari")
+   * Saytda qaysi til tanlanganda ushbu maqola koʻrinishini belgilang. Tarjima qilish majburiy emas: agar faqat bir tilni tanlasangiz, sayt faqat oʻsha tilda koʻrsatadi.
+   */
+  language?: ('both' | 'uz' | 'kaa') | null;
+  author?: (number | null) | User;
+  publishedAt?: string | null;
+  /**
+   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
+   */
+  slug?: string | null;
+  /**
+   * Maqola nomini kiriting.
    */
   title?: string | null;
   /**
-   * Qisqa anons (1-2 gap). Asosiy sahifada va maqola kartasida oʻquvchilarga koʻrinadi.
+   * Sayt kartalarida koʻrinadigan qisqa matn (ixtiyoriy).
    */
   excerpt?: string | null;
   /**
-   * Maqolaning bosh rasmi. Kompyuteringizdan rasm tanlang yoki yuklang (JPG, PNG, WebP).
+   * Oʻz kompyuteringizdan rasm yuklash uchun tanlang (JPG, PNG, WebP).
    */
   coverImage?: (number | null) | Media;
   /**
-   * Bu yerda maqolaning toʻliq matnini yozing. Sarlavhalar, xatboshilar va rasmlarni kiritishingiz mumkin.
+   * Agar rasm internetda boʻlsa, uning URL havolasini shu yerga qoʻying (masalan: https://images.unsplash.com/... yoki har qanday rasm havolasi).
+   */
+  coverImageUrl?: string | null;
+  /**
+   * Word/PDF dan import qilishingiz yoki toʻgʻridan-toʻgʻri shu yerga yozishingiz mumkin.
    */
   body?: {
     root: {
@@ -401,20 +415,9 @@ export interface Post {
     [k: string]: unknown;
   } | null;
   /**
-   * ESKIRGAN matn — bodyʼga koʻchirildi
+   * Agar vizual muharrir ishlatishni xohlamasangiz, matnni toʻgʻridan-toʻgʻri shu yerga nusxalashingiz mumkin.
    */
   content?: string | null;
-  /**
-   * ESKIRGAN rasm URL
-   */
-  coverImageUrl?: string | null;
-  /**
-   * Saytda qaysi til tanlanganda ushbu maqola koʻrinishi kerakligini belgilang. «Ikkala til uchun ham» tanlansa, har ikki tilda ham chiqadi.
-   */
-  language?: ('both' | 'uz' | 'kaa') | null;
-  /**
-   * Maqola tegishli boʻlgan davrni tanlang (masalan: Amir Temur davri, Qadimgi dunyo)
-   */
   period?: (number | null) | Period;
   categories?: (number | Category)[] | null;
   tags?: (number | Tag)[] | null;
@@ -422,14 +425,13 @@ export interface Post {
   events?: (number | Event)[] | null;
   places?: (number | Place)[] | null;
   regions?: (number | Region)[] | null;
-  reviewNotes?:
-    | {
-        note?: string | null;
-        by?: (number | null) | User;
-        at?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  coAuthors?: (number | User)[] | null;
+  featured?: boolean | null;
+  commentsEnabled?: boolean | null;
+  workflowStatus?: ('published' | 'draft') | null;
+  readingTime?: number | null;
+  views?: number | null;
+  searchText?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -438,24 +440,6 @@ export interface Post {
      */
     image?: (number | null) | Media;
   };
-  /**
-   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
-   */
-  slug?: string | null;
-  /**
-   * Muallif tomonidan muharrir uchun eslatmalar
-   */
-  noteToEditor?: string | null;
-  workflowStatus: 'draft' | 'in_review' | 'changes_requested' | 'approved' | 'published';
-  author: number | User;
-  coAuthors?: (number | User)[] | null;
-  reviewedBy?: (number | null) | User;
-  publishedAt?: string | null;
-  featured?: boolean | null;
-  commentsEnabled?: boolean | null;
-  readingTime?: number | null;
-  views?: number | null;
-  searchText?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1177,13 +1161,16 @@ export interface ReadersSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
+  language?: T;
+  author?: T;
+  publishedAt?: T;
+  slug?: T;
   title?: T;
   excerpt?: T;
   coverImage?: T;
+  coverImageUrl?: T;
   body?: T;
   content?: T;
-  coverImageUrl?: T;
-  language?: T;
   period?: T;
   categories?: T;
   tags?: T;
@@ -1191,14 +1178,13 @@ export interface PostsSelect<T extends boolean = true> {
   events?: T;
   places?: T;
   regions?: T;
-  reviewNotes?:
-    | T
-    | {
-        note?: T;
-        by?: T;
-        at?: T;
-        id?: T;
-      };
+  coAuthors?: T;
+  featured?: T;
+  commentsEnabled?: T;
+  workflowStatus?: T;
+  readingTime?: T;
+  views?: T;
+  searchText?: T;
   meta?:
     | T
     | {
@@ -1206,18 +1192,6 @@ export interface PostsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
-  slug?: T;
-  noteToEditor?: T;
-  workflowStatus?: T;
-  author?: T;
-  coAuthors?: T;
-  reviewedBy?: T;
-  publishedAt?: T;
-  featured?: T;
-  commentsEnabled?: T;
-  readingTime?: T;
-  views?: T;
-  searchText?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

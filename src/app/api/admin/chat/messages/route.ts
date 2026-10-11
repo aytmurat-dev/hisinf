@@ -150,3 +150,66 @@ export async function DELETE(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const payload = await getPayloadClient()
+    const reqHeaders = await headers()
+    const { user } = await payload.auth({ headers: reqHeaders })
+
+    if (!user || !isStaffUser(user)) {
+      return Response.json({ error: 'Ruxsat yoʻq' }, { status: 403 })
+    }
+
+    const body = (await req.json()) as {
+      messageId: number
+      text: string
+    }
+
+    const messageId = Number(body.messageId)
+    const text = String(body.text || '').trim()
+
+    if (!messageId || !text) {
+      return Response.json({ error: 'Xabar ID va yangi matn majburiy' }, { status: 400 })
+    }
+
+    // Xabarni topamiz
+    const msg = await payload.findByID({
+      collection: 'admin-messages',
+      id: messageId,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    if (!msg) {
+      return Response.json({ error: 'Xabar topilmadi' }, { status: 404 })
+    }
+
+    const senderId =
+      typeof msg.sender === 'object' && msg.sender !== null
+        ? (msg.sender as { id: number }).id
+        : Number(msg.sender)
+
+    // Faqat xabarni yozgan admin yoki bosh admin tahrirlay oladi
+    if (senderId !== user.id && user.role !== 'admin') {
+      return Response.json(
+        { error: 'Ushbu xabarni faqat muallifi yoki bosh admin tahrirlay oladi' },
+        { status: 403 },
+      )
+    }
+
+    const updated = await payload.update({
+      collection: 'admin-messages',
+      id: messageId,
+      data: { text },
+      depth: 1,
+      overrideAccess: true,
+    })
+
+    return Response.json({ success: true, message: updated })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server xatosi'
+    return Response.json({ error: message }, { status: 500 })
+  }
+}
+
+

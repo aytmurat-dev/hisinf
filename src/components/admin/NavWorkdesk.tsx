@@ -3,63 +3,17 @@ import Link from 'next/link'
 import type { ServerProps } from 'payload'
 
 export async function NavWorkdesk(props: ServerProps) {
-  const { payload, user } = props
+  const { user } = props
   if (!user) return null
 
-  const staffUser = user as unknown as { id: number; role?: 'admin' | 'editor' | 'author' }
-  const isAuthor = staffUser.role === 'author'
-
-  let commentsCount = 0
-  let changesCount = 0
-
-  try {
-    if (!isAuthor) {
-      const comRes = await payload.count({
-        collection: 'comments',
-        where: { status: { equals: 'pending' } },
-        overrideAccess: false,
-        user,
-      })
-      commentsCount = comRes.totalDocs
-    } else {
-      const changesRes = await payload.count({
-        collection: 'posts',
-        where: {
-          and: [
-            { author: { equals: staffUser.id } },
-            { workflowStatus: { equals: 'changes_requested' } },
-          ],
-        },
-        overrideAccess: false,
-        user,
-      })
-      changesCount = changesRes.totalDocs
-    }
-  } catch {
-    // Fallback if collections are not seeded yet
-  }
-
-  const items = isAuthor
-    ? [
-        { label: 'Boshqaruv paneli', href: '/admin' },
-        { label: '💬 Adminlar chati', href: '/admin/chat' },
-        {
-          label: 'Mening maqolalarim',
-          href: `/admin/collections/posts?where[author][equals]=${staffUser.id}`,
-          badge: changesCount > 0 ? `Tuzatish: ${changesCount}` : undefined,
-        },
-      ]
-    : [
-        { label: '🏠 Boshqaruv paneli', href: '/admin' },
-        { label: '💬 Adminlar chati', href: '/admin/chat' },
-        { label: '✍️ Yangi maqola qoʻshish', href: '/admin/collections/posts/create' },
-        { label: '👤 Yangi admin qoʻshish', href: '/admin/collections/users/create' },
-        {
-          label: '💬 Izohlar',
-          href: '/admin/collections/comments?where[status][equals]=pending',
-          badge: commentsCount > 0 ? String(commentsCount) : undefined,
-        },
-      ]
+  const items: Array<{ label: string; href: string; badge?: string }> = [
+    { label: '🏠 Boshqaruv paneli', href: '/admin' },
+    { label: '✍️ Yangi maqola qoʻshish', href: '/admin/collections/posts/create' },
+    { label: '📝 Barcha maqolalar', href: '/admin/collections/posts' },
+    { label: '👥 Sayt foydalanuvchilari', href: '/admin/collections/readers' },
+    { label: '🛡️ Adminlar boshqaruvi', href: '/admin/collections/users' },
+    { label: '💬 Adminlar chati va guruh', href: '/admin/chat' },
+  ]
 
   return (
     <div

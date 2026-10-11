@@ -6,13 +6,13 @@ import { generateResetPasswordEmailSubject, generateResetPasswordEmailHTML } fro
 export const Readers: CollectionConfig = {
   slug: 'readers',
   labels: {
-    singular: 'Oʻquvchi (Sayt)',
-    plural: 'Oʻquvchilar (Sayt)',
+    singular: 'Foydalanuvchi (Oʻquvchi)',
+    plural: 'Foydalanuvchilar (Oʻquvchilar)',
   },
   admin: {
     useAsTitle: 'displayName',
-    group: 'Tizim',
-    defaultColumns: ['displayName', 'email', 'username', '_verified', 'isBanned', 'createdAt'],
+    group: 'Asosiy',
+    defaultColumns: ['displayName', 'username', 'email', 'createdAt'],
     components: {
       beforeListTable: ['/components/admin/ReadersListHeader#ReadersListHeader'],
     },
@@ -49,7 +49,7 @@ export const Readers: CollectionConfig = {
     },
   },
   access: {
-    admin: () => false,
+    admin: ({ req }) => isStaffUser(req.user),
     read: ({ req }) => {
       if (isStaffUser(req.user)) return true
       if (req.user?.collection === 'readers') {

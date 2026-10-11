@@ -3,7 +3,6 @@ import { RoleCell as RoleCell_4bb4e82c1ae104f685e1d6fd4ad1e504 } from '../../../
 import { StatusCell as StatusCell_4da1f90de99340c8531cff72a46c36b2 } from '../../../components/admin/StatusCell'
 import { UsersListHeader as UsersListHeader_ecfc2919bf60f032d1fdaf335c861e26 } from '../../../components/admin/UsersListHeader'
 import { ReadersListHeader as ReadersListHeader_bfee4f87f4ea93b9b593587de74bd2f6 } from '../../../components/admin/ReadersListHeader'
-import { TranslationStatusField as TranslationStatusField_1a824abae151a7b8768a9a50e6233202 } from '../../../components/admin/TranslationStatusField'
 import { ImportDocumentField as ImportDocumentField_f1837996f6257e9ea6de9e868eb697ad } from '../../../components/admin/ImportDocumentField'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -31,14 +30,11 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { PeriodChipsField as PeriodChipsField_a0c28fa261c2ff30314a22dee0c2f106 } from '../../../components/admin/PeriodChipsField'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
-import { WordCountField as WordCountField_fc0bee01f2a46466c0396b3d98d12d58 } from '../../../components/admin/WordCountField'
-import { WorkflowTimelineField as WorkflowTimelineField_b03f16da65aece69fb4f71e24be1b424 } from '../../../components/admin/WorkflowTimelineField'
 import { WorkflowPublishButton as WorkflowPublishButton_d6cd64ab5a0544a3c9264a1b9595ca03 } from '../../../components/admin/WorkflowPublishButton'
 import { StaffReplyField as StaffReplyField_fb2d8cd77a033402a4b9c00ba94f9359 } from '../../../components/admin/StaffReplyField'
 import { CommentStatusCell as CommentStatusCell_0059d9ace6045c21d0bf9213e9130583 } from '../../../components/admin/CommentStatusCell'
@@ -60,7 +56,6 @@ export const importMap = {
   "/components/admin/StatusCell#StatusCell": StatusCell_4da1f90de99340c8531cff72a46c36b2,
   "/components/admin/UsersListHeader#UsersListHeader": UsersListHeader_ecfc2919bf60f032d1fdaf335c861e26,
   "/components/admin/ReadersListHeader#ReadersListHeader": ReadersListHeader_bfee4f87f4ea93b9b593587de74bd2f6,
-  "/components/admin/TranslationStatusField#TranslationStatusField": TranslationStatusField_1a824abae151a7b8768a9a50e6233202,
   "/components/admin/ImportDocumentField#ImportDocumentField": ImportDocumentField_f1837996f6257e9ea6de9e868eb697ad,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -88,14 +83,11 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "/components/admin/PeriodChipsField#PeriodChipsField": PeriodChipsField_a0c28fa261c2ff30314a22dee0c2f106,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
-  "/components/admin/WordCountField#WordCountField": WordCountField_fc0bee01f2a46466c0396b3d98d12d58,
-  "/components/admin/WorkflowTimelineField#WorkflowTimelineField": WorkflowTimelineField_b03f16da65aece69fb4f71e24be1b424,
   "/components/admin/WorkflowPublishButton#WorkflowPublishButton": WorkflowPublishButton_d6cd64ab5a0544a3c9264a1b9595ca03,
   "/components/admin/StaffReplyField#StaffReplyField": StaffReplyField_fb2d8cd77a033402a4b9c00ba94f9359,
   "/components/admin/CommentStatusCell#CommentStatusCell": CommentStatusCell_0059d9ace6045c21d0bf9213e9130583,

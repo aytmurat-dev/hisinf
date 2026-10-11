@@ -3,7 +3,6 @@ import { APIError } from 'payload'
 import { randomBytes } from 'crypto'
 import {
   isStaffUser,
-  isAdmin,
   hasRole,
   fieldAdminOnly,
   fieldEditorOrAdmin,
@@ -17,12 +16,12 @@ import {
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: {
-    singular: 'Xodim',
-    plural: 'Xodimlar (Tahririyat)',
+    singular: 'Administrator (Xodim)',
+    plural: 'Administratorlar',
   },
   admin: {
     useAsTitle: 'displayName',
-    group: 'Tizim',
+    group: 'Asosiy',
     defaultColumns: ['displayName', 'username', 'email', 'role', 'isActive'],
     components: {
       beforeListTable: ['/components/admin/UsersListHeader#UsersListHeader'],
@@ -125,22 +124,10 @@ export const Users: CollectionConfig = {
     ],
   },
   access: {
-    read: ({ req }) => {
-      if (hasRole(req.user, 'admin')) return true
-      if (isStaffUser(req.user)) {
-        return { id: { equals: req.user.id } }
-      }
-      return false
-    },
-    create: ({ req }) => !req.user || hasRole(req.user, 'admin'),
-    update: ({ req }) => {
-      if (hasRole(req.user, 'admin')) return true
-      if (isStaffUser(req.user)) {
-        return { id: { equals: req.user.id } }
-      }
-      return false
-    },
-    delete: isAdmin,
+    read: ({ req }) => isStaffUser(req.user),
+    create: ({ req }) => !req.user || isStaffUser(req.user),
+    update: ({ req }) => isStaffUser(req.user),
+    delete: ({ req }) => isStaffUser(req.user),
     admin: ({ req }) => isStaffUser(req.user),
   },
   fields: [
@@ -150,7 +137,7 @@ export const Users: CollectionConfig = {
       label: 'Yangi parol oʻrnatish (Parolni oʻzgartirish yoki tiklash)',
       access: {
         read: () => false,
-        update: fieldAdminOnly,
+        update: ({ req }) => isStaffUser(req.user),
       },
       admin: {
         description:

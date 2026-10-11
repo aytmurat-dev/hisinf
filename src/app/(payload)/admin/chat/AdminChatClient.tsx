@@ -221,6 +221,33 @@ export function AdminChatClient() {
     }
   }
 
+  // 8. Edit message
+  const handleEditMessage = async (msg: Message) => {
+    const newText = window.prompt('Xabarni tahrirlang:', msg.text)
+    if (newText === null || !newText.trim() || newText.trim() === msg.text) return
+    try {
+      const res = await fetch('/api/admin/chat/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId: msg.id,
+          text: newText.trim(),
+        }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setMessages((prev) =>
+          prev.map((m) => (m.id === msg.id ? { ...m, text: data.message?.text || newText.trim() } : m)),
+        )
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Xabarni tahrirlashda xatolik')
+      }
+    } catch {
+      alert('Xatolik yuz berdi')
+    }
+  }
+
   // Helper: get display title for conversation
   const getConversationTitle = (c: Conversation) => {
     if (c.name) return c.name
@@ -489,6 +516,16 @@ export function AdminChatClient() {
                         )}
                         <div
                           style={{
+                            wordBreak: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                            fontSize: '13.5px',
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {m.text}
+                        </div>
+                        <div
+                          style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -502,24 +539,44 @@ export function AdminChatClient() {
                               minute: '2-digit',
                             })}
                           </span>
-                          {(isMine || currentUser?.role === 'admin') && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteMessage(m.id)}
-                              title="Xabarni oʻchirish"
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '0 2px',
-                                fontSize: '11px',
-                                opacity: 0.65,
-                                color: isMine ? '#fff8ee' : 'var(--hf-primary, #8c2f1b)',
-                              }}
-                            >
-                              🗑️
-                            </button>
-                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {(isMine || currentUser?.role === 'admin') && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditMessage(m)}
+                                  title="Xabarni tahrirlash"
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '0 2px',
+                                    fontSize: '11px',
+                                    opacity: 0.75,
+                                    color: isMine ? '#fff8ee' : 'var(--hf-primary, #8c2f1b)',
+                                  }}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMessage(m.id)}
+                                  title="Xabarni oʻchirish"
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '0 2px',
+                                    fontSize: '11px',
+                                    opacity: 0.75,
+                                    color: isMine ? '#fff8ee' : 'var(--hf-primary, #8c2f1b)',
+                                  }}
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
