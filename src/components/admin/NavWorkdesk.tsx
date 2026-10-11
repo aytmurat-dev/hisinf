@@ -6,13 +6,13 @@ export async function NavWorkdesk(props: ServerProps) {
   const { user } = props
   if (!user) return null
 
-  const items: Array<{ label: string; href: string; badge?: string }> = [
-    { label: '🏠 Boshqaruv paneli', href: '/admin' },
-    { label: '✍️ Yangi maqola qoʻshish', href: '/admin/collections/posts/create' },
-    { label: '📝 Barcha maqolalar', href: '/admin/collections/posts' },
-    { label: '👥 Sayt foydalanuvchilari', href: '/admin/collections/readers' },
-    { label: '🛡️ Adminlar boshqaruvi', href: '/admin/collections/users' },
-    { label: '💬 Adminlar chati va guruh', href: '/admin/chat' },
+  const items: Array<{ label: string; href: string; icon: string }> = [
+    { label: 'Boshqaruv paneli', href: '/admin', icon: '📊' },
+    { label: 'Yangi maqola yozish', href: '/admin/collections/posts/create', icon: '✍️' },
+    { label: 'Barcha maqolalar', href: '/admin/collections/posts', icon: '📚' },
+    { label: 'Sayt foydalanuvchilari', href: '/admin/collections/readers', icon: '👥' },
+    { label: 'Adminlar va Muharrirlar', href: '/admin/collections/users', icon: '🛡️' },
+    { label: 'Adminlar chati', href: '/admin/chat', icon: '💬' },
   ]
 
   return (
@@ -20,10 +20,10 @@ export async function NavWorkdesk(props: ServerProps) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '2px',
-        padding: '6px 12px 14px',
-        borderBottom: '1px solid var(--hf-border, #dccfb8)',
-        marginBottom: '10px',
+        gap: '4px',
+        padding: '10px 12px 16px',
+        borderBottom: '1px solid var(--theme-elevation-200, rgba(255,255,255,0.1))',
+        marginBottom: '12px',
       }}
     >
       <Link
@@ -35,16 +35,15 @@ export async function NavWorkdesk(props: ServerProps) {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '8px',
-          padding: '8px 12px',
-          marginBottom: '8px',
-          borderRadius: '6px',
-          backgroundColor: 'var(--hf-primary, #8c2f1b)',
-          color: 'var(--hf-primary-fg, #fff8ee)',
+          padding: '9px 12px',
+          marginBottom: '10px',
+          borderRadius: '8px',
+          backgroundColor: '#8c2f1b',
+          color: '#ffffff',
           textDecoration: 'none',
           fontSize: '13px',
           fontWeight: 600,
-          boxShadow: '0 2px 6px rgba(140, 47, 27, 0.2)',
-          transition: 'opacity 0.2s',
+          boxShadow: '0 2px 8px rgba(140, 47, 27, 0.35)',
         }}
       >
         <span>🌐</span>
@@ -52,19 +51,19 @@ export async function NavWorkdesk(props: ServerProps) {
         <span style={{ fontSize: '11px', opacity: 0.85 }}>↗</span>
       </Link>
 
-      <span
+      <div
         style={{
           padding: '6px 8px 4px',
-          fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
-          fontSize: '10px',
-          fontWeight: 500,
-          letterSpacing: '0.14em',
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--muted, #6b5d4f)',
+          color: 'var(--theme-elevation-500, #a09585)',
         }}
       >
-        Ish stoli
-      </span>
+        Tezkor amallar
+      </div>
+
       {items.map((item) => (
         <Link
           key={item.href}
@@ -73,39 +72,17 @@ export async function NavWorkdesk(props: ServerProps) {
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            padding: '7px 10px',
+            padding: '8px 10px',
             borderRadius: '6px',
-            color: 'var(--fg, #2b2118)',
+            color: 'var(--theme-elevation-800, #ece4d8)',
             textDecoration: 'none',
-            fontSize: '13.5px',
+            fontSize: '13px',
+            fontWeight: 500,
+            transition: 'background 0.15s',
           }}
         >
-          <span
-            style={{
-              width: '7px',
-              height: '7px',
-              transform: 'rotate(45deg)',
-              border: '1.3px solid var(--hf-ornament, #b89a6a)',
-              backgroundColor: 'transparent',
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ flex: 1 }}>{item.label}</span>
-          {item.badge && (
-            <span
-              style={{
-                fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
-                fontSize: '10.5px',
-                fontWeight: 500,
-                padding: '2px 7px',
-                borderRadius: '999px',
-                backgroundColor: 'var(--hf-primary, #8c2f1b)',
-                color: 'var(--hf-primary-fg, #fff8ee)',
-              }}
-            >
-              {item.badge}
-            </span>
-          )}
+          <span style={{ fontSize: '15px' }}>{item.icon}</span>
+          <span>{item.label}</span>
         </Link>
       ))}
     </div>

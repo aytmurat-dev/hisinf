@@ -4,7 +4,10 @@ import React, { useState } from 'react'
 import { useField, toast } from '@payloadcms/ui'
 
 export function ImportDocumentField() {
-  const { value, setValue } = useField<Record<string, unknown>>({ path: 'body' })
+  const { value: bodyValue, setValue: setBodyValue } = useField<Record<string, unknown>>({ path: 'body' })
+  const { value: contentValue, setValue: setContentValue } = useField<string>({ path: 'content' })
+  const { value: titleValue, setValue: setTitleValue } = useField<string>({ path: 'title' })
+
   const [isOpen, setIsOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [mode, setMode] = useState<'replace' | 'append'>('replace')
@@ -17,8 +20,8 @@ export function ImportDocumentField() {
       return
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Fayl hajmi 10 MB dan oshmasligi kerak')
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('Fayl hajmi 15 MB dan oshmasligi kerak')
       return
     }
 
@@ -41,32 +44,54 @@ export function ImportDocumentField() {
       }
 
       const data = await res.json()
-      if (!data.lexical) {
+      if (!data.lexical && !data.text) {
         toast.error('Hujjatdan matn aniqlanmadi')
         return
       }
 
-      if (mode === 'replace' || !value || !value.root) {
-        setValue(data.lexical)
-      } else {
-        // Append mode: merge root.children
-        const curRoot = value.root as { children?: unknown[] }
-        const newRoot = data.lexical.root as { children?: unknown[] }
-        const mergedChildren = [
-          ...(Array.isArray(curRoot?.children) ? curRoot.children : []),
-          ...(Array.isArray(newRoot?.children) ? newRoot.children : []),
-        ]
-        setValue({
-          ...value,
-          root: {
-            ...curRoot,
-            children: mergedChildren,
-          },
-        })
+      // 1. Set richText body
+      if (data.lexical) {
+        if (mode === 'replace' || !bodyValue || !bodyValue.root) {
+          setBodyValue(data.lexical)
+        } else {
+          const curRoot = bodyValue.root as { children?: unknown[] }
+          const newRoot = data.lexical.root as { children?: unknown[] }
+          const mergedChildren = [
+            ...(Array.isArray(curRoot?.children) ? curRoot.children : []),
+            ...(Array.isArray(newRoot?.children) ? newRoot.children : []),
+          ]
+          setBodyValue({
+            ...bodyValue,
+            root: {
+              ...curRoot,
+              children: mergedChildren,
+            },
+          })
+        }
+      }
+
+      // 2. Set plain text content textarea
+      if (data.text) {
+        if (mode === 'replace' || !contentValue) {
+          setContentValue(data.text)
+        } else {
+          setContentValue(`${contentValue}\n\n${data.text}`)
+        }
+      }
+
+      // 3. Set title if empty
+      if (!titleValue && file.name) {
+        const cleanTitle = file.name
+          .replace(/\.[^.]+$/, '')
+          .replace(/[-_]+/g, ' ')
+          .trim()
+        if (cleanTitle) {
+          setTitleValue(cleanTitle)
+        }
       }
 
       toast.success(
-        `Import qilindi: ${data.paragraphCount || 0} paragraf. Word izohlari boʻlsa, "Izoh" blokiga aylantiring.`,
+        `Muvaffaqiyatli import qilindi: ${data.paragraphCount || 1} ta paragraf matn kiritildi!`,
       )
       setIsOpen(false)
       setFile(null)
@@ -78,26 +103,27 @@ export function ImportDocumentField() {
   }
 
   return (
-    <div style={{ margin: '8px 0 12px' }}>
+    <div style={{ margin: '12px 0 16px' }}>
       <button
         type="button"
         onClick={() => setIsOpen(true)}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '6px',
-          padding: '6px 14px',
-          borderRadius: '6px',
-          border: '1px solid var(--hf-border, #dccfb8)',
-          backgroundColor: 'var(--hf-card, #fbf7ee)',
-          color: 'var(--fg, #2b2118)',
+          gap: '8px',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          border: '1px solid rgba(184, 154, 106, 0.5)',
+          backgroundColor: 'rgba(184, 154, 106, 0.15)',
+          color: 'inherit',
           fontSize: '13px',
-          fontWeight: 500,
+          fontWeight: 600,
           cursor: 'pointer',
-          transition: 'all 0.15s',
+          transition: 'all 0.15s ease',
         }}
       >
-        📄 Word/PDFʼdan import
+        <span>📥</span>
+        <span>Word (.docx) / PDF / TXT dan matn kiritish</span>
       </button>
 
       {isOpen && (
@@ -105,10 +131,11 @@ export function ImportDocumentField() {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
             display: 'grid',
             placeItems: 'center',
-            zIndex: 9999,
+            zIndex: 99999,
+            padding: '16px',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false)
@@ -116,28 +143,32 @@ export function ImportDocumentField() {
         >
           <div
             style={{
-              width: '440px',
-              maxWidth: '90vw',
-              backgroundColor: 'var(--hf-card, #fbf7ee)',
-              border: '1px solid var(--hf-border, #dccfb8)',
-              borderRadius: '10px',
+              width: '460px',
+              maxWidth: '92vw',
+              backgroundColor: 'var(--theme-elevation-100, #1e1e1e)',
+              color: 'var(--theme-elevation-800, #f0f0f0)',
+              border: '1px solid var(--theme-elevation-200, rgba(255,255,255,0.15))',
+              borderRadius: '12px',
               padding: '24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+              gap: '18px',
+              boxShadow: '0 12px 36px rgba(0,0,0,0.4)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3
                 style={{
                   margin: 0,
-                  fontFamily: "var(--font-serif, 'Literata', Georgia, serif)",
-                  fontSize: '18px',
-                  fontWeight: 600,
+                  fontSize: '17px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                Hujjatdan import qilish
+                <span>📄</span>
+                <span>Word / PDF / TXT dan matn yuklash</span>
               </h3>
               <button
                 type="button"
@@ -145,27 +176,29 @@ export function ImportDocumentField() {
                 style={{
                   border: 0,
                   background: 'transparent',
-                  fontSize: '18px',
+                  fontSize: '20px',
+                  lineHeight: 1,
                   cursor: 'pointer',
-                  color: 'var(--muted, #6b5d4f)',
+                  color: 'inherit',
+                  opacity: 0.7,
                 }}
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleImport} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleImport} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label
                   style={{
                     display: 'block',
                     fontSize: '13px',
-                    fontWeight: 500,
-                    marginBottom: '6px',
-                    color: 'var(--muted, #6b5d4f)',
+                    fontWeight: 600,
+                    marginBottom: '8px',
+                    opacity: 0.9,
                   }}
                 >
-                  Faylni tanlang (.docx, .pdf, .txt, ≤10 MB)
+                  Faylni tanlang (.docx, .pdf, .txt, ≤15 MB)
                 </label>
                 <input
                   type="file"
@@ -174,10 +207,11 @@ export function ImportDocumentField() {
                   required
                   style={{
                     width: '100%',
-                    padding: '8px',
-                    border: '1px solid var(--hf-border, #dccfb8)',
-                    borderRadius: '6px',
-                    backgroundColor: 'var(--hf-surface-2, #efe6d4)',
+                    padding: '10px',
+                    border: '1px solid var(--theme-elevation-200, rgba(255,255,255,0.2))',
+                    borderRadius: '8px',
+                    backgroundColor: 'var(--theme-elevation-50, rgba(0,0,0,0.2))',
+                    color: 'inherit',
                     fontSize: '13px',
                   }}
                 />
@@ -188,15 +222,15 @@ export function ImportDocumentField() {
                   style={{
                     display: 'block',
                     fontSize: '13px',
-                    fontWeight: 500,
-                    marginBottom: '6px',
-                    color: 'var(--muted, #6b5d4f)',
+                    fontWeight: 600,
+                    marginBottom: '8px',
+                    opacity: 0.9,
                   }}
                 >
-                  Qoʻshish usuli:
+                  Kiritish usuli:
                 </label>
-                <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '20px', fontSize: '13px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <input
                       type="radio"
                       name="importMode"
@@ -204,9 +238,9 @@ export function ImportDocumentField() {
                       checked={mode === 'replace'}
                       onChange={() => setMode('replace')}
                     />
-                    Almashtirish
+                    Toʻliq almashtirish
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <input
                       type="radio"
                       name="importMode"
@@ -214,7 +248,7 @@ export function ImportDocumentField() {
                       checked={mode === 'append'}
                       onChange={() => setMode('append')}
                     />
-                    Oxiriga qoʻshish
+                    Mavjud matn oxiriga qoʻshish
                   </label>
                 </div>
               </div>
@@ -224,10 +258,11 @@ export function ImportDocumentField() {
                   type="button"
                   onClick={() => setIsOpen(false)}
                   style={{
-                    padding: '7px 14px',
+                    padding: '8px 16px',
                     borderRadius: '6px',
-                    border: '1px solid var(--hf-border, #dccfb8)',
+                    border: '1px solid var(--theme-elevation-200, rgba(255,255,255,0.2))',
                     background: 'transparent',
+                    color: 'inherit',
                     fontSize: '13px',
                     cursor: 'pointer',
                   }}
@@ -237,13 +272,16 @@ export function ImportDocumentField() {
                 <button
                   type="submit"
                   disabled={loading || !file}
-                  className="btn btn--style-primary"
                   style={{
-                    padding: '7px 16px',
+                    padding: '8px 20px',
                     borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#8c2f1b',
+                    color: '#ffffff',
                     fontSize: '13px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
+                    fontWeight: 600,
+                    cursor: loading || !file ? 'not-allowed' : 'pointer',
+                    opacity: loading || !file ? 0.6 : 1,
                   }}
                 >
                   {loading ? 'Yuklanmoqda…' : 'Yuklash'}

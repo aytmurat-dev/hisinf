@@ -17,7 +17,7 @@ export const Posts: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Asosiy',
-    defaultColumns: ['title', 'language', 'author', 'publishedAt', 'rowActions'],
+    defaultColumns: ['title', '_status', 'language', 'author', 'publishedAt', 'rowActions'],
     listSearchableFields: ['title', 'slug'],
     components: {
       edit: {
