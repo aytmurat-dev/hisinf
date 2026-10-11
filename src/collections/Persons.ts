@@ -23,7 +23,7 @@ export const Persons: CollectionConfig = {
     drafts: true,
     maxPerDoc: 20,
   },
-  defaultSort: 'name',
+  defaultSort: 'id',
   access: {
     read: publishedOrStaff,
     create: isStaff,
