@@ -5,7 +5,7 @@ import { slugField } from '../fields/slug'
 import { enforcePostWorkflow } from '../hooks/enforcePostWorkflow'
 import { computeReadingTime } from '../hooks/computeReadingTime'
 import { buildSearchText } from '../hooks/buildSearchText'
-import { revalidateSite } from '../hooks/revalidateSite'
+import { revalidateSite, revalidateSiteDelete } from '../hooks/revalidateSite'
 import { syncPostLocales } from '../hooks/syncPostLocales'
 
 export const Posts: CollectionConfig = {
@@ -57,6 +57,7 @@ export const Posts: CollectionConfig = {
       buildSearchText,
     ],
     afterChange: [revalidateSite, syncPostLocales],
+    afterDelete: [revalidateSiteDelete],
   },
   fields: [
     {

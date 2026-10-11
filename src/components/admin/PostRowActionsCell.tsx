@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 export function PostRowActionsCell({
   rowData,
 }: {
-  rowData?: { id?: number; title?: string }
+  rowData?: { id?: number | string; title?: string }
 }) {
   const [loading, setLoading] = useState(false)
   if (!rowData?.id) return null
@@ -52,14 +52,14 @@ export function PostRowActionsCell({
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          padding: '4px 8px',
-          borderRadius: '4px',
-          border: '1px solid var(--hf-border, #dccfb8)',
-          backgroundColor: 'var(--hf-surface-2, #efe6d4)',
-          color: 'var(--fg, #2b2118)',
+          padding: '4px 10px',
+          borderRadius: '6px',
+          border: '1px solid rgba(140, 140, 140, 0.35)',
+          backgroundColor: 'rgba(255, 255, 255, 0.07)',
+          color: 'inherit',
           textDecoration: 'none',
           fontSize: '12px',
-          fontWeight: 500,
+          fontWeight: 600,
           cursor: 'pointer',
         }}
       >
@@ -73,11 +73,11 @@ export function PostRowActionsCell({
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          padding: '4px 8px',
-          borderRadius: '4px',
-          border: '1px solid #ef5350',
-          backgroundColor: '#ffebee',
-          color: '#c62828',
+          padding: '4px 10px',
+          borderRadius: '6px',
+          border: '1px solid rgba(239, 68, 68, 0.45)',
+          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          color: '#ef5350',
           fontSize: '12px',
           fontWeight: 600,
           cursor: loading ? 'not-allowed' : 'pointer',
