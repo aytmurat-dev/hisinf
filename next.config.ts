@@ -43,19 +43,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/:locale(uz|kaa)/admin',
-        destination: '/admin',
-        permanent: true,
-      },
-      {
-        source: '/:locale(uz|kaa)/admin-post-yaratish',
-        destination: '/admin/collections/posts/create',
-        permanent: true,
-      },
-      {
-        source: '/admin-post-yaratish',
-        destination: '/admin/collections/posts/create',
-        permanent: true,
+        source: '/admin',
+        destination: '/uz/admin',
+        permanent: false,
       },
     ]
   },

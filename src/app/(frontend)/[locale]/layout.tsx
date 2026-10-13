@@ -4,13 +4,13 @@ import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
-import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
 import { InkCursor } from '@/components/fx/InkCursor'
 import '../globals.css'
 
 import { literata, plexSans, plexMono } from '../fonts'
 import { cn } from '@/lib/cn'
+
+import { SiteShell } from '@/components/layout/SiteShell'
 
 export function generateStaticParams() {
   return []
@@ -43,9 +43,7 @@ export default async function LocaleLayout({
         <ThemeProvider>
           <InkCursor />
           <NextIntlClientProvider messages={messages} locale={locale}>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <SiteShell>{children}</SiteShell>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
