@@ -26,6 +26,7 @@ import {
   RefreshCw,
   UserCheck,
   Ban,
+  ArrowLeft,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -113,16 +114,17 @@ export default function CustomAdminPage() {
   const [postStatus, setPostStatus] = useState<'published' | 'draft'>('published')
   const [savingPost, setSavingPost] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
   const [parsingDoc, setParsingDoc] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const docInputRef = useRef<HTMLInputElement>(null)
 
-  // --- Password Change Card State (Top-Left card in screenshot) ---
-  const [pwdTarget, setPwdTarget] = useState<string>('') // e.g. "reader:1" or "staff:2"
+  // --- Password Change Card State ---
+  const [pwdTarget, setPwdTarget] = useState<string>('')
   const [pwdNewValue, setPwdNewValue] = useState('')
   const [updatingPwd, setUpdatingPwd] = useState(false)
 
-  // --- New Admin Card State (Top-Right card in screenshot) ---
+  // --- New Admin Card State ---
   const [newAdminName, setNewAdminName] = useState('')
   const [newAdminUsername, setNewAdminUsername] = useState('')
   const [newAdminEmail, setNewAdminEmail] = useState('')
@@ -220,17 +222,35 @@ export default function CustomAdminPage() {
   useEffect(() => {
     if (currentUser) {
       fetchStats()
-      fetchPosts(postSearch)
+      fetchPosts()
       fetchStaff()
-      fetchReaders(readerSearch)
+      fetchReaders()
     }
-  }, [currentUser, fetchStats, fetchPosts, fetchStaff, fetchReaders, postSearch, readerSearch])
+  }, [currentUser, fetchStats, fetchPosts, fetchStaff, fetchReaders])
 
-  // --- Handlers ---
+  // Search debounces
+  useEffect(() => {
+    if (!currentUser) return
+    const timer = setTimeout(() => {
+      fetchPosts(postSearch)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [postSearch, currentUser, fetchPosts])
+
+  useEffect(() => {
+    if (!currentUser) return
+    const timer = setTimeout(() => {
+      fetchReaders(readerSearch)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [readerSearch, currentUser, fetchReaders])
+
+  // Handlers
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoginError('')
     setLoggingIn(true)
+    setLoginError('')
+
     try {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
@@ -240,12 +260,15 @@ export default function CustomAdminPage() {
       const data = await res.json()
       if (res.ok && data.user) {
         setCurrentUser(data.user)
-        showToast('Tizimga muvaffaqiyatli kirdingiz!')
+        fetchStats()
+        fetchPosts()
+        fetchStaff()
+        fetchReaders()
       } else {
-        setLoginError(data.error || 'Login yoki parol xato')
+        setLoginError(data.error || 'Kirishda xatolik yuz berdi')
       }
     } catch {
-      setLoginError('Tarmoq xatosi yuz berdi')
+      setLoginError('Server bilan aloqa uzildi')
     } finally {
       setLoggingIn(false)
     }
@@ -261,12 +284,25 @@ export default function CustomAdminPage() {
     }
   }
 
-  // Laptopdan rasm yuklash
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  // Rasm yuklash (Kompyuterdan tanlash yoki Drag & Drop)
+  const uploadImageFile = async (file: File) => {
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('Faqat rasm fayli yuklanishi kerak (PNG, JPG, WebP)', 'error')
+      return
+    }
 
     setUploadingImage(true)
+
+    // 1. Darhol ko'rsatish uchun Base64 Data URL yaratish
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string
+      if (dataUrl) {
+        setPostImagePreview(dataUrl)
+      }
+    }
+    reader.readAsDataURL(file)
+
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -278,19 +314,47 @@ export default function CustomAdminPage() {
       })
       const data = await res.json()
 
-      if (res.ok && data.id) {
-        setPostImageId(data.id)
+      if (res.ok && data.url) {
+        setPostImageId(data.id || null)
         setPostImageUrl(data.url)
         setPostImagePreview(data.url)
         showToast('Rasm muvaffaqiyatli yuklandi!')
       } else {
-        showToast(data.error || 'Rasm yuklashda xatolik', 'error')
+        // Server faylni saqlay olmasa ham (masalan, read-only muhit),
+        // brauzerdagi data URL coverImageUrl sifatida saqlanadi
+        const fallbackReader = new FileReader()
+        fallbackReader.onload = (ev) => {
+          const dataUrl = ev.target?.result as string
+          if (dataUrl) {
+            setPostImageUrl(dataUrl)
+            setPostImagePreview(dataUrl)
+            setPostImageId(null)
+            showToast('Rasm tayyorlandi!')
+          }
+        }
+        fallbackReader.readAsDataURL(file)
       }
     } catch {
-      showToast('Rasm yuklashda xatolik yuz berdi', 'error')
+      const fallbackReader = new FileReader()
+      fallbackReader.onload = (ev) => {
+        const dataUrl = ev.target?.result as string
+        if (dataUrl) {
+          setPostImageUrl(dataUrl)
+          setPostImagePreview(dataUrl)
+          setPostImageId(null)
+          showToast('Rasm yuklandi!')
+        }
+      }
+      fallbackReader.readAsDataURL(file)
     } finally {
       setUploadingImage(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadImageFile(file)
   }
 
   // Word / PDF / TXT fayldan matn import qilish
@@ -300,6 +364,20 @@ export default function CustomAdminPage() {
 
     setParsingDoc(true)
     try {
+      // .txt faylni brauzerda to'g'ridan-to'g'ri o'qish
+      if (file.name.toLowerCase().endsWith('.txt')) {
+        const text = await file.text()
+        if (text) {
+          setPostContent(text)
+          if (!postTitle) {
+            const firstLine = text.split('\n')[0]?.slice(0, 100) || file.name.replace(/\.[^/.]+$/, '')
+            setPostTitle(firstLine)
+          }
+          showToast('Matn muvaffaqiyatli import qilindi!')
+          return
+        }
+      }
+
       const formData = new FormData()
       formData.append('file', file)
 
@@ -310,15 +388,14 @@ export default function CustomAdminPage() {
       const data = await res.json()
 
       if (res.ok && data.text) {
-        // Matnni qo'shish yoki almashtirish
         setPostContent(data.text)
         if (!postTitle) {
           const firstLine = data.text.split('\n')[0]?.slice(0, 100) || file.name.replace(/\.[^/.]+$/, '')
           setPostTitle(firstLine)
         }
-        showToast('Fayl matni muvaffaqiyatli import qilindi!')
+        showToast('Word fayli matni muvaffaqiyatli import qilindi!')
       } else {
-        showToast(data.error || 'Faylni oʻqishda xatolik', 'error')
+        showToast(data.error || 'Faylni oʻqishda xatolik yuz berdi', 'error')
       }
     } catch {
       showToast('Faylni import qilishda xatolik yuz berdi', 'error')
@@ -342,35 +419,29 @@ export default function CustomAdminPage() {
         title: postTitle,
         content: postContent,
         excerpt: postExcerpt,
-        coverImageUrl: imageMode === 'url' ? postImageUrl : postImageUrl,
-        coverImageId: imageMode === 'upload' ? postImageId : null,
+        coverImageUrl: postImageUrl || (imageMode === 'url' ? postImageUrl : ''),
+        coverImageId: postImageId || null,
         language: postLanguage,
         status: postStatus,
       }
 
-      let res
-      if (editingPostId) {
-        res = await fetch(`/api/admin/posts/${editingPostId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payloadData),
-        })
-      } else {
-        res = await fetch('/api/admin/posts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payloadData),
-        })
-      }
+      const url = editingPostId ? `/api/admin/posts/${editingPostId}` : '/api/admin/posts'
+      const method = editingPostId ? 'PUT' : 'POST'
 
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payloadData),
+      })
       const data = await res.json()
+
       if (res.ok) {
-        showToast(editingPostId ? 'Post muvaffaqiyatli yangilandi!' : 'Post muvaffaqiyatli qoʻshildi!')
+        showToast(editingPostId ? 'Post muvaffaqiyatli yangilandi!' : 'Yangi post chop etildi!')
         resetPostForm()
-        fetchPosts(postSearch)
+        fetchPosts()
         fetchStats()
       } else {
-        showToast(data.error || 'Xatolik yuz berdi', 'error')
+        showToast(data.error || 'Postni saqlashda xatolik', 'error')
       }
     } catch {
       showToast('Saqlashda xatolik yuz berdi', 'error')
@@ -389,7 +460,6 @@ export default function CustomAdminPage() {
     setPostImagePreview('')
     setPostLanguage('both')
     setPostStatus('published')
-    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleEditPost = (post: PostItem) => {
@@ -397,76 +467,75 @@ export default function CustomAdminPage() {
     setPostTitle(post.title || '')
     setPostContent(post.content || '')
     setPostExcerpt(post.excerpt || '')
-    const imgUrl =
+    const coverUrl =
       typeof post.coverImage === 'object' && post.coverImage?.url
         ? post.coverImage.url
         : post.coverImageUrl || ''
-    setPostImageUrl(imgUrl)
-    setPostImagePreview(imgUrl)
-    if (typeof post.coverImage === 'object' && post.coverImage?.id) {
-      setPostImageId(post.coverImage.id)
-    } else if (typeof post.coverImage === 'number') {
-      setPostImageId(post.coverImage)
-    } else {
-      setPostImageId(null)
-    }
+    setPostImageUrl(coverUrl)
+    setPostImagePreview(coverUrl)
+    setPostImageId(typeof post.coverImage === 'number' ? post.coverImage : post.coverImage?.id || null)
+    setImageMode(coverUrl ? 'url' : 'upload')
     setPostLanguage((post.language as 'both' | 'uz' | 'kaa') || 'both')
-    setPostStatus((post._status as 'published' | 'draft') || 'published')
-    setActiveTab('posts')
-    window.scrollTo({ top: 300, behavior: 'smooth' })
+    setPostStatus(post.workflowStatus === 'published' ? 'published' : 'draft')
+    window.scrollTo({ top: 380, behavior: 'smooth' })
   }
 
   const handleDeletePost = async (id: number) => {
-    if (!confirm('Ushbu postni oʻchirishga ishonchingiz komilmi?')) return
+    if (!window.confirm('Haqiqatan ham bu postni oʻchirmoqchimisiz?')) return
     try {
       const res = await fetch(`/api/admin/posts/${id}`, { method: 'DELETE' })
       if (res.ok) {
-        showToast('Post oʻchirildi')
-        fetchPosts(postSearch)
+        showToast('Post muvaffaqiyatli oʻchirildi')
+        fetchPosts()
         fetchStats()
+        if (editingPostId === id) resetPostForm()
       } else {
-        showToast('Oʻchirishda xatolik', 'error')
+        showToast('Oʻchirishda xatolik yuz berdi', 'error')
       }
     } catch {
-      showToast('Oʻchirishda xatolik yuz berdi', 'error')
+      showToast('Oʻchirishda xatolik', 'error')
     }
   }
 
-  // Parol o'zgartirish (Top-left card)
+  // Parol yangilash
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!pwdTarget || !pwdNewValue.trim()) {
-      showToast('Shaxsni tanlang va yangi parol kiriting', 'error')
+      showToast('Foydalanuvchi va yangi parolni kiriting', 'error')
       return
     }
 
-    const [type, idStr] = pwdTarget.split(':')
     setUpdatingPwd(true)
     try {
+      const [type, rawId] = pwdTarget.split(':')
+      const targetId = parseInt(rawId, 10)
+
       const res = await fetch('/api/admin/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, id: parseInt(idStr, 10), newPassword: pwdNewValue }),
+        body: JSON.stringify({ type, id: targetId, newPassword: pwdNewValue.trim() }),
       })
       const data = await res.json()
+
       if (res.ok) {
         showToast('Parol muvaffaqiyatli yangilandi!')
         setPwdNewValue('')
+        setPwdTarget('')
       } else {
         showToast(data.error || 'Parolni yangilashda xatolik', 'error')
       }
     } catch {
-      showToast('Parolni yangilashda xatolik yuz berdi', 'error')
+      showToast('Xatolik yuz berdi', 'error')
     } finally {
       setUpdatingPwd(false)
     }
   }
 
-  // Yangi Admin yaratish (Top-right card)
+  // Yangi admin qo'shish
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newAdminName.trim() || !newAdminUsername.trim() || !newAdminPassword.trim()) {
-      showToast('Ism, login va parolni toʻldiring', 'error')
+      showToast('Barcha maydonlarni toʻldiring', 'error')
       return
     }
 
@@ -478,12 +547,13 @@ export default function CustomAdminPage() {
         body: JSON.stringify({
           displayName: newAdminName,
           username: newAdminUsername,
-          email: newAdminEmail,
+          email: newAdminEmail || undefined,
           password: newAdminPassword,
           role: newAdminRole,
         }),
       })
       const data = await res.json()
+
       if (res.ok) {
         showToast('Yangi admin muvaffaqiyatli qoʻshildi!')
         setNewAdminName('')
@@ -496,36 +566,40 @@ export default function CustomAdminPage() {
         showToast(data.error || 'Admin qoʻshishda xatolik', 'error')
       }
     } catch {
-      showToast('Admin qoʻshishda xatolik yuz berdi', 'error')
+      showToast('Admin qoʻshishda xatolik', 'error')
     } finally {
       setSavingAdmin(false)
     }
   }
 
   const handleDeleteStaff = async (id: number) => {
-    if (!confirm('Ushbu adminni oʻchirishga ishonchingiz komilmi?')) return
+    if (id === currentUser?.id) {
+      showToast('Oʻz hisobingizni oʻchira olmaysiz!', 'error')
+      return
+    }
+    if (!window.confirm('Bu adminni oʻchirmoqchimisiz?')) return
+
     try {
       const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' })
-      const data = await res.json()
       if (res.ok) {
         showToast('Admin oʻchirildi')
         fetchStaff()
         fetchStats()
       } else {
-        showToast(data.error || 'Xatolik yuz berdi', 'error')
+        showToast('Oʻchirishda xatolik', 'error')
       }
     } catch {
-      showToast('Oʻchirishda xatolik yuz berdi', 'error')
+      showToast('Oʻchirishda xatolik', 'error')
     }
   }
 
-  // Reader (Foydalanuvchi) tahrirlash
+  // Reader edit modal
   const handleOpenReaderModal = (reader: ReaderItem) => {
     setEditingReader(reader)
     setEditReaderName(reader.displayName || '')
     setEditReaderEmail(reader.email || '')
     setEditReaderPassword('')
-    setEditReaderBanned(Boolean(reader.isBanned))
+    setEditReaderBanned(reader.isBanned || false)
   }
 
   const handleSaveReader = async (e: React.FormEvent) => {
@@ -540,27 +614,29 @@ export default function CustomAdminPage() {
         body: JSON.stringify({
           displayName: editReaderName,
           email: editReaderEmail,
-          password: editReaderPassword || undefined,
+          password: editReaderPassword.trim() || undefined,
           isBanned: editReaderBanned,
         }),
       })
       const data = await res.json()
+
       if (res.ok) {
         showToast('Foydalanuvchi maʼlumotlari yangilandi!')
         setEditingReader(null)
         fetchReaders(readerSearch)
       } else {
-        showToast(data.error || 'Xatolik yuz berdi', 'error')
+        showToast(data.error || 'Yangilashda xatolik', 'error')
       }
     } catch {
-      showToast('Saqlashda xatolik yuz berdi', 'error')
+      showToast('Yangilashda xatolik', 'error')
     } finally {
       setSavingReader(false)
     }
   }
 
   const handleDeleteReader = async (id: number) => {
-    if (!confirm('Ushbu foydalanuvchini oʻchirishga ishonchingiz komilmi?')) return
+    if (!window.confirm('Foydalanuvchini saytdan butunlay oʻchirmoqchimisiz?')) return
+
     try {
       const res = await fetch(`/api/admin/readers/${id}`, { method: 'DELETE' })
       if (res.ok) {
@@ -568,40 +644,40 @@ export default function CustomAdminPage() {
         fetchReaders(readerSearch)
         fetchStats()
       } else {
-        showToast('Xatolik yuz berdi', 'error')
+        showToast('Oʻchirishda xatolik', 'error')
       }
     } catch {
-      showToast('Oʻchirishda xatolik yuz berdi', 'error')
+      showToast('Oʻchirishda xatolik', 'error')
     }
   }
 
-  // --- Agar yuklanayotgan bo'lsa ---
+  // --- RENDER ---
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-mono text-sm">
-          <RefreshCw className="w-5 h-5 animate-spin text-emerald-600" />
-          <span>Yuklanmoqda...</span>
+      <div className="min-h-screen bg-bg text-fg flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+          <span className="text-xs uppercase tracking-widest text-muted font-mono">Boshqaruv paneli yuklanmoqda...</span>
         </div>
       </div>
     )
   }
 
-  // --- Agar admin kirmagan bo'lsa: LOGIN EKRAN ---
+  // Agar admin tizimga kirmagan bo'lsa: Kirish oynasi
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
+      <div className="min-h-screen bg-bg text-fg flex items-center justify-center p-4 font-sans">
+        <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-offset-sm p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 mb-2">
+            <div className="w-14 h-14 rounded-2xl bg-primary text-primary-fg flex items-center justify-center mx-auto shadow-md">
               <Shield className="w-7 h-7" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-serif">HISINF.UZ</h1>
-            <p className="text-xs uppercase tracking-widest text-slate-400 font-mono">Boshqaruv Paneli</p>
+            <h1 className="text-2xl font-bold font-serif text-fg">HISINF.UZ</h1>
+            <p className="text-xs uppercase tracking-widest text-muted font-mono">Boshqaruv Paneli</p>
           </div>
 
           {loginError && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-p-brick/10 border border-p-brick/30 text-p-brick text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{loginError}</span>
             </div>
@@ -609,33 +685,33 @@ export default function CustomAdminPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Login yoki Email</label>
+              <label className="text-xs font-semibold text-muted">Login yoki Email</label>
               <input
                 type="text"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
                 required
                 placeholder="admin"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-600 transition-all font-mono"
+                className="w-full px-4 py-3 bg-bg border border-border focus:border-primary rounded-xl text-sm text-fg outline-none transition-all font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Parol</label>
+              <label className="text-xs font-semibold text-muted">Parol</label>
               <input
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-600 transition-all font-mono"
+                className="w-full px-4 py-3 bg-bg border border-border focus:border-primary rounded-xl text-sm text-fg outline-none transition-all font-mono"
               />
             </div>
 
             <button
               type="submit"
               disabled={loggingIn}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3.5 bg-primary text-primary-fg font-semibold text-sm rounded-xl transition-all shadow-btn hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loggingIn ? (
                 <>
@@ -652,8 +728,12 @@ export default function CustomAdminPage() {
           </form>
 
           <div className="text-center pt-2">
-            <a href={`/${locale}`} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-              ← Asosiy saytga qaytish
+            <a
+              href={`/${locale}`}
+              className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-primary transition-colors font-medium"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Asosiy web saytga qaytish</span>
             </a>
           </div>
         </div>
@@ -668,13 +748,15 @@ export default function CustomAdminPage() {
       : readersList.find((r) => r.id === parseInt(pwdTarget.replace('reader:', ''), 10))
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans pb-16">
+    <div className="min-h-screen bg-bg text-fg font-sans pb-16">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-bounce">
           <div
-            className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl shadow-xl text-white text-xs font-medium ${
-              toastMessage.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+            className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold ${
+              toastMessage.type === 'success'
+                ? 'bg-teal text-white'
+                : 'bg-p-brick text-white'
             }`}
           >
             {toastMessage.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -683,32 +765,32 @@ export default function CustomAdminPage() {
         </div>
       )}
 
-      {/* TOP HEADER (Aynan rasmdagidek) */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-xs">
+      {/* TOP HEADER */}
+      <header className="bg-card border-b border-border sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/30">
+            <div className="w-11 h-11 rounded-2xl bg-primary text-primary-fg flex items-center justify-center shadow-md">
               <Shield className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-lg font-bold font-serif leading-none tracking-tight text-slate-900 dark:text-white">
+              <div className="text-lg font-bold font-serif leading-none tracking-tight text-fg">
                 HISINF.UZ
               </div>
-              <div className="text-[11px] text-slate-400 font-mono tracking-wider mt-1">
+              <div className="text-[11px] text-muted font-mono tracking-wider mt-1">
                 Boshqaruv Paneli
               </div>
             </div>
           </div>
 
-          {/* Navigation Pills (Aynan rasmdagi kabi tablar) */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+          {/* Navigation Pills */}
+          <nav className="hidden md:flex items-center gap-1.5 bg-surface-2 p-1.5 rounded-full border border-border">
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'dashboard'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -718,8 +800,8 @@ export default function CustomAdminPage() {
               onClick={() => setActiveTab('posts')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'posts'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -729,8 +811,8 @@ export default function CustomAdminPage() {
               onClick={() => setActiveTab('admins')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'admins'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <Shield className="w-3.5 h-3.5" />
@@ -740,8 +822,8 @@ export default function CustomAdminPage() {
               onClick={() => setActiveTab('readers')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'readers'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -751,12 +833,22 @@ export default function CustomAdminPage() {
 
           {/* Right Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Asosiy saytga qaytish tugmasi */}
+            <a
+              href={`/${locale}`}
+              className="px-3.5 py-1.5 rounded-full border border-border bg-surface-2 hover:bg-card text-fg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              title="Asosiy web saytga oʻtish"
+            >
+              <Globe className="w-3.5 h-3.5 text-primary" />
+              <span className="hidden sm:inline">Asosiy web saytga</span>
+            </a>
+
             {/* Lang switch */}
-            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 text-[11px] font-mono">
+            <div className="flex bg-surface-2 rounded-full p-1 border border-border text-[11px] font-mono">
               <button
                 onClick={() => router.push(`/uz/admin`)}
                 className={`px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  locale === 'uz' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-500'
+                  locale === 'uz' ? 'bg-primary text-primary-fg font-bold' : 'text-muted hover:text-fg'
                 }`}
               >
                 UZ
@@ -764,7 +856,7 @@ export default function CustomAdminPage() {
               <button
                 onClick={() => router.push(`/kaa/admin`)}
                 className={`px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  locale === 'kaa' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-500'
+                  locale === 'kaa' ? 'bg-primary text-primary-fg font-bold' : 'text-muted hover:text-fg'
                 }`}
               >
                 KAA
@@ -774,22 +866,22 @@ export default function CustomAdminPage() {
             {/* Theme toggle */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+              className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted hover:text-fg hover:bg-surface-2 cursor-pointer transition-colors"
               title="Tema"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-p-ochre" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Admin badge */}
-            <div className="hidden sm:flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <div className="hidden sm:flex items-center gap-2 bg-p-ochre/15 border border-p-ochre/30 text-p-ochre px-3 py-1.5 rounded-full text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-p-ochre animate-pulse" />
               <span>{currentUser.displayName}</span>
             </div>
 
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+              className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-p-brick hover:bg-p-brick/10 cursor-pointer transition-colors"
               title="Chiqish"
             >
               <LogOut className="w-4 h-4" />
@@ -800,68 +892,68 @@ export default function CustomAdminPage() {
 
       {/* MAIN CONTAINER */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        {/* TOP ROW: 3 STAT CARDS (Aynan rasmdagidek) */}
+        {/* TOP ROW: 3 STAT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Ro'yxatdan o'tgan odamlar */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+          {/* Card 1: Foydalanuvchilar */}
+          <div className="bg-card border border-border hover:border-teal rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-teal/15 text-teal flex items-center justify-center shrink-0">
               <Users className="w-7 h-7" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
                 Dizimnen ótken adamlar
               </div>
-              <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-serif mt-1">
+              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
                 {stats.readersCount}
               </div>
             </div>
           </div>
 
           {/* Card 2: Barcha maqolalar */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+          <div className="bg-card border border-border hover:border-primary rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
               <FileText className="w-7 h-7" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
                 Barlıq maqalalar (Postlar)
               </div>
-              <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-serif mt-1">
+              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
                 {stats.postsCount}
               </div>
             </div>
           </div>
 
           {/* Card 3: Adminlar */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+          <div className="bg-card border border-border hover:border-p-ochre rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-p-ochre/15 text-p-ochre flex items-center justify-center shrink-0">
               <Shield className="w-7 h-7" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
                 Barlıq adminler
               </div>
-              <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-serif mt-1">
+              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
                 {stats.adminsCount}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2X2 DASHBOARD GRID (Aynan rasmdagi 4 ta asosiy karta) */}
+        {/* 2X2 DASHBOARD GRID */}
         {(activeTab === 'dashboard' || activeTab === 'admins' || activeTab === 'readers') && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* KARTA 1: FOYDALANUVCHI & ADMIN PAROLLARINI O'ZGARTIRISH (Aynan rasmdagidek) */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
-                <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
+            {/* KARTA 1: FOYDALANUVCHI & ADMIN PAROLLARINI O'ZGARTIRISH */}
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+              <div className="flex items-center gap-2.5 pb-2 border-b border-border">
+                <div className="w-8 h-8 rounded-xl bg-p-brick/15 text-p-brick flex items-center justify-center">
                   <KeyRound className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold font-serif text-fg">
                     Foydalanıwshı & Admin Parolların Ózgertiw
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-muted">
                     Eski parol kórsetilmeydi, bıraq jańa parol ornata alasız.
                   </p>
                 </div>
@@ -869,14 +961,14 @@ export default function CustomAdminPage() {
 
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-muted">
                     Adamdı tańlań:
                   </label>
                   <select
                     value={pwdTarget}
                     onChange={(e) => setPwdTarget(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-rose-600 cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
                   >
                     <option value="">— Tanlang —</option>
                     <optgroup label="Adminlar (Xodimlar)">
@@ -898,7 +990,7 @@ export default function CustomAdminPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-muted">
                       Login (Username):
                     </label>
                     <input
@@ -906,12 +998,12 @@ export default function CustomAdminPage() {
                       disabled
                       value={selectedPwdItem?.username || selectedPwdItem?.email || ''}
                       placeholder="Login..."
-                      className="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-500 font-mono"
+                      className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-xs text-muted font-mono"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-muted">
                       Parol jaratıw:
                     </label>
                     <input
@@ -920,7 +1012,7 @@ export default function CustomAdminPage() {
                       onChange={(e) => setPwdNewValue(e.target.value)}
                       required
                       placeholder="Jańa parol..."
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-rose-300 dark:border-rose-900 rounded-xl text-xs text-slate-800 dark:text-white font-mono outline-none focus:border-rose-600"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg font-mono outline-none"
                     />
                   </div>
                 </div>
@@ -928,7 +1020,7 @@ export default function CustomAdminPage() {
                 <button
                   type="submit"
                   disabled={updatingPwd}
-                  className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-rose-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
                 >
                   {updatingPwd ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                   <span>Jańalaw (Yangilash)</span>
@@ -936,17 +1028,17 @@ export default function CustomAdminPage() {
               </form>
             </div>
 
-            {/* KARTA 2: YANGI ADMIN QO'SHISH (Aynan rasmdagi "Vrachqa Jeke Kabinet" kabi) */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center">
+            {/* KARTA 2: YANGI ADMIN QO'SHISH */}
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+              <div className="flex items-center gap-2.5 pb-2 border-b border-border">
+                <div className="w-8 h-8 rounded-xl bg-teal/15 text-teal flex items-center justify-center">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold font-serif text-fg">
                     Admin / Xodim Qoʻshish
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-muted">
                     Saytni boshqarish uchun yangi admin yoki muharrir yaratish.
                   </p>
                 </div>
@@ -955,23 +1047,23 @@ export default function CustomAdminPage() {
               <form onSubmit={handleCreateAdmin} className="space-y-3.5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Ism-familiya *</label>
+                    <label className="text-xs font-semibold text-muted">Ism-familiya *</label>
                     <input
                       type="text"
                       value={newAdminName}
                       onChange={(e) => setNewAdminName(e.target.value)}
                       required
                       placeholder="Dildora Alimbetova"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-600"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Rol</label>
+                    <label className="text-xs font-semibold text-muted">Rol</label>
                     <select
                       value={newAdminRole}
                       onChange={(e) => setNewAdminRole(e.target.value as 'admin' | 'editor')}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-600 cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
                     >
                       <option value="admin">Asosiy Admin</option>
                       <option value="editor">Muharrir (Editor)</option>
@@ -981,26 +1073,26 @@ export default function CustomAdminPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Login (username) *</label>
+                    <label className="text-xs font-semibold text-muted">Login (username) *</label>
                     <input
                       type="text"
                       value={newAdminUsername}
                       onChange={(e) => setNewAdminUsername(e.target.value)}
                       required
                       placeholder="admin_dildora"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono outline-none focus:border-emerald-600"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg font-mono outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Parol *</label>
+                    <label className="text-xs font-semibold text-muted">Parol *</label>
                     <input
                       type="text"
                       value={newAdminPassword}
                       onChange={(e) => setNewAdminPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-emerald-300 dark:border-emerald-900 rounded-xl text-xs text-slate-800 dark:text-white font-mono outline-none focus:border-emerald-600"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg font-mono outline-none"
                     />
                   </div>
                 </div>
@@ -1008,7 +1100,7 @@ export default function CustomAdminPage() {
                 <button
                   type="submit"
                   disabled={savingAdmin}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 bg-teal text-white font-semibold text-xs rounded-xl shadow-btn transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
                 >
                   {savingAdmin ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                   <span>Kabinet ashıw (Admin qoʻshish)</span>
@@ -1021,18 +1113,18 @@ export default function CustomAdminPage() {
         {/* SECTION: POST (MAQOLA) YARATISH VA TAHRIRLASH */}
         {(activeTab === 'dashboard' || activeTab === 'posts') && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* KARTA 3: YANGI POST QO'SHISH (Bottom-left in screenshot) */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            {/* KARTA 3: YANGI POST QO'SHISH */}
+            <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-6">
+              <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
                     <Plus className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-base font-bold font-serif text-fg">
                       {editingPostId ? 'Maqolani Tahrirlash' : 'Jańa Maqola (Post) Qosıw'}
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-muted">
                       Rasm yuklang yoki URL kiriting, matnni Wordʼdan import qiling yoki yozing.
                     </p>
                   </div>
@@ -1041,7 +1133,7 @@ export default function CustomAdminPage() {
                 {editingPostId && (
                   <button
                     onClick={resetPostForm}
-                    className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-200 cursor-pointer"
+                    className="px-3 py-1 bg-surface-2 hover:bg-card border border-border text-fg rounded-lg text-xs font-semibold cursor-pointer transition-colors"
                   >
                     Bekor qilish
                   </button>
@@ -1051,43 +1143,46 @@ export default function CustomAdminPage() {
               <form onSubmit={handleSavePost} className="space-y-4">
                 {/* 1. Post Mavzusi */}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                    <span>Post mavzusi (Sarlavha) *</span>
-                    <span className="text-[11px] text-slate-400 font-mono">{postTitle.length} belgi</span>
+                  <label className="text-xs font-semibold text-fg">
+                    Post mavzusi (Sarlavha) *
                   </label>
                   <input
                     type="text"
                     value={postTitle}
                     onChange={(e) => setPostTitle(e.target.value)}
                     required
-                    placeholder="Masalan: Qoraqalpogʻiston xonligi tarixi..."
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-white outline-none focus:border-blue-600"
+                    placeholder="Masalan: Amir Temurning harbiy yurishlari va davlatchilik siyosati"
+                    className="w-full px-4 py-3 bg-bg border border-border focus:border-primary rounded-xl text-sm font-medium text-fg outline-none transition-colors"
                   />
                 </div>
 
-                {/* 2. Rasm tanlash: Laptopdan yuklash YOKI Internetdan URL */}
-                <div className="space-y-2 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80">
+                {/* 2. Rasm qo'shish (Drag & Drop + Kompyuterdan + Internet URL) */}
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-fg">
                       Muqova rasmi:
                     </label>
                     {/* Toggle: Upload vs URL */}
-                    <div className="flex bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 text-[11px]">
+                    <div className="flex bg-surface-2 border border-border rounded-lg p-0.5 text-[11px]">
                       <button
                         type="button"
                         onClick={() => setImageMode('upload')}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
-                          imageMode === 'upload' ? 'bg-white dark:bg-slate-900 text-blue-600 font-bold shadow-xs' : 'text-slate-600'
+                          imageMode === 'upload'
+                            ? 'bg-card text-primary font-bold shadow-xs'
+                            : 'text-muted hover:text-fg'
                         }`}
                       >
                         <Upload className="w-3 h-3" />
-                        <span>Kompyuterdan</span>
+                        <span>Kompyuterdan / Tashlash</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setImageMode('url')}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
-                          imageMode === 'url' ? 'bg-white dark:bg-slate-900 text-blue-600 font-bold shadow-xs' : 'text-slate-600'
+                          imageMode === 'url'
+                            ? 'bg-card text-primary font-bold shadow-xs'
+                            : 'text-muted hover:text-fg'
                         }`}
                       >
                         <Globe className="w-3 h-3" />
@@ -1107,25 +1202,68 @@ export default function CustomAdminPage() {
                       />
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-colors bg-white dark:bg-slate-900"
+                        onDragOver={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setIsDragging(true)
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setIsDragging(false)
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setIsDragging(false)
+                          const file = e.dataTransfer.files?.[0]
+                          if (file) uploadImageFile(file)
+                        }}
+                        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                          isDragging
+                            ? 'border-primary bg-primary/10 scale-[1.01]'
+                            : 'border-border hover:border-primary bg-bg'
+                        }`}
                       >
                         {uploadingImage ? (
-                          <div className="flex items-center justify-center gap-2 text-xs text-blue-600 font-medium">
-                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          <div className="flex items-center justify-center gap-2 text-xs text-primary font-medium py-3">
+                            <RefreshCw className="w-5 h-5 animate-spin" />
                             <span>Rasm yuklanmoqda...</span>
                           </div>
                         ) : postImagePreview ? (
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="relative w-16 h-12 rounded-lg overflow-hidden border border-slate-200">
-                              <Image src={postImagePreview} alt="Preview" fill className="object-cover" />
+                          <div className="flex items-center justify-between gap-3 p-2 bg-card rounded-lg border border-border">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-16 h-12 rounded-lg overflow-hidden border border-border shrink-0">
+                                <Image src={postImagePreview} alt="Preview" fill className="object-cover" unoptimized />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-xs text-teal font-semibold">✓ Rasm yuklandi</div>
+                                <div className="text-[11px] text-muted">Boshqa rasm tashlash yoki tanlash mumkin</div>
+                              </div>
                             </div>
-                            <span className="text-xs text-emerald-600 font-medium">✓ Rasm tanlangan (Oʻzgartirish uchun bosing)</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setPostImagePreview('')
+                                setPostImageUrl('')
+                                setPostImageId(null)
+                              }}
+                              className="p-1.5 rounded-lg text-muted hover:text-p-brick hover:bg-surface-2 transition-colors"
+                              title="Rasmni olib tashlash"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
                         ) : (
-                          <div className="space-y-1 text-slate-500">
-                            <Upload className="w-6 h-6 mx-auto text-slate-400" />
-                            <div className="text-xs font-medium">Kompyuteringizdan rasm tanlash uchun bosing</div>
-                            <div className="text-[10px] text-slate-400">PNG, JPG, WebP formatlar</div>
+                          <div className="space-y-1.5 text-muted py-2">
+                            <Upload className="w-8 h-8 mx-auto text-primary/70" />
+                            <div className="text-xs font-semibold text-fg">
+                              Rasmni bu yerga sudrab tashlang (Drag & Drop)
+                            </div>
+                            <div className="text-[11px] text-muted">
+                              yoki kompyuterdan tanlash uchun bosing (PNG, JPG, WebP)
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1140,33 +1278,33 @@ export default function CustomAdminPage() {
                           setPostImagePreview(e.target.value)
                         }}
                         placeholder="https://example.com/rasm.jpg"
-                        className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-blue-600 font-mono"
+                        className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
                       />
                       {postImagePreview && (
                         <div className="flex items-center gap-2">
-                          <div className="relative w-12 h-10 rounded-md overflow-hidden border border-slate-200">
+                          <div className="relative w-12 h-10 rounded-md overflow-hidden border border-border shrink-0">
                             <Image src={postImagePreview} alt="Preview" fill className="object-cover" unoptimized />
                           </div>
-                          <span className="text-xs text-slate-400">Rasm havolasi kiritildi</span>
+                          <span className="text-xs text-teal font-medium">✓ Rasm havolasi kiritildi</span>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* 3. Post Matni (Chegarasiz va Word Import bilan) */}
+                {/* 3. Cheklovsiz Post Matni & Word Import */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-fg">
                       Post matni (Chegarasiz, xohlagancha matn yozing):
                     </label>
 
-                    {/* Word / PDF / TXT import tugmasi */}
+                    {/* Word / Fayl import tugmasi */}
                     <div>
                       <input
                         type="file"
                         ref={docInputRef}
-                        accept=".docx,.pdf,.txt"
+                        accept=".docx,.pdf,.txt,.doc"
                         onChange={handleDocumentImport}
                         className="hidden"
                       />
@@ -1174,10 +1312,10 @@ export default function CustomAdminPage() {
                         type="button"
                         onClick={() => docInputRef.current?.click()}
                         disabled={parsingDoc}
-                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                        className="px-3.5 py-1.5 bg-surface-2 hover:bg-card text-fg border border-border rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
                       >
-                        {parsingDoc ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FileUp className="w-3.5 h-3.5" />}
-                        <span>📄 Word / Fayldan matn import qilish</span>
+                        {parsingDoc ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-primary" /> : <FileUp className="w-3.5 h-3.5 text-primary" />}
+                        <span>📄 Word (.docx) / Fayldan matn import qilish</span>
                       </button>
                     </div>
                   </div>
@@ -1187,9 +1325,9 @@ export default function CustomAdminPage() {
                     value={postContent}
                     onChange={(e) => setPostContent(e.target.value)}
                     placeholder="Maqola matnini bu yerga yozing yoki Word faylingizdan import qiling..."
-                    className="w-full p-4 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm leading-relaxed text-slate-800 dark:text-white outline-none focus:border-blue-600 resize-y font-serif"
+                    className="w-full p-4 bg-bg border border-border focus:border-primary rounded-2xl text-sm leading-relaxed text-fg outline-none resize-y font-serif"
                   />
-                  <div className="text-right text-[11px] text-slate-400 font-mono">
+                  <div className="text-right text-[11px] text-muted font-mono">
                     {postContent.trim() ? `${postContent.trim().split(/\s+/).length} soʻz` : '0 soʻz'}
                   </div>
                 </div>
@@ -1197,11 +1335,11 @@ export default function CustomAdminPage() {
                 {/* 4. Til va Holat tanlash */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Til</label>
+                    <label className="text-xs font-semibold text-muted">Til</label>
                     <select
                       value={postLanguage}
                       onChange={(e) => setPostLanguage(e.target.value as 'both' | 'uz' | 'kaa')}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-blue-600 cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
                     >
                       <option value="both">Ikkala til uchun (Uzbek & Karakalpak)</option>
                       <option value="uz">Faqat Oʻzbekcha</option>
@@ -1210,23 +1348,37 @@ export default function CustomAdminPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Holat</label>
+                    <label className="text-xs font-semibold text-muted">Holat</label>
                     <select
                       value={postStatus}
                       onChange={(e) => setPostStatus(e.target.value as 'published' | 'draft')}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-blue-600 cursor-pointer"
+                      className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
                     >
-                      <option value="published">Darhol chop etish (Published)</option>
-                      <option value="draft">Qoralama (Draft)</option>
+                      <option value="published">Chop etish (Darhol saytda koʻrinadi)</option>
+                      <option value="draft">Qoralama (Hozircha saytda koʻrinmaydi)</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Submit button */}
+                {/* 5. Qisqa tavsif (Anons) */}
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted">
+                    Qisqa anons (Ixtiyoriy, qisqacha mazmun)
+                  </label>
+                  <input
+                    type="text"
+                    value={postExcerpt}
+                    onChange={(e) => setPostExcerpt(e.target.value)}
+                    placeholder="Bosh sahifada koʻrinadigan 1-2 jumlalik qisqa anons..."
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
+                  />
+                </div>
+
+                {/* Saqlash tugmasi */}
                 <button
                   type="submit"
                   disabled={savingPost}
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3.5 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 mt-4"
                 >
                   {savingPost ? (
                     <>
@@ -1236,45 +1388,45 @@ export default function CustomAdminPage() {
                   ) : (
                     <>
                       <Check className="w-4 h-4" />
-                      <span>{editingPostId ? 'Oʻzgarishlarni Saqlash' : 'Maqolani Chop Etish / Qoʻshish'}</span>
+                      <span>{editingPostId ? 'Postni Yangilash' : 'Postni Chop Etish (Saytga Joylash)'}</span>
                     </>
                   )}
                 </button>
               </form>
             </div>
 
-            {/* KARTA 4: MAQOLALARNI BOSHQARISH JADVALI (Bottom-right in screenshot) */}
-            <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            {/* KARTA 4: MAVJUD POSTLAR RO'YXATI (Table) */}
+            <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm flex flex-col space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-teal/15 text-teal flex items-center justify-center">
                     <FileText className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold font-serif text-fg">
                     Maqolalarni Basqarıw
                   </h3>
                 </div>
-                <span className="text-xs font-mono text-slate-400">Jami: {posts.length} ta</span>
+                <span className="text-xs font-mono text-muted">Jami: {posts.length} ta</span>
               </div>
 
               {/* Qidiruv */}
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={postSearch}
                   onChange={(e) => setPostSearch(e.target.value)}
                   placeholder="Maqolalarni qidirish..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-purple-600"
+                  className="w-full pl-9 pr-4 py-2 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
                 />
               </div>
 
               {/* Ro'yxat */}
-              <div className="flex-1 overflow-y-auto max-h-[560px] divide-y divide-slate-100 dark:divide-slate-800 pr-1">
+              <div className="flex-1 overflow-y-auto max-h-[560px] divide-y divide-border pr-1">
                 {postsLoading ? (
-                  <div className="p-8 text-center text-xs text-slate-400 font-mono">Yuklanmoqda...</div>
+                  <div className="p-8 text-center text-xs text-muted font-mono">Yuklanmoqda...</div>
                 ) : posts.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-slate-400 font-mono">Hozircha maqolalar yoʻq</div>
+                  <div className="p-8 text-center text-xs text-muted font-mono">Hozircha maqolalar yoʻq</div>
                 ) : (
                   posts.map((post) => {
                     const thumbUrl =
@@ -1283,19 +1435,19 @@ export default function CustomAdminPage() {
                         : post.coverImageUrl || '/favicon.svg'
 
                     return (
-                      <div key={post.id} className="py-3 flex items-center justify-between gap-3 group hover:bg-slate-50 dark:hover:bg-slate-800/40 p-2 rounded-xl transition-colors">
+                      <div key={post.id} className="py-3 flex items-center justify-between gap-3 group hover:bg-surface-2/60 p-2 rounded-xl transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="relative w-12 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700">
+                          <div className="relative w-12 h-10 rounded-lg overflow-hidden bg-surface-2 shrink-0 border border-border">
                             <Image src={thumbUrl} alt="" fill className="object-cover" unoptimized />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate max-w-[220px]" title={post.title || ''}>
+                            <div className="text-xs font-bold text-fg truncate max-w-[220px]" title={post.title || ''}>
                               {post.title || 'Nomsiz maqola'}
                             </div>
-                            <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+                            <div className="text-[10px] text-muted flex items-center gap-2 mt-0.5">
                               <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Qoralama'}</span>
                               <span className={`px-1.5 py-0.2 rounded-full text-[9px] uppercase font-mono ${
-                                post._status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                                post._status === 'published' ? 'bg-teal/15 text-teal font-bold' : 'bg-p-ochre/15 text-p-ochre font-bold'
                               }`}>
                                 {post._status || 'draft'}
                               </span>
@@ -1307,14 +1459,14 @@ export default function CustomAdminPage() {
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => handleEditPost(post)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg cursor-pointer transition-colors"
+                            className="p-1.5 text-primary hover:bg-primary/10 rounded-lg cursor-pointer transition-colors"
                             title="Tahrirlash"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeletePost(post.id)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg cursor-pointer transition-colors"
+                            className="p-1.5 text-p-brick hover:bg-p-brick/10 rounded-lg cursor-pointer transition-colors"
                             title="Oʻchirish"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1331,17 +1483,17 @@ export default function CustomAdminPage() {
 
         {/* SECTION: FOYDALANUVCHILAR RO'YXATI VA TAHRIRLASH */}
         {(activeTab === 'dashboard' || activeTab === 'readers') && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-teal/15 text-teal flex items-center justify-center">
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold font-serif text-fg">
                     Saytdagi Foydalanuvchilar (Readers)
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-muted">
                     Roʻyxatdan oʻtgan barcha foydalanuvchilarni koʻrish va tahrirlash.
                   </p>
                 </div>
@@ -1349,21 +1501,21 @@ export default function CustomAdminPage() {
 
               {/* Qidiruv */}
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={readerSearch}
                   onChange={(e) => setReaderSearch(e.target.value)}
                   placeholder="Foydalanuvchi qidirish..."
-                  className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-blue-600"
+                  className="w-full pl-9 pr-3 py-1.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
                 />
               </div>
             </div>
 
             {/* Readers Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-400 uppercase font-mono text-[10px]">
+              <table className="w-full text-left text-xs text-fg">
+                <thead className="bg-surface-2 text-muted uppercase font-mono text-[10px]">
                   <tr>
                     <th className="px-4 py-3 rounded-l-xl">Ism-familiya</th>
                     <th className="px-4 py-3">Email / Login</th>
@@ -1372,46 +1524,46 @@ export default function CustomAdminPage() {
                     <th className="px-4 py-3 text-right rounded-r-xl">Harakatlar</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {readersList.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400 font-mono">
+                      <td colSpan={5} className="py-8 text-center text-muted font-mono">
                         Foydalanuvchilar topilmadi
                       </td>
                     </tr>
                   ) : (
                     readersList.map((r) => (
-                      <tr key={r.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-4 py-3.5 font-medium text-slate-900 dark:text-white">
+                      <tr key={r.id} className="hover:bg-surface-2/50 transition-colors">
+                        <td className="px-4 py-3.5 font-medium text-fg">
                           {r.displayName || 'Nomsiz'}
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-slate-500">
+                        <td className="px-4 py-3.5 font-mono text-muted">
                           {r.email || r.username || '—'}
                         </td>
                         <td className="px-4 py-3.5">
                           {r.isBanned ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-700 font-semibold flex items-center gap-1 w-max">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-p-brick/15 text-p-brick font-semibold flex items-center gap-1 w-max">
                               <Ban className="w-3 h-3" /> Bloklangan
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-700 font-semibold flex items-center gap-1 w-max">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-teal/15 text-teal font-semibold flex items-center gap-1 w-max">
                               <UserCheck className="w-3 h-3" /> Faol
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-slate-400">
+                        <td className="px-4 py-3.5 font-mono text-muted">
                           {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}
                         </td>
                         <td className="px-4 py-3.5 text-right space-x-1">
                           <button
                             onClick={() => handleOpenReaderModal(r)}
-                            className="px-2.5 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg text-xs font-semibold cursor-pointer"
+                            className="px-2.5 py-1 text-primary hover:bg-primary/10 rounded-lg text-xs font-semibold cursor-pointer"
                           >
                             Tahrirlash
                           </button>
                           <button
                             onClick={() => handleDeleteReader(r.id)}
-                            className="p-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg cursor-pointer"
+                            className="p-1 text-p-brick hover:bg-p-brick/10 rounded-lg cursor-pointer"
                             title="Oʻchirish"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1428,27 +1580,27 @@ export default function CustomAdminPage() {
 
         {/* SECTION: ADMINLAR RO'YXATI */}
         {(activeTab === 'dashboard' || activeTab === 'admins') && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-p-ochre/15 text-p-ochre flex items-center justify-center">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold font-serif text-fg">
                     Adminlar va Muharrirlar Roʻyxati
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-muted">
                     Boshqaruv huquqiga ega barcha xodimlar.
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-slate-400">Jami: {staffList.length} ta</span>
+              <span className="text-xs font-mono text-muted">Jami: {staffList.length} ta</span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-400 uppercase font-mono text-[10px]">
+              <table className="w-full text-left text-xs text-fg">
+                <thead className="bg-surface-2 text-muted uppercase font-mono text-[10px]">
                   <tr>
                     <th className="px-4 py-3 rounded-l-xl">Ism-familiya</th>
                     <th className="px-4 py-3">Login</th>
@@ -1457,20 +1609,20 @@ export default function CustomAdminPage() {
                     <th className="px-4 py-3 text-right rounded-r-xl">Harakatlar</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {staffList.map((staff) => (
-                    <tr key={staff.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-4 py-3.5 font-medium text-slate-900 dark:text-white">
+                    <tr key={staff.id} className="hover:bg-surface-2/50 transition-colors">
+                      <td className="px-4 py-3.5 font-medium text-fg">
                         {staff.displayName}
                       </td>
-                      <td className="px-4 py-3.5 font-mono text-slate-600 dark:text-slate-400">
+                      <td className="px-4 py-3.5 font-mono text-muted">
                         @{staff.username}
                       </td>
-                      <td className="px-4 py-3.5 font-mono text-slate-400">
+                      <td className="px-4 py-3.5 font-mono text-muted">
                         {staff.email || '—'}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-mono font-bold bg-amber-100 text-amber-800">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-mono font-bold bg-p-ochre/15 text-p-ochre">
                           {staff.role}
                         </span>
                       </td>
@@ -1478,7 +1630,7 @@ export default function CustomAdminPage() {
                         {staff.id !== currentUser.id && (
                           <button
                             onClick={() => handleDeleteStaff(staff.id)}
-                            className="p-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg cursor-pointer"
+                            className="p-1 text-p-brick hover:bg-p-brick/10 rounded-lg cursor-pointer"
                             title="Oʻchirish"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1496,15 +1648,15 @@ export default function CustomAdminPage() {
 
       {/* READER EDIT MODAL */}
       {editingReader && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 bg-line/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-offset">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <h3 className="text-base font-bold font-serif text-fg">
                 Foydalanuvchini Tahrirlash
               </h3>
               <button
                 onClick={() => setEditingReader(null)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-muted hover:text-fg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1512,28 +1664,28 @@ export default function CustomAdminPage() {
 
             <form onSubmit={handleSaveReader} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Ism-familiya</label>
+                <label className="text-xs font-semibold text-muted">Ism-familiya</label>
                 <input
                   type="text"
                   value={editReaderName}
                   onChange={(e) => setEditReaderName(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Email</label>
+                <label className="text-xs font-semibold text-muted">Email</label>
                 <input
                   type="email"
                   value={editReaderEmail}
                   onChange={(e) => setEditReaderEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono outline-none focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg font-mono outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <label className="text-xs font-semibold text-muted">
                   Yangi parol (faqat oʻzgartirmoqchi boʻlsangiz)
                 </label>
                 <input
@@ -1541,7 +1693,7 @@ export default function CustomAdminPage() {
                   value={editReaderPassword}
                   onChange={(e) => setEditReaderPassword(e.target.value)}
                   placeholder="Yangi parol..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono outline-none focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg font-mono outline-none"
                 />
               </div>
 
@@ -1551,25 +1703,25 @@ export default function CustomAdminPage() {
                   id="banCheck"
                   checked={editReaderBanned}
                   onChange={(e) => setEditReaderBanned(e.target.checked)}
-                  className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 w-4 h-4 cursor-pointer"
+                  className="rounded border-border text-p-brick focus:ring-p-brick w-4 h-4 cursor-pointer"
                 />
-                <label htmlFor="banCheck" className="text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                <label htmlFor="banCheck" className="text-xs font-medium text-fg cursor-pointer">
                   Ushbu foydalanuvchini bloklash (Ban)
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
                 <button
                   type="button"
                   onClick={() => setEditingReader(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-fg hover:bg-surface-2 cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={savingReader}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {savingReader ? 'Saqlanmoqda...' : 'Saqlash'}
                 </button>

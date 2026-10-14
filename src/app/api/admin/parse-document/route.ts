@@ -3,7 +3,7 @@ import { getCurrentAdmin } from '@/lib/admin-auth'
 import mammoth from 'mammoth'
 
 export async function POST(req: NextRequest) {
-  const admin = await getCurrentAdmin()
+  const admin = await getCurrentAdmin(req)
   if (!admin) {
     return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 401 })
   }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     let extractedText = ''
 
-    if (name.endsWith('.docx')) {
+    if (name.endsWith('.docx') || name.endsWith('.dotx')) {
       const result = await mammoth.extractRawText({ buffer })
       extractedText = result.value
     } else if (name.endsWith('.txt')) {
@@ -36,6 +36,12 @@ export async function POST(req: NextRequest) {
       } finally {
         await parser.destroy().catch(() => {})
       }
+    } else if (name.endsWith('.doc')) {
+      // Eski .doc fayllar uchun matn qismlarini tozalab olish
+      extractedText = buffer
+        .toString('utf-8')
+        .replace(/[^\x20-\x7E\u0400-\u04FF\u0100-\u024F\n\r\t]/g, ' ')
+        .replace(/\s+/g, ' ')
     } else {
       return NextResponse.json(
         { error: 'Faqat .docx (Word), .pdf yoki .txt fayllar qabul qilinadi' },

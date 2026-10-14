@@ -6,7 +6,7 @@ import { textToLexical } from '@/lib/text-to-lexical'
 import type { Where } from 'payload'
 
 export async function GET(req: NextRequest) {
-  const admin = await getCurrentAdmin()
+  const admin = await getCurrentAdmin(req)
   if (!admin) {
     return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 401 })
   }
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const admin = await getCurrentAdmin()
+  const admin = await getCurrentAdmin(req)
   if (!admin) {
     return NextResponse.json({ error: 'Ruxsat berilmagan' }, { status: 401 })
   }
