@@ -33,12 +33,12 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                <Link href="/" prefetch={true} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
                   {tNav('home')}
                 </Link>
               </li>
               <li>
-                <Link href="/maqolalar" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                <Link href="/maqolalar" prefetch={true} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
                   {tNav('posts')}
                 </Link>
               </li>
@@ -58,7 +58,8 @@ export function Footer() {
               {/* Veb-sayt o'zidan (Chat sahifasi) */}
               <Link
                 href="/chat"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-[var(--card)] border border-[var(--gold)]/50 hover:border-[var(--gold)] text-xs font-medium text-[var(--foreground)] hover:text-[var(--gold)] transition-all shadow-xs group"
+                prefetch={true}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-[var(--card)] border border-[var(--gold)]/50 hover:border-[var(--gold)] text-xs font-medium text-[var(--foreground)] hover:text-[var(--gold)] active:scale-95 transition-all shadow-xs group"
               >
                 <MessageSquare className="w-4 h-4 text-[var(--gold)] group-hover:scale-110 transition-transform" />
                 <span>{t('fromWebsite')}</span>

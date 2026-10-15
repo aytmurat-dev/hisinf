@@ -7,6 +7,8 @@ import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
 
 
+export const revalidate = 3600
+
 export default async function ArticlesListPage({
   params,
 }: {
@@ -80,7 +82,11 @@ export default async function ArticlesListPage({
                 key={post.id}
                 className="flex flex-col bg-[var(--card)] rounded-xl border border-[var(--border)] hover:border-[var(--gold)] transition-all hover:shadow-lg overflow-hidden group"
               >
-                <div className="relative h-48 w-full overflow-hidden bg-[var(--secondary)]">
+                <Link
+                  href={`/maqolalar/${post.slug}`}
+                  prefetch={true}
+                  className="relative h-48 w-full overflow-hidden bg-[var(--secondary)] block cursor-pointer"
+                >
                   <Image
                     src={coverUrl}
                     alt={post.title || 'HISINF'}
@@ -89,7 +95,7 @@ export default async function ArticlesListPage({
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                </div>
+                </Link>
 
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div>
@@ -104,9 +110,11 @@ export default async function ArticlesListPage({
                       </span>
                     </div>
 
-                    <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
-                      {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
-                    </h3>
+                    <Link href={`/maqolalar/${post.slug}`} prefetch={true} className="block cursor-pointer">
+                      <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
+                        {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
+                      </h3>
+                    </Link>
 
                     <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-3 leading-relaxed">
                       {post.excerpt || post.content?.slice(0, 160) || ''}
@@ -116,7 +124,8 @@ export default async function ArticlesListPage({
                   <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
                     <Link
                       href={`/maqolalar/${post.slug}`}
-                      className="text-xs font-semibold text-[var(--gold)] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                      prefetch={true}
+                      className="text-xs font-semibold text-[var(--gold)] flex items-center gap-1 group-hover:translate-x-0.5 active:scale-95 transition-all inline-flex py-1 px-1 -ml-1 rounded"
                     >
                       <span>{tPost('readMore')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />

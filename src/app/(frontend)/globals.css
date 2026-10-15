@@ -75,6 +75,11 @@
 @keyframes hf-slide{from{transform:translateX(100%)}to{transform:none}}
 @keyframes hf-drop{0%{opacity:0;transform:translateY(-30px) scale(.6)}70%{opacity:1;transform:translateY(3px) scale(1.05)}100%{transform:none}}
 @keyframes hf-ping{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+@keyframes hf-progress{0%{width:0%;margin-left:0%}50%{width:70%;margin-left:20%}100%{width:100%;margin-left:100%}}
+
+.animate-hf-progress {
+  animation: hf-progress 1.2s ease-in-out infinite;
+}
 
 /* ---------- 4. Utilitalar ---------- */
 @utility bg-hatch { background: repeating-linear-gradient(135deg, var(--ph) 0 1px, transparent 1px 8px), var(--surface-2); }

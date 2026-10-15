@@ -8,12 +8,71 @@ import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowLeft, Compass } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 import { extractPlainText } from '@/lib/lexical-text'
+import { unstable_cache } from 'next/cache'
 
 export const revalidate = 3600
 
 export async function generateStaticParams() {
-  return []
+  try {
+    const payload = await getPayload({ config })
+    const { docs } = await payload.find({
+      collection: 'posts',
+      where: { _status: { equals: 'published' } },
+      limit: 100,
+      select: { slug: true },
+      overrideAccess: true,
+    })
+    const params: { locale: string; slug: string }[] = []
+    for (const p of docs) {
+      if (p.slug) {
+        params.push({ locale: 'uz', slug: p.slug })
+        params.push({ locale: 'kaa', slug: p.slug })
+      }
+    }
+    return params
+  } catch {
+    return []
+  }
 }
+
+const getCachedPost = (slug: string, locale: 'uz' | 'kaa') =>
+  unstable_cache(
+    async () => {
+      const payload = await getPayload({ config })
+      const { docs } = await payload.find({
+        collection: 'posts',
+        locale,
+        where: { slug: { equals: slug } },
+        depth: 1,
+        overrideAccess: true,
+      })
+      return docs[0] ?? null
+    },
+    [`post-${locale}-${slug}`],
+    { revalidate: 3600, tags: [`post-${slug}`, 'posts'] },
+  )()
+
+const getCachedComments = (postId: number) =>
+  unstable_cache(
+    async () => {
+      const payload = await getPayload({ config })
+      const { docs: comments } = await payload.find({
+        collection: 'comments',
+        where: { post: { equals: postId } },
+        sort: '-createdAt',
+        depth: 0,
+        overrideAccess: true,
+      })
+      return comments.map((c) => ({
+        id: c.id,
+        authorName: c.authorName,
+        body: c.body,
+        createdAt: c.createdAt || new Date().toISOString(),
+      }))
+    },
+    [`comments-${postId}`],
+    { revalidate: 60, tags: [`comments-${postId}`] },
+  )()
 
 export default async function PostDetailPage({
   params,
@@ -24,35 +83,13 @@ export default async function PostDetailPage({
   setRequestLocale(locale)
   const tNav = await getTranslations({ locale, namespace: 'nav' })
 
-  const payload = await getPayload({ config })
+  const post = await getCachedPost(slug, locale as 'uz' | 'kaa')
 
-  const { docs: posts } = await payload.find({
-    collection: 'posts',
-    locale: locale as 'uz' | 'kaa',
-    where: { slug: { equals: slug } },
-    overrideAccess: true,
-  })
-
-  if (posts.length === 0) {
+  if (!post) {
     notFound()
   }
 
-  const post = posts[0]
-
-  // Fetch comments for this post
-  const { docs: comments } = await payload.find({
-    collection: 'comments',
-    where: { post: { equals: post.id } },
-    sort: '-createdAt',
-    overrideAccess: true,
-  })
-
-  const formattedComments = comments.map((c) => ({
-    id: c.id,
-    authorName: c.authorName,
-    body: c.body,
-    createdAt: c.createdAt || new Date().toISOString(),
-  }))
+  const formattedComments = await getCachedComments(post.id)
 
   const coverUrl =
     post.coverImageUrl ||
@@ -70,7 +107,8 @@ export default async function PostDetailPage({
       <div>
         <Link
           href="/maqolalar"
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] transition-colors font-medium"
+          prefetch={true}
+          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--gold)] active:scale-95 transition-all font-medium"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{tNav('allPosts')}</span>

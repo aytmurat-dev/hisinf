@@ -26,20 +26,36 @@ export default async function HomePage({
 
   const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
 
-  // Fetch posts for current locale (excluding internal discussion post)
-  const { docs: allPosts } = await payload.find({
-    collection: 'posts',
-    locale: locale as 'uz' | 'kaa',
-    where: {
-      and: [
-        { _status: { equals: 'published' } },
-        { slug: { not_equals: 'bosh-sahifa-izohlari' } },
-      ],
-    },
-    limit: 30,
-    sort: '-publishedAt',
-    overrideAccess: true,
-  })
+  const [
+    { docs: allPosts },
+    { docs: periods },
+    { docs: homePosts },
+  ] = await Promise.all([
+    payload.find({
+      collection: 'posts',
+      locale: locale as 'uz' | 'kaa',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { slug: { not_equals: 'bosh-sahifa-izohlari' } },
+        ],
+      },
+      limit: 30,
+      sort: '-publishedAt',
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'periods',
+      locale: locale as 'uz' | 'kaa',
+      sort: 'startYear',
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'posts',
+      where: { slug: { equals: 'bosh-sahifa-izohlari' } },
+      overrideAccess: true,
+    }),
+  ])
 
   const posts = allPosts
     .filter((post) => {
@@ -48,21 +64,6 @@ export default async function HomePage({
       return postLang === targetLanguage
     })
     .slice(0, 6)
-
-  // Fetch periods
-  const { docs: periods } = await payload.find({
-    collection: 'periods',
-    locale: locale as 'uz' | 'kaa',
-    sort: 'startYear',
-    overrideAccess: true,
-  })
-
-  // Fetch home discussion post and comments
-  const { docs: homePosts } = await payload.find({
-    collection: 'posts',
-    where: { slug: { equals: 'bosh-sahifa-izohlari' } },
-    overrideAccess: true,
-  })
 
   const homePost = homePosts[0] || null
 
@@ -110,7 +111,8 @@ export default async function HomePage({
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/maqolalar"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--gold)] text-black font-semibold text-sm hover:brightness-110 transition-all shadow-md group cursor-pointer"
+              prefetch={true}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--gold)] text-black font-semibold text-sm hover:brightness-110 active:scale-95 transition-all shadow-md group cursor-pointer"
             >
               <span>{t('explore')}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -118,7 +120,8 @@ export default async function HomePage({
 
             <Link
               href="/chat"
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[var(--card)] border border-[var(--gold)]/40 text-[var(--foreground)] hover:border-[var(--gold)] font-medium text-sm transition-all shadow-xs"
+              prefetch={true}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[var(--card)] border border-[var(--gold)]/40 text-[var(--foreground)] hover:border-[var(--gold)] active:scale-95 font-medium text-sm transition-all shadow-xs"
             >
               <MessageSquare className="w-4 h-4 text-[var(--gold)]" />
               <span>{tContact('adminContact')}</span>
@@ -174,7 +177,8 @@ export default async function HomePage({
           </div>
           <Link
             href="/maqolalar"
-            className="text-xs font-semibold text-[var(--gold)] hover:underline flex items-center gap-1"
+            prefetch={true}
+            className="text-xs font-semibold text-[var(--gold)] hover:underline active:scale-95 flex items-center gap-1 transition-transform"
           >
             <span>{t('viewAll')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -200,7 +204,11 @@ export default async function HomePage({
                   className="flex flex-col bg-[var(--card)] rounded-xl border border-[var(--border)] hover:border-[var(--gold)] transition-all hover:shadow-lg overflow-hidden group"
                 >
                   {/* Muqova rasmi */}
-                  <div className="relative h-48 w-full overflow-hidden bg-[var(--secondary)]">
+                  <Link
+                    href={`/maqolalar/${post.slug}`}
+                    prefetch={true}
+                    className="relative h-48 w-full overflow-hidden bg-[var(--secondary)] block cursor-pointer"
+                  >
                     <Image
                       src={coverUrl}
                       alt={post.title || 'HISINF'}
@@ -209,7 +217,7 @@ export default async function HomePage({
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  </div>
+                  </Link>
 
                   {/* Kontent */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
@@ -225,9 +233,11 @@ export default async function HomePage({
                         </span>
                       </div>
 
-                      <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
-                        {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
-                      </h3>
+                      <Link href={`/maqolalar/${post.slug}`} prefetch={true} className="block cursor-pointer">
+                        <h3 className="font-serif font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--gold)] transition-colors line-clamp-2">
+                          {post.title || (locale === 'kaa' ? 'Atamasız maqala' : 'Nomsiz maqola')}
+                        </h3>
+                      </Link>
 
                       <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-3 leading-relaxed">
                         {post.excerpt || post.content?.slice(0, 160) || ''}
@@ -237,7 +247,8 @@ export default async function HomePage({
                     <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
                       <Link
                         href={`/maqolalar/${post.slug}`}
-                        className="text-xs font-semibold text-[var(--gold)] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                        prefetch={true}
+                        className="text-xs font-semibold text-[var(--gold)] flex items-center gap-1 group-hover:translate-x-0.5 active:scale-95 transition-all inline-flex py-1 px-1 -ml-1 rounded"
                       >
                         <span>{tPost('readMore')}</span>
                         <ArrowRight className="w-3.5 h-3.5" />

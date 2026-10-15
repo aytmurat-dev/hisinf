@@ -168,6 +168,7 @@ export function HeaderSearch() {
                 return (
                   <div
                     key={post.id}
+                    onMouseEnter={() => router.prefetch(`/maqolalar/${post.slug}`)}
                     onClick={() => setSelectedPost(post)}
                     className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
                       isSelected
@@ -201,7 +202,7 @@ export function HeaderSearch() {
                             e.stopPropagation()
                             handleOpenPost(post.slug)
                           }}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-[var(--gold)] text-black font-semibold text-xs rounded-lg hover:brightness-110 transition-all shadow-sm cursor-pointer"
+                          className="flex items-center gap-2 px-3 py-1.5 bg-[var(--gold)] text-black font-semibold text-xs rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-sm cursor-pointer"
                         >
                           <span>{t('openFullPost')}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
