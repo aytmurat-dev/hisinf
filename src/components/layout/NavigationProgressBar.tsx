@@ -1,17 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { usePathname } from 'next/navigation'
 
-export function NavigationProgressBar() {
+function ProgressBarInner() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [isNavigating, setIsNavigating] = useState(false)
 
   // Reset navigation indicator on route change
   useEffect(() => {
     setIsNavigating(false)
-  }, [pathname, searchParams])
+  }, [pathname])
 
   // Global click interceptor for internal links
   useEffect(() => {
@@ -54,3 +53,12 @@ export function NavigationProgressBar() {
     </div>
   )
 }
+
+export function NavigationProgressBar() {
+  return (
+    <Suspense fallback={null}>
+      <ProgressBarInner />
+    </Suspense>
+  )
+}
+
