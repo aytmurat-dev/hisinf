@@ -32,9 +32,23 @@ export const Periods: CollectionConfig = {
       type: 'number',
       required: true,
       defaultValue: 1,
-      unique: true,
       index: true,
       label: 'Tartib raqami (1–10)',
+    },
+    {
+      name: 'language',
+      type: 'select',
+      defaultValue: 'both',
+      required: false,
+      label: '🌐 Davr tili (Saytda qaysi tilda koʻrinsin)',
+      options: [
+        { label: '🌐 Ikkala til uchun ham (Oʻzbekcha va Qoraqalpoqcha)', value: 'both' },
+        { label: '🇺🇿 Faqat Oʻzbekcha (uz)', value: 'uz' },
+        { label: '🏴 Faqat Qoraqalpoqcha (kaa)', value: 'kaa' },
+      ],
+      admin: {
+        description: 'Saytda qaysi til tanlanganda ushbu davr koʻrinishini belgilang.',
+      },
     },
     {
       name: 'title',

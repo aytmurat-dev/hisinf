@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
@@ -9,6 +8,8 @@ import { Calendar, ArrowLeft, Compass } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 import { extractPlainText } from '@/lib/lexical-text'
 import { unstable_cache } from 'next/cache'
+import { resolveCoverUrl } from '@/lib/resolve-cover-image'
+import { SmartImage } from '@/components/SmartImage'
 
 export const revalidate = 3600
 
@@ -91,10 +92,7 @@ export default async function PostDetailPage({
 
   const formattedComments = await getCachedComments(post.id)
 
-  const coverUrl =
-    post.coverImageUrl ||
-    (typeof post.coverImage === 'object' && post.coverImage?.url ? post.coverImage.url : null) ||
-    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1200&auto=format&fit=crop'
+  const coverUrl = resolveCoverUrl(post.coverImageUrl, post.coverImage)
 
   const periodTitle =
     typeof post.period === 'object' && post.period && 'title' in post.period
@@ -145,7 +143,7 @@ export default async function PostDetailPage({
       {/* Cover Image */}
       {coverUrl && (
         <div className="relative h-64 sm:h-96 md:h-[460px] w-full rounded-2xl overflow-hidden border border-[var(--border)] shadow-md bg-[var(--secondary)]">
-          <Image
+          <SmartImage
             src={coverUrl}
             alt={post.title || 'HISINF'}
             fill

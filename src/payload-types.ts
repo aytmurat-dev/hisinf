@@ -451,6 +451,10 @@ export interface Post {
 export interface Period {
   id: number;
   order: number;
+  /**
+   * Saytda qaysi til tanlanganda ushbu davr koʻrinishini belgilang.
+   */
+  language?: ('both' | 'uz' | 'kaa') | null;
   title: string;
   shortTitle?: string | null;
   /**
@@ -1223,6 +1227,7 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface PeriodsSelect<T extends boolean = true> {
   order?: T;
+  language?: T;
   title?: T;
   shortTitle?: T;
   slug?: T;

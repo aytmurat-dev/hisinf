@@ -7,7 +7,7 @@ import { getCurrentReader } from '@/lib/current-reader'
 export async function GET() {
   try {
     const reader = await getCurrentReader()
-    if (!reader || !reader.phone) {
+    if (!reader) {
       return NextResponse.json({ inquiries: [] })
     }
 
@@ -15,7 +15,14 @@ export async function GET() {
 
     const { docs: inquiries } = await payload.find({
       collection: 'inquiries',
-      where: { phone: { equals: reader.phone } },
+      where: reader.phone
+        ? {
+            or: [
+              { reader: { equals: reader.id } },
+              { phone: { equals: reader.phone } },
+            ],
+          }
+        : { reader: { equals: reader.id } },
       sort: '-createdAt',
       limit: 20,
       overrideAccess: true,
@@ -49,6 +56,7 @@ export async function POST(req: NextRequest) {
       collection: 'inquiries',
       data: {
         type: 'contact',
+        ...(reader ? { reader: reader.id } : {}),
         name: senderName,
         phone: senderPhone,
         message: message.trim(),

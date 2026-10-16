@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { setRequestLocale } from 'next-intl/server'
@@ -7,6 +6,8 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { BookOpen, Calendar, ArrowRight, Compass, Sparkles, MessageSquare } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
+import { resolveCoverUrl } from '@/lib/resolve-cover-image'
+import { SmartImage } from '@/components/SmartImage'
 
 export const revalidate = 3600
 
@@ -28,7 +29,7 @@ export default async function HomePage({
 
   const [
     { docs: allPosts },
-    { docs: periods },
+    { docs: periodsRaw },
     { docs: homePosts },
   ] = await Promise.all([
     payload.find({
@@ -47,7 +48,7 @@ export default async function HomePage({
     payload.find({
       collection: 'periods',
       locale: locale as 'uz' | 'kaa',
-      sort: 'startYear',
+      sort: 'order',
       overrideAccess: true,
     }),
     payload.find({
@@ -64,6 +65,12 @@ export default async function HomePage({
       return postLang === targetLanguage
     })
     .slice(0, 6)
+
+  const periods = periodsRaw.filter((period) => {
+    const periodLang = (period as unknown as { language?: string | null }).language
+    if (!periodLang || periodLang === 'both') return true
+    return periodLang === targetLanguage
+  })
 
   const homePost = homePosts[0] || null
 
@@ -193,10 +200,7 @@ export default async function HomePage({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => {
-              const coverUrl =
-                post.coverImageUrl ||
-                (typeof post.coverImage === 'object' && post.coverImage?.url ? post.coverImage.url : null) ||
-                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800&auto=format&fit=crop'
+              const coverUrl = resolveCoverUrl(post.coverImageUrl, post.coverImage)
 
               return (
                 <article
@@ -209,7 +213,7 @@ export default async function HomePage({
                     prefetch={true}
                     className="relative h-48 w-full overflow-hidden bg-[var(--secondary)] block cursor-pointer"
                   >
-                    <Image
+                    <SmartImage
                       src={coverUrl}
                       alt={post.title || 'HISINF'}
                       fill

@@ -21,9 +21,27 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
     const mime = file.type || 'image/jpeg'
 
-    const payload = await getPayloadClient()
+    let optimizedBuffer = buffer
+    let outputMime = mime
 
     try {
+      const sharp = (await import('sharp')).default
+      const compressed = await sharp(buffer)
+        .resize({ width: 1200, withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer()
+      optimizedBuffer = Buffer.from(compressed)
+      outputMime = 'image/webp'
+    } catch (sharpErr) {
+      console.warn('Sharp optimization fallback:', sharpErr)
+    }
+
+    const base64Data = optimizedBuffer.toString('base64')
+    const dataUrl = `data:${outputMime};base64,${base64Data}`
+
+    let mediaId: number | null = null
+    try {
+      const payload = await getPayloadClient()
       const mediaDoc = await payload.create({
         collection: 'media',
         data: {
@@ -32,31 +50,24 @@ export async function POST(req: NextRequest) {
           license: 'own',
         },
         file: {
-          data: buffer,
-          mimetype: mime,
-          name: file.name,
-          size: file.size,
+          data: optimizedBuffer,
+          mimetype: outputMime,
+          name: file.name.replace(/\.[^.]+$/, '.webp'),
+          size: optimizedBuffer.length,
         },
         overrideAccess: true,
       })
-
-      return NextResponse.json({
-        success: true,
-        id: mediaDoc.id,
-        url: mediaDoc.url || `/api/media/file/${mediaDoc.filename}`,
-        filename: mediaDoc.filename,
-      })
+      mediaId = mediaDoc.id
     } catch {
-      // Vercel read-only filesystem yoki R2 yo'q bo'lsa, data URL sifatida qaytarish
-      const base64Data = buffer.toString('base64')
-      const dataUrl = `data:${mime};base64,${base64Data}`
-      return NextResponse.json({
-        success: true,
-        id: null,
-        url: dataUrl,
-        filename: file.name,
-      })
+      // Vercel serverless read-only muhitda media creation xatolik bersa ham, dataUrl saqlanadi
     }
+
+    return NextResponse.json({
+      success: true,
+      id: mediaId,
+      url: dataUrl,
+      filename: file.name,
+    })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Fayl yuklashda xatolik yuz berdi'
     return NextResponse.json({ error: message }, { status: 500 })

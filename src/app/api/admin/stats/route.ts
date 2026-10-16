@@ -10,15 +10,19 @@ export async function GET() {
 
   const payload = await getPayloadClient()
 
-  const [readersRes, postsRes, adminsRes] = await Promise.all([
+  const [readersRes, postsRes, adminsRes, periodsRes, inquiriesRes] = await Promise.all([
     payload.count({ collection: 'readers', overrideAccess: true }),
     payload.count({ collection: 'posts', overrideAccess: true }),
     payload.count({ collection: 'users', overrideAccess: true }),
+    payload.count({ collection: 'periods', overrideAccess: true }),
+    payload.count({ collection: 'inquiries', where: { status: { equals: 'new' } }, overrideAccess: true }),
   ])
 
   return NextResponse.json({
     readersCount: readersRes.totalDocs,
     postsCount: postsRes.totalDocs,
     adminsCount: adminsRes.totalDocs,
+    periodsCount: periodsRes.totalDocs,
+    inquiriesCount: inquiriesRes.totalDocs,
   })
 }

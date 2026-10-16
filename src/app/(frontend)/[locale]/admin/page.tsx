@@ -27,7 +27,13 @@ import {
   UserCheck,
   Ban,
   ArrowLeft,
+  Compass,
+  MessageSquare,
+  Send,
+  Clock,
 } from 'lucide-react'
+import { resolveCoverUrl } from '@/lib/resolve-cover-image'
+import { SmartImage } from '@/components/SmartImage'
 
 interface AdminUser {
   id: number
@@ -64,6 +70,30 @@ interface ReaderItem {
   createdAt?: string
 }
 
+interface PeriodItem {
+  id: number
+  title: string
+  shortTitle?: string | null
+  yearsLabel?: string | null
+  startYear?: number | null
+  endYear?: number | null
+  description?: string | null
+  language?: 'both' | 'uz' | 'kaa' | null
+  color?: string | null
+  order?: number | null
+}
+
+interface InquiryItem {
+  id: number
+  name: string
+  phone?: string | null
+  message: string
+  status: 'new' | 'read' | 'replied'
+  reply?: string | null
+  repliedAt?: string | null
+  createdAt: string
+}
+
 export default function CustomAdminPage() {
   const params = useParams()
   const router = useRouter()
@@ -79,10 +109,16 @@ export default function CustomAdminPage() {
   const [loggingIn, setLoggingIn] = useState(false)
 
   // Active section tab
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'posts' | 'admins' | 'readers'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'posts' | 'admins' | 'readers' | 'periods' | 'inquiries'>('dashboard')
 
   // Stats
-  const [stats, setStats] = useState({ readersCount: 0, postsCount: 0, adminsCount: 0 })
+  const [stats, setStats] = useState({
+    readersCount: 0,
+    postsCount: 0,
+    adminsCount: 0,
+    periodsCount: 0,
+    inquiriesCount: 0,
+  })
 
   // Lists
   const [posts, setPosts] = useState<PostItem[]>([])
@@ -139,6 +175,29 @@ export default function CustomAdminPage() {
   const [editReaderPassword, setEditReaderPassword] = useState('')
   const [editReaderBanned, setEditReaderBanned] = useState(false)
   const [savingReader, setSavingReader] = useState(false)
+
+  // --- Periods State ---
+  const [periodsList, setPeriodsList] = useState<PeriodItem[]>([])
+  const [periodsLoading, setPeriodsLoading] = useState(false)
+  const [editingPeriodId, setEditingPeriodId] = useState<number | null>(null)
+  const [periodTitle, setPeriodTitle] = useState('')
+  const [periodShortTitle, setPeriodShortTitle] = useState('')
+  const [periodYearsLabel, setPeriodYearsLabel] = useState('')
+  const [periodStartYear, setPeriodStartYear] = useState('')
+  const [periodEndYear, setPeriodEndYear] = useState('')
+  const [periodDescription, setPeriodDescription] = useState('')
+  const [periodLanguage, setPeriodLanguage] = useState<'both' | 'uz' | 'kaa'>('both')
+  const [periodColor, setPeriodColor] = useState('ochre')
+  const [periodOrder, setPeriodOrder] = useState('1')
+  const [savingPeriod, setSavingPeriod] = useState(false)
+  const [showPeriodModal, setShowPeriodModal] = useState(false)
+
+  // --- Inquiries State ---
+  const [inquiriesList, setInquiriesList] = useState<InquiryItem[]>([])
+  const [inquiriesLoading, setInquiriesLoading] = useState(false)
+  const [replyingInquiryId, setReplyingInquiryId] = useState<number | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
 
   // 1. Check current admin session
   const checkAuth = useCallback(async () => {
@@ -215,6 +274,38 @@ export default function CustomAdminPage() {
     }
   }, [])
 
+  // 6. Fetch periods
+  const fetchPeriods = useCallback(async () => {
+    try {
+      setPeriodsLoading(true)
+      const res = await fetch('/api/admin/periods')
+      if (res.ok) {
+        const data = await res.json()
+        setPeriodsList(data.docs || [])
+      }
+    } catch {
+      // ignore
+    } finally {
+      setPeriodsLoading(false)
+    }
+  }, [])
+
+  // 7. Fetch inquiries
+  const fetchInquiries = useCallback(async () => {
+    try {
+      setInquiriesLoading(true)
+      const res = await fetch('/api/admin/inquiries')
+      if (res.ok) {
+        const data = await res.json()
+        setInquiriesList(data.docs || [])
+      }
+    } catch {
+      // ignore
+    } finally {
+      setInquiriesLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
@@ -225,8 +316,10 @@ export default function CustomAdminPage() {
       fetchPosts()
       fetchStaff()
       fetchReaders()
+      fetchPeriods()
+      fetchInquiries()
     }
-  }, [currentUser, fetchStats, fetchPosts, fetchStaff, fetchReaders])
+  }, [currentUser, fetchStats, fetchPosts, fetchStaff, fetchReaders, fetchPeriods, fetchInquiries])
 
   // Search debounces
   useEffect(() => {
@@ -264,6 +357,8 @@ export default function CustomAdminPage() {
         fetchPosts()
         fetchStaff()
         fetchReaders()
+        fetchPeriods()
+        fetchInquiries()
       } else {
         setLoginError(data.error || 'Kirishda xatolik yuz berdi')
       }
@@ -651,6 +746,149 @@ export default function CustomAdminPage() {
     }
   }
 
+  // --- Periods Handlers ---
+  const handleOpenPeriodModal = (p?: PeriodItem) => {
+    if (p) {
+      setEditingPeriodId(p.id)
+      setPeriodTitle(p.title || '')
+      setPeriodShortTitle(p.shortTitle || '')
+      setPeriodYearsLabel(p.yearsLabel || '')
+      setPeriodStartYear(p.startYear !== undefined && p.startYear !== null ? String(p.startYear) : '')
+      setPeriodEndYear(p.endYear !== undefined && p.endYear !== null ? String(p.endYear) : '')
+      setPeriodDescription(p.description || '')
+      setPeriodLanguage((p.language as 'both' | 'uz' | 'kaa') || 'both')
+      setPeriodColor(p.color || 'ochre')
+      setPeriodOrder(p.order !== undefined && p.order !== null ? String(p.order) : '1')
+    } else {
+      setEditingPeriodId(null)
+      setPeriodTitle('')
+      setPeriodShortTitle('')
+      setPeriodYearsLabel('')
+      setPeriodStartYear('')
+      setPeriodEndYear('')
+      setPeriodDescription('')
+      setPeriodLanguage('both')
+      setPeriodColor('ochre')
+      setPeriodOrder(String(periodsList.length + 1))
+    }
+    setShowPeriodModal(true)
+  }
+
+  const handleSavePeriod = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!periodTitle.trim()) {
+      showToast('Davr nomini kiriting', 'error')
+      return
+    }
+
+    setSavingPeriod(true)
+    try {
+      const payload = {
+        title: periodTitle.trim(),
+        shortTitle: periodShortTitle.trim() || periodTitle.trim(),
+        yearsLabel: periodYearsLabel.trim(),
+        startYear: periodStartYear !== '' ? Number(periodStartYear) : null,
+        endYear: periodEndYear !== '' ? Number(periodEndYear) : null,
+        description: periodDescription.trim(),
+        language: periodLanguage,
+        color: periodColor,
+        order: Number(periodOrder) || 1,
+      }
+
+      const url = editingPeriodId ? `/api/admin/periods/${editingPeriodId}` : '/api/admin/periods'
+      const method = editingPeriodId ? 'PUT' : 'POST'
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        showToast(editingPeriodId ? 'Davr muvaffaqiyatli yangilandi' : 'Yangi davr saqlandi')
+        setShowPeriodModal(false)
+        fetchPeriods()
+        fetchStats()
+      } else {
+        showToast(data.error || 'Saqlashda xatolik yuz berdi', 'error')
+      }
+    } catch {
+      showToast('Server bilan aloqa uzildi', 'error')
+    } finally {
+      setSavingPeriod(false)
+    }
+  }
+
+  const handleDeletePeriod = async (id: number) => {
+    if (!window.confirm('Ushbu tarixiy davrni oʻchirishga ishonchingiz komilmi?')) return
+    try {
+      const res = await fetch(`/api/admin/periods/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        showToast('Davr muvaffaqiyatli oʻchirildi')
+        fetchPeriods()
+        fetchStats()
+      } else {
+        showToast('Oʻchirishda xatolik yuz berdi', 'error')
+      }
+    } catch {
+      showToast('Oʻchirishda xatolik yuz berdi', 'error')
+    }
+  }
+
+  // --- Inquiries Handlers ---
+  const handleOpenReply = (inquiry: InquiryItem) => {
+    setReplyingInquiryId(inquiry.id)
+    setReplyText(inquiry.reply || '')
+  }
+
+  const handleSendReply = async (id: number) => {
+    if (!replyText.trim()) {
+      showToast('Javob matnini kiriting', 'error')
+      return
+    }
+
+    setSendingReply(true)
+    try {
+      const res = await fetch(`/api/admin/inquiries/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply: replyText.trim() }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        showToast('Javob foydalanuvchiga muvaffaqiyatli yuborildi!')
+        setReplyingInquiryId(null)
+        setReplyText('')
+        fetchInquiries()
+        fetchStats()
+      } else {
+        showToast(data.error || 'Javob yuborishda xatolik', 'error')
+      }
+    } catch {
+      showToast('Server bilan aloqa uzildi', 'error')
+    } finally {
+      setSendingReply(false)
+    }
+  }
+
+  const handleDeleteInquiry = async (id: number) => {
+    if (!window.confirm('Ushbu murojaatni oʻchirishga ishonchingiz komilmi?')) return
+    try {
+      const res = await fetch(`/api/admin/inquiries/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        showToast('Murojaat muvaffaqiyatli oʻchirildi')
+        fetchInquiries()
+        fetchStats()
+      } else {
+        showToast('Oʻchirishda xatolik yuz berdi', 'error')
+      }
+    } catch {
+      showToast('Oʻchirishda xatolik yuz berdi', 'error')
+    }
+  }
+
   // --- RENDER ---
   if (authLoading) {
     return (
@@ -784,10 +1022,10 @@ export default function CustomAdminPage() {
           </div>
 
           {/* Navigation Pills */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-surface-2 p-1.5 rounded-full border border-border">
+          <nav className="hidden md:flex items-center gap-1 bg-surface-2 p-1.5 rounded-full border border-border">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'dashboard'
                   ? 'bg-card text-primary font-bold shadow-xs border border-border'
                   : 'text-muted hover:text-fg'
@@ -798,7 +1036,7 @@ export default function CustomAdminPage() {
             </button>
             <button
               onClick={() => setActiveTab('posts')}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'posts'
                   ? 'bg-card text-primary font-bold shadow-xs border border-border'
                   : 'text-muted hover:text-fg'
@@ -808,8 +1046,35 @@ export default function CustomAdminPage() {
               <span>Maqolalar</span>
             </button>
             <button
+              onClick={() => setActiveTab('periods')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'periods'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Davrlar</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('inquiries')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 relative ${
+                activeTab === 'inquiries'
+                  ? 'bg-card text-primary font-bold shadow-xs border border-border'
+                  : 'text-muted hover:text-fg'
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>Murojaatlar</span>
+              {stats.inquiriesCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-p-brick text-white text-[10px] font-bold">
+                  {stats.inquiriesCount}
+                </span>
+              )}
+            </button>
+            <button
               onClick={() => setActiveTab('admins')}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'admins'
                   ? 'bg-card text-primary font-bold shadow-xs border border-border'
                   : 'text-muted hover:text-fg'
@@ -820,7 +1085,7 @@ export default function CustomAdminPage() {
             </button>
             <button
               onClick={() => setActiveTab('readers')}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'readers'
                   ? 'bg-card text-primary font-bold shadow-xs border border-border'
                   : 'text-muted hover:text-fg'
@@ -888,52 +1153,147 @@ export default function CustomAdminPage() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Bar */}
+        <div className="md:hidden flex items-center gap-1 px-4 py-2 overflow-x-auto border-t border-border bg-surface-2">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            Asosiy
+          </button>
+          <button
+            onClick={() => setActiveTab('posts')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${activeTab === 'posts' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            Maqolalar
+          </button>
+          <button
+            onClick={() => setActiveTab('periods')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${activeTab === 'periods' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            Davrlar
+          </button>
+          <button
+            onClick={() => setActiveTab('inquiries')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${activeTab === 'inquiries' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            <span>Murojaatlar</span>
+            {stats.inquiriesCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-p-brick text-white text-[9px] font-bold flex items-center justify-center">
+                {stats.inquiriesCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('admins')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${activeTab === 'admins' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            Adminlar
+          </button>
+          <button
+            onClick={() => setActiveTab('readers')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${activeTab === 'readers' ? 'bg-card text-primary font-bold' : 'text-muted'}`}
+          >
+            Foydalanuvchilar
+          </button>
+        </div>
       </header>
 
       {/* MAIN CONTAINER */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        {/* TOP ROW: 3 STAT CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* TOP ROW: 5 STAT CARDS */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {/* Card 1: Foydalanuvchilar */}
-          <div className="bg-card border border-border hover:border-teal rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
-            <div className="w-14 h-14 rounded-2xl bg-teal/15 text-teal flex items-center justify-center shrink-0">
-              <Users className="w-7 h-7" />
+          <div
+            onClick={() => setActiveTab('readers')}
+            className="bg-card border border-border hover:border-teal rounded-2xl p-4 sm:p-5 shadow-offset-sm flex items-center gap-3 transition-colors cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-teal/15 text-teal flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
-                Dizimnen ótken adamlar
+              <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted font-mono truncate">
+                Foydalanuvchilar
               </div>
-              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
+              <div className="text-2xl font-extrabold text-fg font-serif mt-0.5">
                 {stats.readersCount}
               </div>
             </div>
           </div>
 
           {/* Card 2: Barcha maqolalar */}
-          <div className="bg-card border border-border hover:border-primary rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
-            <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-              <FileText className="w-7 h-7" />
+          <div
+            onClick={() => setActiveTab('posts')}
+            className="bg-card border border-border hover:border-primary rounded-2xl p-4 sm:p-5 shadow-offset-sm flex items-center gap-3 transition-colors cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+              <FileText className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
-                Barlıq maqalalar (Postlar)
+              <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted font-mono truncate">
+                Maqolalar
               </div>
-              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
+              <div className="text-2xl font-extrabold text-fg font-serif mt-0.5">
                 {stats.postsCount}
               </div>
             </div>
           </div>
 
-          {/* Card 3: Adminlar */}
-          <div className="bg-card border border-border hover:border-p-ochre rounded-2xl p-6 shadow-offset-sm flex items-center gap-5 transition-colors">
-            <div className="w-14 h-14 rounded-2xl bg-p-ochre/15 text-p-ochre flex items-center justify-center shrink-0">
-              <Shield className="w-7 h-7" />
+          {/* Card 3: Tarixiy Davrlar */}
+          <div
+            onClick={() => setActiveTab('periods')}
+            className="bg-card border border-border hover:border-p-ochre rounded-2xl p-4 sm:p-5 shadow-offset-sm flex items-center gap-3 transition-colors cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-p-ochre/15 text-p-ochre flex items-center justify-center shrink-0">
+              <Compass className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
-                Barlıq adminler
+              <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted font-mono truncate">
+                Davrlar
               </div>
-              <div className="text-3xl font-extrabold text-fg font-serif mt-1">
+              <div className="text-2xl font-extrabold text-fg font-serif mt-0.5">
+                {stats.periodsCount}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Murojaatlar */}
+          <div
+            onClick={() => setActiveTab('inquiries')}
+            className="bg-card border border-border hover:border-p-brick rounded-2xl p-4 sm:p-5 shadow-offset-sm flex items-center gap-3 transition-colors cursor-pointer relative"
+          >
+            <div className="w-11 h-11 rounded-xl bg-p-brick/15 text-p-brick flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted font-mono truncate">
+                Murojaatlar
+              </div>
+              <div className="text-2xl font-extrabold text-fg font-serif mt-0.5 flex items-center gap-2">
+                <span>{inquiriesList.length || stats.inquiriesCount}</span>
+                {stats.inquiriesCount > 0 && (
+                  <span className="text-[10px] font-sans font-semibold text-p-brick bg-p-brick/10 px-1.5 py-0.5 rounded-full">
+                    +{stats.inquiriesCount} yangi
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Adminlar */}
+          <div
+            onClick={() => setActiveTab('admins')}
+            className="bg-card border border-border hover:border-primary rounded-2xl p-4 sm:p-5 shadow-offset-sm flex items-center gap-3 transition-colors cursor-pointer col-span-2 sm:col-span-1"
+          >
+            <div className="w-11 h-11 rounded-xl bg-p-ochre/15 text-p-ochre flex items-center justify-center shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted font-mono truncate">
+                Adminlar
+              </div>
+              <div className="text-2xl font-extrabold text-fg font-serif mt-0.5">
                 {stats.adminsCount}
               </div>
             </div>
@@ -1429,16 +1789,13 @@ export default function CustomAdminPage() {
                   <div className="p-8 text-center text-xs text-muted font-mono">Hozircha maqolalar yoʻq</div>
                 ) : (
                   posts.map((post) => {
-                    const thumbUrl =
-                      typeof post.coverImage === 'object' && post.coverImage?.url
-                        ? post.coverImage.url
-                        : post.coverImageUrl || '/favicon.svg'
+                    const thumbUrl = resolveCoverUrl(post.coverImageUrl, post.coverImage)
 
                     return (
                       <div key={post.id} className="py-3 flex items-center justify-between gap-3 group hover:bg-surface-2/60 p-2 rounded-xl transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="relative w-12 h-10 rounded-lg overflow-hidden bg-surface-2 shrink-0 border border-border">
-                            <Image src={thumbUrl} alt="" fill className="object-cover" unoptimized />
+                            <SmartImage src={thumbUrl} alt="" fill className="object-cover" />
                           </div>
                           <div className="min-w-0">
                             <div className="text-xs font-bold text-fg truncate max-w-[220px]" title={post.title || ''}>
@@ -1644,6 +2001,291 @@ export default function CustomAdminPage() {
             </div>
           </div>
         )}
+
+        {/* SECTION: TARIXIY DAVRLAR (XRONOLOGIYA) */}
+        {(activeTab === 'dashboard' || activeTab === 'periods') && (
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-p-ochre/15 text-p-ochre flex items-center justify-center">
+                  <Compass className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold font-serif text-fg">
+                    Tarixiy Xronologiyalar (Davrlar)
+                  </h3>
+                  <p className="text-[11px] text-muted">
+                    Bosh sahifa va maqolalar boʻlimidagi davrlar lentasi. Til tanlab faqat kerakli tilda yoki ikkala tilda koʻrsatish mumkin.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleOpenPeriodModal()}
+                className="px-4 py-2 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Yangi Davr Qoʻshish</span>
+              </button>
+            </div>
+
+            {/* Periods Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-fg">
+                <thead className="bg-surface-2 text-muted uppercase font-mono text-[10px]">
+                  <tr>
+                    <th className="px-4 py-3 rounded-l-xl w-16">Tartib</th>
+                    <th className="px-4 py-3">Davr nomi</th>
+                    <th className="px-4 py-3">Yillar oraligʻi</th>
+                    <th className="px-4 py-3">Koʻrinish tili</th>
+                    <th className="px-4 py-3">Rang</th>
+                    <th className="px-4 py-3 text-right rounded-r-xl">Harakatlar</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {periodsLoading ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-muted font-mono">
+                        Davrlar yuklanmoqda...
+                      </td>
+                    </tr>
+                  ) : periodsList.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-muted font-mono">
+                        Hozircha davrlar mavjud emas
+                      </td>
+                    </tr>
+                  ) : (
+                    periodsList.map((period) => {
+                      const langLabel =
+                        period.language === 'uz'
+                          ? '🇺🇿 Faqat Oʻzbekcha'
+                          : period.language === 'kaa'
+                          ? '🏴 Faqat Qoraqalpoqcha'
+                          : '🌐 Ikkala til (UZ & KAA)'
+
+                      const langBadgeClass =
+                        period.language === 'uz'
+                          ? 'bg-primary/15 text-primary border border-primary/30'
+                          : period.language === 'kaa'
+                          ? 'bg-teal/15 text-teal border border-teal/30'
+                          : 'bg-p-ochre/15 text-p-ochre border border-p-ochre/30'
+
+                      return (
+                        <tr key={period.id} className="hover:bg-surface-2/50 transition-colors">
+                          <td className="px-4 py-3.5 font-mono font-bold text-muted">
+                            #{period.order ?? 0}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <div className="font-bold text-fg text-sm">{period.title}</div>
+                            {period.shortTitle && period.shortTitle !== period.title && (
+                              <div className="text-[11px] text-muted">Qisqa: {period.shortTitle}</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3.5 font-mono text-fg">
+                            {period.yearsLabel || (period.startYear !== undefined ? `${period.startYear} — ${period.endYear}` : '—')}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${langBadgeClass}`}>
+                              {langLabel}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="inline-flex items-center gap-1.5 font-mono uppercase text-[10px]">
+                              <span
+                                className="w-3 h-3 rounded-full border border-border"
+                                style={{
+                                  backgroundColor:
+                                    period.color === 'teal'
+                                      ? '#0d9488'
+                                      : period.color === 'brick'
+                                      ? '#dc2626'
+                                      : period.color === 'olive'
+                                      ? '#65a30d'
+                                      : period.color === 'indigo'
+                                      ? '#4f46e5'
+                                      : period.color === 'sand'
+                                      ? '#d97706'
+                                      : '#ca8a04',
+                                }}
+                              />
+                              <span className="text-muted">{period.color || 'ochre'}</span>
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-right space-x-1">
+                            <button
+                              onClick={() => handleOpenPeriodModal(period)}
+                              className="px-2.5 py-1 text-primary hover:bg-primary/10 rounded-lg text-xs font-semibold cursor-pointer"
+                            >
+                              Tahrirlash
+                            </button>
+                            <button
+                              onClick={() => handleDeletePeriod(period.id)}
+                              className="p-1 text-p-brick hover:bg-p-brick/10 rounded-lg cursor-pointer"
+                              title="Oʻchirish"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: FOYDALANUVCHILAR MUROJAATLARI */}
+        {(activeTab === 'dashboard' || activeTab === 'inquiries') && (
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-offset-sm space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-p-brick/15 text-p-brick flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold font-serif text-fg">
+                    Foydalanuvchilar Murojaatlari (Savol va takliflar)
+                  </h3>
+                  <p className="text-[11px] text-muted">
+                    Sayt foydalanuvchilarining yuborgan murojaatlari. Bu yerdan ularga toʻgʻridan-toʻgʻri javob yoza olasiz.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-muted">Jami: {inquiriesList.length} ta</span>
+            </div>
+
+            {inquiriesLoading ? (
+              <div className="py-8 text-center text-xs text-muted font-mono">Murojaatlar yuklanmoqda...</div>
+            ) : inquiriesList.length === 0 ? (
+              <div className="py-8 text-center text-xs text-muted font-mono">Hozircha hech qanday murojaat kelmagan</div>
+            ) : (
+              <div className="space-y-4">
+                {inquiriesList.map((inq) => {
+                  const isReplying = replyingInquiryId === inq.id
+                  return (
+                    <div
+                      key={inq.id}
+                      className="p-4 sm:p-5 rounded-2xl bg-bg border border-border space-y-3 transition-colors hover:border-line"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-fg text-sm">{inq.name || 'Foydalanuvchi'}</span>
+                          {inq.phone && (
+                            <span className="text-xs text-muted font-mono bg-surface-2 px-2 py-0.5 rounded-md">
+                              {inq.phone}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-muted font-mono flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {inq.createdAt ? new Date(inq.createdAt).toLocaleString() : '—'}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                              inq.status === 'replied'
+                                ? 'bg-teal/15 text-teal'
+                                : 'bg-p-brick/15 text-p-brick'
+                            }`}
+                          >
+                            {inq.status === 'replied' ? 'Javob berilgan' : 'Yangi'}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteInquiry(inq.id)}
+                            className="p-1 text-muted hover:text-p-brick cursor-pointer transition-colors"
+                            title="Oʻchirish"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Xabar matni */}
+                      <div className="text-xs text-fg leading-relaxed bg-surface-2/40 p-3.5 rounded-xl border border-border/60">
+                        <p className="whitespace-pre-wrap">{inq.message}</p>
+                      </div>
+
+                      {/* Agar admin ilgari javob bergan bo'lsa */}
+                      {inq.reply && !isReplying && (
+                        <div className="p-3.5 rounded-xl bg-teal/10 border border-teal/20 space-y-1.5">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-teal">
+                            <span className="flex items-center gap-1.5">
+                              <Check className="w-3.5 h-3.5" /> Admin javobi:
+                            </span>
+                            {inq.repliedAt && (
+                              <span className="text-[10px] font-normal text-muted font-mono">
+                                {new Date(inq.repliedAt).toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-fg whitespace-pre-wrap leading-relaxed">{inq.reply}</p>
+                          <div className="pt-1">
+                            <button
+                              onClick={() => handleOpenReply(inq)}
+                              className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                            >
+                              Javobni oʻzgartirish
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Javob yozish maydoni */}
+                      {isReplying ? (
+                        <div className="space-y-2 pt-2 border-t border-border">
+                          <label className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                            <Send className="w-3.5 h-3.5" />
+                            <span>Foydalanuvchiga javob yozish:</span>
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Murojaatga javobingizni bu yerga yozing. Foydalanuvchi buni oʻzining shaxsiy chatida koʻradi..."
+                            className="w-full p-3 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none resize-y"
+                          />
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setReplyingInquiryId(null)}
+                              className="px-3 py-1.5 rounded-xl text-xs font-medium text-muted hover:text-fg hover:bg-surface-2 cursor-pointer"
+                            >
+                              Bekor qilish
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSendReply(inq.id)}
+                              disabled={sendingReply}
+                              className="px-4 py-1.5 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                            >
+                              {sendingReply ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                              <span>Javobni yuborish</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        !inq.reply && (
+                          <div className="pt-1">
+                            <button
+                              onClick={() => handleOpenReply(inq)}
+                              className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+                            >
+                              <Send className="w-3 h-3" />
+                              <span>Javob yozish</span>
+                            </button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* READER EDIT MODAL */}
@@ -1724,6 +2366,170 @@ export default function CustomAdminPage() {
                   className="px-5 py-2 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {savingReader ? 'Saqlanmoqda...' : 'Saqlash'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PERIOD ADD / EDIT MODAL */}
+      {showPeriodModal && (
+        <div className="fixed inset-0 z-50 bg-line/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-offset max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Compass className="w-5 h-5 text-p-ochre" />
+                <h3 className="text-base font-bold font-serif text-fg">
+                  {editingPeriodId ? 'Tarixiy Davrni Tahrirlash' : 'Yangi Tarixiy Davr Qoʻshish'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowPeriodModal(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-muted hover:text-fg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePeriod} className="space-y-4">
+              {/* Nomi */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted">Davr toʻliq nomi *</label>
+                <input
+                  type="text"
+                  value={periodTitle}
+                  onChange={(e) => setPeriodTitle(e.target.value)}
+                  required
+                  placeholder="Masalan: Qadimgi davr va ilk sivilizatsiyalar"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
+                />
+              </div>
+
+              {/* Qisqa nomi */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted">Qisqa nomi (Xronologiya paneli uchun)</label>
+                <input
+                  type="text"
+                  value={periodShortTitle}
+                  onChange={(e) => setPeriodShortTitle(e.target.value)}
+                  placeholder="Masalan: Qadimgi davr"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none"
+                />
+              </div>
+
+              {/* Yillar yorlig'i */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted">Yillar yorligʻi (Koʻrinadigan matn)</label>
+                <input
+                  type="text"
+                  value={periodYearsLabel}
+                  onChange={(e) => setPeriodYearsLabel(e.target.value)}
+                  placeholder="Masalan: mil. avv. 100 000 – 600"
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
+                />
+              </div>
+
+              {/* Boshlanish va Tugash yili */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted">Boshlanish yili</label>
+                  <input
+                    type="number"
+                    value={periodStartYear}
+                    onChange={(e) => setPeriodStartYear(e.target.value)}
+                    placeholder="Masalan: -4000"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
+                  />
+                  <p className="text-[10px] text-muted">Mil. avv. boʻlsa manfiy (-)</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted">Tugash yili</label>
+                  <input
+                    type="number"
+                    value={periodEndYear}
+                    onChange={(e) => setPeriodEndYear(e.target.value)}
+                    placeholder="Masalan: 500"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
+                  />
+                  <p className="text-[10px] text-muted">Raqamda (0 yoʻq)</p>
+                </div>
+              </div>
+
+              {/* Til tanlash */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-fg">🌐 Koʻrinish tili (Qaysi tilda koʻrinsin) *</label>
+                <select
+                  value={periodLanguage}
+                  onChange={(e) => setPeriodLanguage(e.target.value as 'both' | 'uz' | 'kaa')}
+                  className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
+                >
+                  <option value="both">🌐 Ikkala tilda ham koʻrinsin (Oʻzbekcha & Qoraqalpoqcha)</option>
+                  <option value="uz">🇺🇿 Faqat Oʻzbekcha (uz)</option>
+                  <option value="kaa">🏴 Faqat Qoraqalpoqcha (kaa)</option>
+                </select>
+                <p className="text-[10px] text-muted">
+                  Faqat bitta til tanlansa, ushbu davr faqat shu til interfeysida koʻrinadi.
+                </p>
+              </div>
+
+              {/* Rang va Tartib raqami */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted">Rang belgisi</label>
+                  <select
+                    value={periodColor}
+                    onChange={(e) => setPeriodColor(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none cursor-pointer"
+                  >
+                    <option value="ochre">Oltin / Ocher</option>
+                    <option value="teal">Firuzarang (Teal)</option>
+                    <option value="brick">Gʻishtrang (Brick)</option>
+                    <option value="olive">Zaytunrang (Olive)</option>
+                    <option value="indigo">Toʻq koʻk (Indigo)</option>
+                    <option value="sand">Qumrang (Sand)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted">Tartib raqami</label>
+                  <input
+                    type="number"
+                    value={periodOrder}
+                    onChange={(e) => setPeriodOrder(e.target.value)}
+                    min="1"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Tavsif */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted">Davr haqida qisqacha tavsif</label>
+                <textarea
+                  rows={3}
+                  value={periodDescription}
+                  onChange={(e) => setPeriodDescription(e.target.value)}
+                  placeholder="Ushbu davrning muhim voqealari va xususiyatlari..."
+                  className="w-full p-3 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none resize-y"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setShowPeriodModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-fg hover:bg-surface-2 cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPeriod}
+                  className="px-5 py-2 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn hover:opacity-90 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                >
+                  {savingPeriod ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  <span>{editingPeriodId ? 'Davrni Yangilash' : 'Davrni Saqlash'}</span>
                 </button>
               </div>
             </form>
