@@ -431,6 +431,12 @@ export interface Post {
   workflowStatus?: ('published' | 'draft') | null;
   readingTime?: number | null;
   views?: number | null;
+  /**
+   * Ushbu maqolaga berilgan jami yulduzlar (eng koʻp yulduzli maqolalar oldinga chiqadi).
+   */
+  stars?: number | null;
+  ratingsCount?: number | null;
+  ratingAverage?: number | null;
   searchText?: string | null;
   meta?: {
     title?: string | null;
@@ -1188,6 +1194,9 @@ export interface PostsSelect<T extends boolean = true> {
   workflowStatus?: T;
   readingTime?: T;
   views?: T;
+  stars?: T;
+  ratingsCount?: T;
+  ratingAverage?: T;
   searchText?: T;
   meta?:
     | T

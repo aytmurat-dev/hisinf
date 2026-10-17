@@ -6,6 +6,10 @@
   "nav": {
     "home": "Bas bet",
     "posts": "Maqalalar",
+    "timeline": "1924 Xronologiyası",
+    "persons": "Tariyxıy tulǵalar",
+    "archive": "Media arxiv",
+    "map": "Karta",
     "periods": "Tariyxıy basqıshlar",
     "search": "Izlew",
     "login": "Kiriw",
@@ -20,6 +24,7 @@
   },
   "footer": {
     "about": "Ózbekstan hám Qaraqalpaqstannıń kóp ásirlik tariyxı, mádeniyatı, kem ushırasatuǵın arxitekturalıq estelikleri hám ullı tulǵaları haqqında isenimli maǵlıwmatlar portalı.",
+    "sections": "Bólimler",
     "copyright": "HISINF — Tariyxıy maǵlıwmatlar portalı.",
     "dedication": "Ózbekstan hám Qaraqalpaqstan tariyxı ushın",
     "callDesc": "Usınıs, pikir yamasa sorawlarıńız bolsa, bizge tuwrıdan-tuwrı múrájat etiwińiz múmkin:"
@@ -30,7 +35,7 @@
     "toggle": "Rejimdi almastırıw"
   },
   "lang": {
-    "uz": "Oʻzbekcha",
+    "uz": "Ózbekshe",
     "kaa": "Qaraqalpaqsha",
     "switch": "Tildi tańlaw"
   },
@@ -63,7 +68,7 @@
   },
   "search": {
     "title": "Tariyxıy maǵlıwmatlardı izlew",
-    "placeholder": "Mavzu, shaxs yamasa waqıya atamasın jazıń...",
+    "placeholder": "Tema, tulǵa yamasa waqıya atamasın jazıń...",
     "searching": "Izlenbekte...",
     "noResults": "Hesh qanday maǵlıwmat tabılmadı",
     "matchingContext": "Tabılǵan qatar:",
@@ -148,7 +153,7 @@
     "postCreateTitle": "Jańa maqala qosıw",
     "docUploadLabel": "Word (.docx) yamasa PDF (.pdf) fayldan tekst ajıratıp alıw",
     "docParsing": "Oqılmaqta...",
-    "postTitleLabel": "Mavzu (Ataması)",
+    "postTitleLabel": "Tema (Ataması)",
     "optional": "Májbúriy emes",
     "required": "Májbúriy",
     "coverUrlLabel": "Bas súwret (URL)",
@@ -193,8 +198,8 @@
     "filterKaa": "Qaraqalpaqsha",
     "filterBoth": "Hár eki til",
     "separateTranslation": "Hár bir til ushın bólek awdarma kiritıw",
-    "titleUz": "Mavzu (Ózbekshe)",
-    "titleKaa": "Mavzu (Qaraqalpaqsha)",
+    "titleUz": "Tema (Ózbekshe)",
+    "titleKaa": "Tema (Qaraqalpaqsha)",
     "contentUz": "Tekst (Ózbekshe) *",
     "contentKaa": "Tekst (Qaraqalpaqsha) *",
     "excerptUz": "Qısqasha mazmunı (Ózbekshe)",
@@ -208,7 +213,7 @@
   },
   "createPost": {
     "pageTitle": "Jańa post qosıw (Admin)",
-    "titleOptional": "Mavzu (Májbúriy emes)",
+    "titleOptional": "Tema (Májbúriy emes)",
     "contentRequired": "Post haqqında (Tekst - Májbúriy)",
     "coverFromDevice": "Qurılmadan súwret tańlaw (Telefon / Laptop)",
     "coverFromUrl": "Yamasa Internettegi súwret siltemesi (URL)",

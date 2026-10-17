@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { normalizeSearch } from '@/lib/normalize-search'
+import { getSafePosts, type FallbackPost } from '@/lib/safe-data'
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,45 +12,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ results: [] })
     }
 
-    const payload = await getPayload({ config })
     const normalizedQuery = normalizeSearch(q)
 
-    const targetLanguage = locale === 'kaa' ? 'kaa' : 'uz'
-
-    // Fetch published posts
-    const { docs: allPosts } = await payload.find({
-      collection: 'posts',
-      locale,
-      limit: 50,
-      where: {
-        and: [
-          { _status: { equals: 'published' } },
-          { slug: { not_equals: 'bosh-sahifa-izohlari' } },
-        ],
-      },
-      overrideAccess: true,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        language: true,
-        coverImageUrl: true,
-        coverImage: true,
-        publishedAt: true,
-      },
-    })
-
-    const posts = allPosts.filter((post) => {
-      const postLang = (post as unknown as { language?: string | null }).language
-      if (!postLang || postLang === 'both') return true
-      return postLang === targetLanguage
-    })
+    // Retrieve posts safely (DB + in-memory 1924 fallback)
+    const allPosts = await getSafePosts(locale, '-stars')
 
     const results = []
 
-    for (const post of posts) {
+    for (const post of allPosts) {
       const title = (post.title || '').trim()
       const content = (post.content || '').trim()
       const excerpt = (post.excerpt || '').trim()
@@ -98,6 +66,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results, query: q })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ error: 'Qidiruvda xatolik yuz berdi' }, { status: 500 })
+    return NextResponse.json({ results: [], query: '' })
   }
 }

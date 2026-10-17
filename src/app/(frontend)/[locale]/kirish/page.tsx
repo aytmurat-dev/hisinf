@@ -35,7 +35,7 @@ function LoginForm() {
         return
       }
 
-      if ((data.reader?.role === 'admin' || data.reader?.role === 'superadmin') && redirect === '/') {
+      if ((data.reader?.role === 'admin' || data.reader?.role === 'superadmin' || data.isStaff) && redirect === '/') {
         window.location.href = '/admin'
       } else {
         window.location.href = redirect

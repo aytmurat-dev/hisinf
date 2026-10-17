@@ -73,10 +73,26 @@ export async function PUT(
       updateData.excerpt = excerpt.trim()
     }
     if (coverImageId !== undefined) {
-      updateData.coverImage = coverImageId || null
+      if (coverImageId && typeof coverImageId === 'number') {
+        try {
+          const m = await payload.findByID({ collection: 'media', id: coverImageId, overrideAccess: true })
+          updateData.coverImage = m ? coverImageId : null
+        } catch {
+          updateData.coverImage = null
+        }
+      } else {
+        updateData.coverImage = null
+      }
     }
     if (coverImageUrl !== undefined) {
-      updateData.coverImageUrl = coverImageUrl || null
+      const safeUrl =
+        typeof coverImageUrl === 'string' &&
+        !coverImageUrl.startsWith('data:') &&
+        coverImageUrl.length < 500 &&
+        coverImageUrl.trim().length > 0
+          ? coverImageUrl.trim()
+          : null
+      updateData.coverImageUrl = safeUrl
     }
     if (language) {
       updateData.language = language
@@ -99,8 +115,12 @@ export async function PUT(
 
     return NextResponse.json({ success: true, doc: updated })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Tahrirlashda xatolik yuz berdi'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('*** POST UPDATE ERROR DETAILED ***', err)
+    let friendlyMessage = 'Tahrirlashda xatolik yuz berdi'
+    if (err instanceof Error && !err.message.includes('Failed query') && !err.message.includes('update "posts"')) {
+      friendlyMessage = err.message
+    }
+    return NextResponse.json({ error: friendlyMessage }, { status: 500 })
   }
 }
 

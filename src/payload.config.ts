@@ -53,7 +53,9 @@ const serverURL =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
   'http://localhost:3000'
 
-const secret = process.env.PAYLOAD_SECRET
+const secret =
+  process.env.PAYLOAD_SECRET ||
+  (process.env.NODE_ENV !== 'production' ? 'dev-secret-hisinf-portal-fallback-key-2026' : undefined)
 if (!secret) throw new Error('PAYLOAD_SECRET env oʻzgaruvchisi majburiy')
 
 const plugins: Plugin[] = []

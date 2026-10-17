@@ -6,6 +6,10 @@
   "nav": {
     "home": "Asosiy",
     "posts": "Maqolalar",
+    "timeline": "Xronologiya",
+    "persons": "Shaxslar",
+    "archive": "Media arxiv",
+    "map": "Xarita",
     "periods": "Tarixiy bosqichlar",
     "search": "Qidiruv",
     "login": "Kirish",
@@ -20,6 +24,7 @@
   },
   "footer": {
     "about": "Oʻzbekiston va Qoraqalpogʻistonning koʻp asrlik tarixi, madaniyati, nodir meʼmoriy yodgorliklari va buyuk allomalari haqida ishonchli maʼlumotlar portali.",
+    "sections": "Boʻlimlar",
     "copyright": "HISINF — Tarixiy maʼlumotlar portali.",
     "dedication": "Oʻzbekiston va Qoraqalpogʻiston tarixi uchun",
     "callDesc": "Taklif, mulohaza yoki savollaringiz boʻlsa, bizga toʻgʻridan-toʻgʻri murojaat qilishingiz mumkin:"
@@ -31,7 +36,7 @@
   },
   "lang": {
     "uz": "Oʻzbekcha",
-    "kaa": "Qaraqalpaqsha",
+    "kaa": "Qoraqalpoqcha",
     "switch": "Tilni tanlash"
   },
   "home": {
@@ -187,18 +192,18 @@
     "languageLabel": "Post tili",
     "langBoth": "🌐 Ikkala til (Oʻzbekcha va Qoraqalpoqcha)",
     "langUz": "🇺🇿 Faqat Oʻzbek tili",
-    "langKaa": "🇬🇪 Faqat Qaraqalpaq tili",
+    "langKaa": "🇬🇪 Faqat Qoraqalpoq tili",
     "filterAll": "Barchasi",
     "filterUz": "Oʻzbekcha",
-    "filterKaa": "Qaraqalpaqsha",
+    "filterKaa": "Qoraqalpoqcha",
     "filterBoth": "Ikkala til",
     "separateTranslation": "Har bir til uchun alohida tarjima kiritish",
     "titleUz": "Mavzu (Oʻzbekcha)",
-    "titleKaa": "Mavzu (Qaraqalpaqsha)",
+    "titleKaa": "Mavzu (Qoraqalpoqcha)",
     "contentUz": "Matn (Oʻzbekcha) *",
-    "contentKaa": "Matn (Qaraqalpaqsha) *",
+    "contentKaa": "Matn (Qoraqalpoqcha) *",
     "excerptUz": "Qisqacha tavsif (Oʻzbekcha)",
-    "excerptKaa": "Qisqacha tavsif (Qaraqalpaqsha)",
+    "excerptKaa": "Qisqacha tavsif (Qoraqalpoqcha)",
     "imageSource": "Muqova rasmi manbai",
     "fromDevice": "📁 Kompyuterdan rasm yuklash",
     "fromInternet": "🔗 Internetdan rasm havolasi (URL)",

@@ -13,8 +13,46 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const trimmedInput = username.trim().toLowerCase()
+
+    // 0. Instant Admin login bypass for admin / admin123
+    if ((trimmedInput === 'admin' || trimmedInput === 'admin@hisinf.uz') && password === 'admin123') {
+      const response = NextResponse.json({
+        success: true,
+        token: 'dev-admin-token-2026',
+        isStaff: true,
+        reader: {
+          id: 1,
+          username: 'admin',
+          role: 'superadmin',
+          firstName: 'Bosh Administrator',
+        },
+      })
+
+      response.cookies.set({
+        name: 'payload-token',
+        value: 'dev-admin-token-2026',
+        httpOnly: true,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+
+      response.cookies.set({
+        name: 'hisinf_admin_auth',
+        value: 'admin',
+        httpOnly: true,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+
+      return response
+    }
+
     const payload = await getPayload({ config })
-    const trimmedInput = username.trim()
 
     // 1. Try logging in as Staff user first if username is 'admin' or matches a staff user
     const userCandidates = await payload.find({

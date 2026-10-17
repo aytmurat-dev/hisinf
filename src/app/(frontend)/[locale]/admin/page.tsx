@@ -387,8 +387,9 @@ export default function CustomAdminPage() {
     }
 
     setUploadingImage(true)
+    setImageMode('upload')
 
-    // 1. Darhol ko'rsatish uchun Base64 Data URL yaratish
+    // 1. Darhol ko'rsatish uchun Base64 Data URL faqat preview sifatida
     const reader = new FileReader()
     reader.onload = (ev) => {
       const dataUrl = ev.target?.result as string
@@ -409,38 +410,19 @@ export default function CustomAdminPage() {
       })
       const data = await res.json()
 
-      if (res.ok && data.url) {
+      if (res.ok) {
         setPostImageId(data.id || null)
-        setPostImageUrl(data.url)
-        setPostImagePreview(data.url)
+        // postImageUrl ni bo'shatamiz - chunki rasm kompyuterdan yuklandi, internet url emas!
+        setPostImageUrl('')
+        if (data.url && !data.url.startsWith('data:')) {
+          setPostImagePreview(data.url)
+        }
         showToast('Rasm muvaffaqiyatli yuklandi!')
       } else {
-        // Server faylni saqlay olmasa ham (masalan, read-only muhit),
-        // brauzerdagi data URL coverImageUrl sifatida saqlanadi
-        const fallbackReader = new FileReader()
-        fallbackReader.onload = (ev) => {
-          const dataUrl = ev.target?.result as string
-          if (dataUrl) {
-            setPostImageUrl(dataUrl)
-            setPostImagePreview(dataUrl)
-            setPostImageId(null)
-            showToast('Rasm tayyorlandi!')
-          }
-        }
-        fallbackReader.readAsDataURL(file)
+        showToast(data.error || 'Rasm yuklashda xatolik', 'error')
       }
     } catch {
-      const fallbackReader = new FileReader()
-      fallbackReader.onload = (ev) => {
-        const dataUrl = ev.target?.result as string
-        if (dataUrl) {
-          setPostImageUrl(dataUrl)
-          setPostImagePreview(dataUrl)
-          setPostImageId(null)
-          showToast('Rasm yuklandi!')
-        }
-      }
-      fallbackReader.readAsDataURL(file)
+      showToast('Rasm yuklashda server xatosi', 'error')
     } finally {
       setUploadingImage(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -510,12 +492,24 @@ export default function CustomAdminPage() {
 
     setSavingPost(true)
     try {
+      let finalCoverImageUrl = ''
+      let finalCoverImageId: number | null = null
+
+      if (imageMode === 'url') {
+        const cleanUrl = postImageUrl.trim()
+        if (cleanUrl && !cleanUrl.startsWith('data:') && cleanUrl.length <= 500) {
+          finalCoverImageUrl = cleanUrl
+        }
+      } else {
+        finalCoverImageId = postImageId || null
+      }
+
       const payloadData = {
-        title: postTitle,
+        title: postTitle.trim(),
         content: postContent,
-        excerpt: postExcerpt,
-        coverImageUrl: postImageUrl || (imageMode === 'url' ? postImageUrl : ''),
-        coverImageId: postImageId || null,
+        excerpt: postExcerpt.trim(),
+        coverImageUrl: finalCoverImageUrl,
+        coverImageId: finalCoverImageId,
         language: postLanguage,
         status: postStatus,
       }
@@ -553,8 +547,10 @@ export default function CustomAdminPage() {
     setPostImageUrl('')
     setPostImageId(null)
     setPostImagePreview('')
+    setImageMode('upload')
     setPostLanguage('both')
     setPostStatus('published')
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleEditPost = (post: PostItem) => {
@@ -562,16 +558,41 @@ export default function CustomAdminPage() {
     setPostTitle(post.title || '')
     setPostContent(post.content || '')
     setPostExcerpt(post.excerpt || '')
-    const coverUrl =
-      typeof post.coverImage === 'object' && post.coverImage?.url
+
+    const mediaId =
+      typeof post.coverImage === 'number'
+        ? post.coverImage
+        : post.coverImage && typeof post.coverImage === 'object'
+          ? (post.coverImage.id ?? null)
+          : null
+
+    const mediaUrl =
+      post.coverImage && typeof post.coverImage === 'object' && post.coverImage.url
         ? post.coverImage.url
-        : post.coverImageUrl || ''
-    setPostImageUrl(coverUrl)
-    setPostImagePreview(coverUrl)
-    setPostImageId(typeof post.coverImage === 'number' ? post.coverImage : post.coverImage?.id || null)
-    setImageMode(coverUrl ? 'url' : 'upload')
+        : ''
+
+    if (mediaId || mediaUrl) {
+      // Kompyuterdan yuklangan media
+      setImageMode('upload')
+      setPostImageId(mediaId ?? null)
+      setPostImageUrl('')
+      setPostImagePreview(mediaUrl || '')
+    } else if (post.coverImageUrl && (post.coverImageUrl.startsWith('http://') || post.coverImageUrl.startsWith('https://') || post.coverImageUrl.startsWith('/'))) {
+      // Internet havolasi
+      setImageMode('url')
+      setPostImageId(null)
+      setPostImageUrl(post.coverImageUrl)
+      setPostImagePreview(post.coverImageUrl)
+    } else {
+      setImageMode('upload')
+      setPostImageId(null)
+      setPostImageUrl('')
+      setPostImagePreview('')
+    }
+
     setPostLanguage((post.language as 'both' | 'uz' | 'kaa') || 'both')
     setPostStatus(post.workflowStatus === 'published' ? 'published' : 'draft')
+    if (fileInputRef.current) fileInputRef.current.value = ''
     window.scrollTo({ top: 380, behavior: 'smooth' })
   }
 
@@ -912,6 +933,12 @@ export default function CustomAdminPage() {
             </div>
             <h1 className="text-2xl font-bold font-serif text-fg">HISINF.UZ</h1>
             <p className="text-xs uppercase tracking-widest text-muted font-mono">Boshqaruv Paneli</p>
+            <div className="mt-2 p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs text-center text-primary font-mono space-y-1">
+              <p className="font-semibold text-fg">Tizimga kirish maʼlumotlari:</p>
+              <p className="text-[11px]">
+                Login: <strong className="text-primary font-bold">admin</strong> | Parol: <strong className="text-primary font-bold">admin123</strong>
+              </p>
+            </div>
           </div>
 
           {loginError && (
@@ -1526,7 +1553,10 @@ export default function CustomAdminPage() {
                     <div className="flex bg-surface-2 border border-border rounded-lg p-0.5 text-[11px]">
                       <button
                         type="button"
-                        onClick={() => setImageMode('upload')}
+                        onClick={() => {
+                          setImageMode('upload')
+                          setPostImagePreview(postImageId ? postImagePreview : '')
+                        }}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
                           imageMode === 'upload'
                             ? 'bg-card text-primary font-bold shadow-xs'
@@ -1538,7 +1568,10 @@ export default function CustomAdminPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setImageMode('url')}
+                        onClick={() => {
+                          setImageMode('url')
+                          setPostImagePreview(postImageUrl)
+                        }}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
                           imageMode === 'url'
                             ? 'bg-card text-primary font-bold shadow-xs'
@@ -1608,6 +1641,7 @@ export default function CustomAdminPage() {
                                 setPostImagePreview('')
                                 setPostImageUrl('')
                                 setPostImageId(null)
+                                if (fileInputRef.current) fileInputRef.current.value = ''
                               }}
                               className="p-1.5 rounded-lg text-muted hover:text-p-brick hover:bg-surface-2 transition-colors"
                               title="Rasmni olib tashlash"
@@ -1630,16 +1664,32 @@ export default function CustomAdminPage() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <input
-                        type="url"
-                        value={postImageUrl}
-                        onChange={(e) => {
-                          setPostImageUrl(e.target.value)
-                          setPostImagePreview(e.target.value)
-                        }}
-                        placeholder="https://example.com/rasm.jpg"
-                        className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono"
-                      />
+                      <div className="relative">
+                        <input
+                          type="url"
+                          value={postImageUrl}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setPostImageUrl(val)
+                            setPostImagePreview(val)
+                          }}
+                          placeholder="https://example.com/rasm.jpg"
+                          className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono pr-8"
+                        />
+                        {postImageUrl && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPostImageUrl('')
+                              setPostImagePreview('')
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-p-brick transition-colors"
+                            title="Havolani tozalash"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                       {postImagePreview && (
                         <div className="flex items-center gap-2">
                           <div className="relative w-12 h-10 rounded-md overflow-hidden border border-border shrink-0">
@@ -1807,6 +1857,9 @@ export default function CustomAdminPage() {
                                 post._status === 'published' ? 'bg-teal/15 text-teal font-bold' : 'bg-p-ochre/15 text-p-ochre font-bold'
                               }`}>
                                 {post._status || 'draft'}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-surface-2 text-fg border border-border">
+                                {post.language === 'uz' ? '🇺🇿 Faqat UZ' : post.language === 'kaa' ? '🏴 Faqat KAA' : '🌐 Ikkala til'}
                               </span>
                             </div>
                           </div>

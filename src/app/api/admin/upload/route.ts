@@ -36,36 +36,41 @@ export async function POST(req: NextRequest) {
       console.warn('Sharp optimization fallback:', sharpErr)
     }
 
-    const base64Data = optimizedBuffer.toString('base64')
-    const dataUrl = `data:${outputMime};base64,${base64Data}`
-
     let mediaId: number | null = null
+    let mediaUrl: string = ''
+
     try {
       const payload = await getPayloadClient()
+      const safeFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^.]+$/, '.webp')}`
+
       const mediaDoc = await payload.create({
         collection: 'media',
+        locale: 'uz',
         data: {
-          altText,
+          alt: altText,
+          altText: altText,
           credit: admin.displayName || 'Admin',
           license: 'own',
         },
         file: {
           data: optimizedBuffer,
           mimetype: outputMime,
-          name: file.name.replace(/\.[^.]+$/, '.webp'),
+          name: safeFilename,
           size: optimizedBuffer.length,
         },
         overrideAccess: true,
       })
+
       mediaId = mediaDoc.id
-    } catch {
-      // Vercel serverless read-only muhitda media creation xatolik bersa ham, dataUrl saqlanadi
+      mediaUrl = mediaDoc.url || `/api/media/file/${mediaDoc.filename || safeFilename}`
+    } catch (createErr) {
+      console.error('Payload media create error:', createErr)
     }
 
     return NextResponse.json({
       success: true,
       id: mediaId,
-      url: dataUrl,
+      url: mediaUrl,
       filename: file.name,
     })
   } catch (err: unknown) {

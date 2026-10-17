@@ -113,23 +113,47 @@ export default function AdminChatPage() {
           </p>
         </div>
 
-        {/* Tezkor telefon murojaati */}
-        <div className="p-4 rounded-xl bg-[var(--secondary)]/50 border border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[var(--gold)]/20 flex items-center justify-center text-[var(--gold)]">
-              <Phone className="w-4 h-4" />
+        {/* Tezkor telefon va Telegram murojaati */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="p-4 rounded-xl bg-[var(--secondary)]/50 border border-[var(--border)] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[var(--gold)]/20 flex items-center justify-center text-[var(--gold)] shrink-0">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--foreground)]">{t('quickCall')}</p>
+                <p className="text-xs text-[var(--muted-foreground)] font-mono">+998 88 172 54 55</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-[var(--foreground)]">{t('quickCall')}</p>
-              <p className="text-xs text-[var(--muted-foreground)] font-mono">+998 (90) 123-45-67</p>
-            </div>
+            <a
+              href="tel:+998881725455"
+              className="px-3.5 py-1.5 bg-[var(--gold)] text-black rounded-lg text-xs font-semibold hover:brightness-110 transition-all text-center shrink-0"
+            >
+              {t('callNow')}
+            </a>
           </div>
-          <a
-            href="tel:+998901234567"
-            className="px-4 py-2 bg-[var(--gold)] text-black rounded-lg text-xs font-semibold hover:brightness-110 transition-all text-center"
-          >
-            {t('callNow')}
-          </a>
+
+          <div className="p-4 rounded-xl bg-[var(--secondary)]/50 border border-[var(--border)] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#24A1DE]/20 flex items-center justify-center text-[#24A1DE] shrink-0">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[var(--foreground)]">Telegram</p>
+                <p className="text-xs text-[var(--muted-foreground)] font-mono">@sifaddinov</p>
+              </div>
+            </div>
+            <a
+              href="https://t.me/sifaddinov"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 bg-[#24A1DE] text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-all text-center shrink-0"
+            >
+              Bogʻlanish
+            </a>
+          </div>
         </div>
 
         {success && (

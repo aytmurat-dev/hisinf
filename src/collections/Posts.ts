@@ -32,7 +32,7 @@ export const Posts: CollectionConfig = {
     },
     maxPerDoc: 30,
   },
-  defaultSort: '-publishedAt',
+  defaultSort: '-stars',
   access: {
     read: () => true,
     create: isStaff,
@@ -289,6 +289,37 @@ export const Posts: CollectionConfig = {
       type: 'number',
       defaultValue: 0,
       label: 'Koʻrishlar soni',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'stars',
+      type: 'number',
+      defaultValue: 0,
+      index: true,
+      label: '⭐ Yulduzlar soni (Reyting)',
+      admin: {
+        position: 'sidebar',
+        description: 'Ushbu maqolaga berilgan jami yulduzlar (eng koʻp yulduzli maqolalar oldinga chiqadi).',
+      },
+    },
+    {
+      name: 'ratingsCount',
+      type: 'number',
+      defaultValue: 0,
+      label: 'Baholar soni',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'ratingAverage',
+      type: 'number',
+      defaultValue: 0,
+      label: 'Oʻrtacha baho (1-5)',
       admin: {
         position: 'sidebar',
         readOnly: true,

@@ -4,7 +4,7 @@ import { normalizeSearch } from '@/lib/normalize-search'
 import type { Category, Media, Period, Post, User } from '@/payload-types'
 import type { PaginatedDocs, Where } from 'payload'
 
-export type PostSortOption = 'new' | 'pop' | 'old'
+export type PostSortOption = 'stars' | 'new' | 'pop' | 'old'
 
 export type PostSummary = {
   id: number
@@ -15,6 +15,9 @@ export type PostSummary = {
   publishedAt?: string | null
   readingTime?: number | null
   views?: number | null
+  stars?: number | null
+  ratingsCount?: number | null
+  ratingAverage?: number | null
   coverImage?: (number | null) | Media
   coverImageUrl?: string | null
   language?: string | null
@@ -137,12 +140,16 @@ export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<
     }
   }
 
-  // Sorting
-  let sortField = '-publishedAt'
-  if (options.sort === 'old') {
+  // Sorting: by default or if 'stars', highest stars first!
+  let sortField: string = '-stars'
+  if (options.sort === 'new') {
+    sortField = '-publishedAt'
+  } else if (options.sort === 'old') {
     sortField = 'publishedAt'
   } else if (options.sort === 'pop') {
     sortField = '-views'
+  } else if (options.sort === 'stars') {
+    sortField = '-stars'
   }
 
   const result = await payload.find({
@@ -165,6 +172,9 @@ export async function getPosts(options: GetPostsOptions): Promise<PaginatedDocs<
       publishedAt: true,
       readingTime: true,
       views: true,
+      stars: true,
+      ratingsCount: true,
+      ratingAverage: true,
       coverImage: true,
       coverImageUrl: true,
       language: true,
