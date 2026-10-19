@@ -6,7 +6,7 @@ import { SmartImage } from '@/components/SmartImage'
 import { StarRating } from '@/components/StarRating'
 import { getSafePosts } from '@/lib/safe-data'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export default async function ArticlesListPage({
   params,
