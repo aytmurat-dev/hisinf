@@ -1,5 +1,4 @@
-export const DEFAULT_COVER =
-  'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800&auto=format&fit=crop'
+export const DEFAULT_COVER = '/placeholder.jpg'
 
 export function resolveCoverUrl(
   coverImageUrl?: string | null,

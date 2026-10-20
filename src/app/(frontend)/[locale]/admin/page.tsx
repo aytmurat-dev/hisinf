@@ -412,9 +412,8 @@ export default function CustomAdminPage() {
 
       if (res.ok) {
         setPostImageId(data.id || null)
-        // postImageUrl ni bo'shatamiz - chunki rasm kompyuterdan yuklandi, internet url emas!
-        setPostImageUrl('')
-        if (data.url && !data.url.startsWith('data:')) {
+        if (data.url) {
+          setPostImageUrl(data.url)
           setPostImagePreview(data.url)
         }
         showToast('Rasm muvaffaqiyatli yuklandi!')
@@ -496,12 +495,10 @@ export default function CustomAdminPage() {
       let finalCoverImageId: number | null = null
 
       if (imageMode === 'url') {
-        const cleanUrl = postImageUrl.trim()
-        if (cleanUrl && !cleanUrl.startsWith('data:') && cleanUrl.length <= 500) {
-          finalCoverImageUrl = cleanUrl
-        }
+        finalCoverImageUrl = postImageUrl.trim()
       } else {
         finalCoverImageId = postImageId || null
+        finalCoverImageUrl = postImageUrl.trim() || (postImagePreview.trim() || '')
       }
 
       const payloadData = {
@@ -575,14 +572,20 @@ export default function CustomAdminPage() {
       // Kompyuterdan yuklangan media
       setImageMode('upload')
       setPostImageId(mediaId ?? null)
-      setPostImageUrl('')
+      setPostImageUrl(mediaUrl || '')
       setPostImagePreview(mediaUrl || '')
-    } else if (post.coverImageUrl && (post.coverImageUrl.startsWith('http://') || post.coverImageUrl.startsWith('https://') || post.coverImageUrl.startsWith('/'))) {
-      // Internet havolasi
-      setImageMode('url')
-      setPostImageId(null)
-      setPostImageUrl(post.coverImageUrl)
-      setPostImagePreview(post.coverImageUrl)
+    } else if (post.coverImageUrl) {
+      if (post.coverImageUrl.startsWith('data:')) {
+        setImageMode('upload')
+        setPostImageId(null)
+        setPostImageUrl(post.coverImageUrl)
+        setPostImagePreview(post.coverImageUrl)
+      } else {
+        setImageMode('url')
+        setPostImageId(null)
+        setPostImageUrl(post.coverImageUrl)
+        setPostImagePreview(post.coverImageUrl)
+      }
     } else {
       setImageMode('upload')
       setPostImageId(null)

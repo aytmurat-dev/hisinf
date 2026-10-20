@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
       mediaUrl = mediaDoc.url || `/api/media/file/${mediaDoc.filename || safeFilename}`
     } catch (createErr) {
       console.error('Payload media create error:', createErr)
+      // Storage fallback: use optimized WebP base64 data URL so image is never lost
+      const b64 = optimizedBuffer.toString('base64')
+      mediaUrl = `data:${outputMime};base64,${b64}`
     }
 
     return NextResponse.json({

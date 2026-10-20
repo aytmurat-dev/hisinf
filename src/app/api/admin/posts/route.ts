@@ -146,10 +146,7 @@ export async function POST(req: NextRequest) {
     const isPublished = status === 'published'
 
     const safeCoverImageUrl =
-      typeof coverImageUrl === 'string' &&
-      !coverImageUrl.startsWith('data:') &&
-      coverImageUrl.length < 500 &&
-      coverImageUrl.trim().length > 0
+      typeof coverImageUrl === 'string' && coverImageUrl.trim().length > 0
         ? coverImageUrl.trim()
         : null
 
@@ -171,16 +168,38 @@ export async function POST(req: NextRequest) {
     const created = isPublished
       ? await payload.create({
           collection: 'posts',
+          locale: 'uz',
           data: postData,
           overrideAccess: true,
           draft: false,
         })
       : await payload.create({
           collection: 'posts',
+          locale: 'uz',
           data: postData,
           overrideAccess: true,
           draft: true,
         })
+
+    // Also populate kaa locale if post is both or kaa
+    if (language !== 'uz' && created?.id) {
+      try {
+        await payload.update({
+          collection: 'posts',
+          id: created.id,
+          locale: 'kaa',
+          data: {
+            title: trimmedTitle,
+            content,
+            body: lexicalBody,
+            excerpt: excerpt.trim() || trimmedTitle.slice(0, 160),
+          },
+          overrideAccess: true,
+        })
+      } catch (kaaErr) {
+        console.warn('Sync kaa locale on create warning:', kaaErr)
+      }
+    }
 
     return NextResponse.json({ success: true, doc: created })
   } catch (err: unknown) {
