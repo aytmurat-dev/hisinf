@@ -6,7 +6,7 @@ import type { User } from '@/payload-types'
 import type { NextRequest } from 'next/server'
 
 export const DEFAULT_ADMIN_USER: User = {
-  id: 1,
+  id: 2,
   collection: 'users',
   displayName: 'Bosh Administrator',
   username: 'admin',

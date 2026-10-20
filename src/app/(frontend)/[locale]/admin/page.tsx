@@ -424,9 +424,8 @@ export default function CustomAdminPage() {
       if (res.ok) {
         setPostImageId(data.id || null)
         if (data.url) {
-          // Faqat kompyuter rasmi preview'ini yangilaymiz.
-          // postImageUrl (Internet URL) maydoni bo'sh qolishi shart!
           setUploadedImagePreview(data.url)
+          setPostImageUrl(data.url)
         }
         showToast('Rasm muvaffaqiyatli yuklandi!')
       } else {
@@ -518,9 +517,15 @@ export default function CustomAdminPage() {
         finalCoverImageUrl = postImageUrl.trim()
         finalCoverImageId = null
       } else {
-        // Kompyuterdan yuklangan rasm: faqat media ID saqlanadi
+        // Kompyuterdan yuklangan rasm:
         finalCoverImageId = postImageId || null
-        finalCoverImageUrl = ''
+        // Rasm URL'ini ham coverImageUrl maydoniga saqlaymiz (/api/media/file/...)
+        const previewUrl = uploadedImagePreview.trim()
+        if (previewUrl && !previewUrl.startsWith('data:')) {
+          finalCoverImageUrl = previewUrl
+        } else if (postImageUrl.trim() && !postImageUrl.trim().startsWith('data:')) {
+          finalCoverImageUrl = postImageUrl.trim()
+        }
       }
 
       const payloadData = {

@@ -93,6 +93,24 @@ export async function createMediaDirectly(params: {
   const p = getPool()
   if (!p) return null
   try {
+    let safeUserId: number | null = null
+    if (params.uploadedById && typeof params.uploadedById === 'number') {
+      try {
+        const u = await p.query('SELECT id FROM users WHERE id = $1 LIMIT 1', [params.uploadedById])
+        if (u.rows.length > 0) safeUserId = params.uploadedById
+      } catch {
+        safeUserId = null
+      }
+    }
+    if (!safeUserId) {
+      try {
+        const anyU = await p.query('SELECT id FROM users LIMIT 1')
+        safeUserId = anyU.rows[0]?.id || null
+      } catch {
+        safeUserId = null
+      }
+    }
+
     const url = `/api/media/file/${encodeURIComponent(params.filename)}`
     const res = await p.query(
       `INSERT INTO media (url, filename, mime_type, filesize, credit, license, uploaded_by_id, created_at, updated_at)
@@ -104,7 +122,7 @@ export async function createMediaDirectly(params: {
         params.mimeType,
         params.filesize,
         params.credit || 'Admin',
-        params.uploadedById || null,
+        safeUserId,
       ]
     )
     const mediaId = res.rows[0]?.id

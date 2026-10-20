@@ -460,9 +460,11 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
             const countVal = (doc.ratingsCount as number) || 0
             const avgVal = (doc.ratingAverage as number) || 0
             const coverImg =
-              typeof doc.coverImage === 'object' && doc.coverImage && 'url' in doc.coverImage
+              (doc.coverImageUrl as string) ||
+              (typeof doc.coverImage === 'object' && doc.coverImage && 'url' in doc.coverImage
                 ? (doc.coverImage.url as string)
-                : (doc.coverImageUrl as string) || ''
+                : '') ||
+              ''
 
             return {
               id: doc.id,
