@@ -110,6 +110,9 @@ export async function PUT(
       locale: 'uz',
       data: updateData,
       overrideAccess: true,
+      context: {
+        skipSyncLocales: true,
+      },
     })
 
     // 2. Also update kaa locale if post is both or kaa
@@ -126,6 +129,11 @@ export async function PUT(
           locale: 'kaa',
           data: updateData,
           overrideAccess: true,
+          context: {
+            disableRevalidate: true,
+            skipWorkflow: true,
+            skipSyncLocales: true,
+          },
         })
       } catch (kaaErr) {
         console.warn('Sync kaa on update warning:', kaaErr)

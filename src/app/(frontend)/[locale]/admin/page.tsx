@@ -399,6 +399,9 @@ export default function CustomAdminPage() {
     }
     reader.readAsDataURL(file)
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 35000)
+
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -407,8 +410,16 @@ export default function CustomAdminPage() {
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       })
-      const data = await res.json()
+      clearTimeout(timeoutId)
+
+      let data: { id?: number; url?: string; error?: string } = {}
+      try {
+        data = await res.json()
+      } catch {
+        // Non-JSON response
+      }
 
       if (res.ok) {
         setPostImageId(data.id || null)
@@ -421,9 +432,14 @@ export default function CustomAdminPage() {
       } else {
         showToast(data.error || 'Rasm yuklashda xatolik', 'error')
       }
-    } catch {
-      showToast('Rasm yuklashda server xatosi', 'error')
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        showToast('Rasm yuklash vaqti tugadi (Timeout)', 'error')
+      } else {
+        showToast('Rasm yuklashda server xatosi', 'error')
+      }
     } finally {
+      clearTimeout(timeoutId)
       setUploadingImage(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
@@ -491,6 +507,9 @@ export default function CustomAdminPage() {
     }
 
     setSavingPost(true)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 35000)
+
     try {
       let finalCoverImageUrl = ''
       let finalCoverImageId: number | null = null
@@ -521,8 +540,16 @@ export default function CustomAdminPage() {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payloadData),
+        signal: controller.signal,
       })
-      const data = await res.json()
+      clearTimeout(timeoutId)
+
+      let data: { error?: string } = {}
+      try {
+        data = await res.json()
+      } catch {
+        // Non-JSON response (masalan, server 504 yoki gateway xatosi)
+      }
 
       if (res.ok) {
         showToast(editingPostId ? 'Post muvaffaqiyatli yangilandi!' : 'Yangi post chop etildi!')
@@ -530,11 +557,16 @@ export default function CustomAdminPage() {
         fetchPosts()
         fetchStats()
       } else {
-        showToast(data.error || 'Postni saqlashda xatolik', 'error')
+        showToast(data.error || 'Postni saqlashda xatolik yuz berdi', 'error')
       }
-    } catch {
-      showToast('Saqlashda xatolik yuz berdi', 'error')
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        showToast('Server javob berish vaqti tugadi (Timeout). Iltimos, qayta urinib koʻring.', 'error')
+      } else {
+        showToast('Saqlashda xatolik yuz berdi', 'error')
+      }
     } finally {
+      clearTimeout(timeoutId)
       setSavingPost(false)
     }
   }
