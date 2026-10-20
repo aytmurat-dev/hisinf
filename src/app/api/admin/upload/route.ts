@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayloadClient } from '@/lib/payload'
 import { getCurrentAdmin } from '@/lib/admin-auth'
+import { saveMediaFile, createMediaDirectly } from '@/lib/media-storage'
+import fs from 'fs'
+import path from 'path'
 
 export async function POST(req: NextRequest) {
   const admin = await getCurrentAdmin(req)
@@ -36,13 +39,28 @@ export async function POST(req: NextRequest) {
       console.warn('Sharp optimization fallback:', sharpErr)
     }
 
-    let mediaId: number | null = null
-    let mediaUrl: string = ''
+    const safeFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^.]+$/, '.webp')}`
 
+    // 1. Save directly to Neon Postgres media_storage table
+    await saveMediaFile(safeFilename, outputMime, optimizedBuffer)
+
+    // 2. Also write to temporary disk if available
+    try {
+      const tmpDir = path.resolve('/tmp/media')
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true })
+      }
+      fs.writeFileSync(path.join(tmpDir, safeFilename), optimizedBuffer)
+    } catch {
+      // Ignore filesystem errors in serverless
+    }
+
+    let mediaId: number | null = null
+    let mediaUrl: string = `/api/media/file/${encodeURIComponent(safeFilename)}`
+
+    // 3. Register media in Payload CMS
     try {
       const payload = await getPayloadClient()
-      const safeFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^.]+$/, '.webp')}`
-
       const mediaDoc = await payload.create({
         collection: 'media',
         locale: 'uz',
@@ -61,13 +79,25 @@ export async function POST(req: NextRequest) {
         overrideAccess: true,
       })
 
-      mediaId = mediaDoc.id
-      mediaUrl = mediaDoc.url || `/api/media/file/${mediaDoc.filename || safeFilename}`
+      if (mediaDoc?.id) {
+        mediaId = mediaDoc.id
+        mediaUrl = mediaDoc.url || `/api/media/file/${encodeURIComponent(mediaDoc.filename || safeFilename)}`
+      }
     } catch (createErr) {
-      console.error('Payload media create error:', createErr)
-      // Storage fallback: use optimized WebP base64 data URL so image is never lost
-      const b64 = optimizedBuffer.toString('base64')
-      mediaUrl = `data:${outputMime};base64,${b64}`
+      console.warn('Payload media create fallback to direct DB insert:', createErr)
+      // Direct DB insert fallback to guarantee media ID
+      const direct = await createMediaDirectly({
+        filename: safeFilename,
+        mimeType: outputMime,
+        filesize: optimizedBuffer.length,
+        altText,
+        credit: admin.displayName || 'Admin',
+        uploadedById: admin.id || null,
+      })
+      if (direct) {
+        mediaId = direct.id
+        mediaUrl = direct.url
+      }
     }
 
     return NextResponse.json({

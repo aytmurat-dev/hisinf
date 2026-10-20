@@ -148,6 +148,8 @@ export const Posts: CollectionConfig = {
             {
               name: 'coverImageUrl',
               type: 'text',
+              required: false,
+              validate: () => (true as const),
               label: '🌐 Internetdan rasm havolasi (URL)',
               admin: {
                 description:

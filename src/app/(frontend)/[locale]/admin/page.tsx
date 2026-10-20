@@ -145,7 +145,7 @@ export default function CustomAdminPage() {
   const [imageMode, setImageMode] = useState<'upload' | 'url'>('upload')
   const [postImageUrl, setPostImageUrl] = useState('')
   const [postImageId, setPostImageId] = useState<number | null>(null)
-  const [postImagePreview, setPostImagePreview] = useState('')
+  const [uploadedImagePreview, setUploadedImagePreview] = useState('')
   const [postLanguage, setPostLanguage] = useState<'both' | 'uz' | 'kaa'>('both')
   const [postStatus, setPostStatus] = useState<'published' | 'draft'>('published')
   const [savingPost, setSavingPost] = useState(false)
@@ -394,7 +394,7 @@ export default function CustomAdminPage() {
     reader.onload = (ev) => {
       const dataUrl = ev.target?.result as string
       if (dataUrl) {
-        setPostImagePreview(dataUrl)
+        setUploadedImagePreview(dataUrl)
       }
     }
     reader.readAsDataURL(file)
@@ -413,8 +413,9 @@ export default function CustomAdminPage() {
       if (res.ok) {
         setPostImageId(data.id || null)
         if (data.url) {
-          setPostImageUrl(data.url)
-          setPostImagePreview(data.url)
+          // Faqat kompyuter rasmi preview'ini yangilaymiz.
+          // postImageUrl (Internet URL) maydoni bo'sh qolishi shart!
+          setUploadedImagePreview(data.url)
         }
         showToast('Rasm muvaffaqiyatli yuklandi!')
       } else {
@@ -496,9 +497,11 @@ export default function CustomAdminPage() {
 
       if (imageMode === 'url') {
         finalCoverImageUrl = postImageUrl.trim()
+        finalCoverImageId = null
       } else {
+        // Kompyuterdan yuklangan rasm: faqat media ID saqlanadi
         finalCoverImageId = postImageId || null
-        finalCoverImageUrl = postImageUrl.trim() || (postImagePreview.trim() || '')
+        finalCoverImageUrl = ''
       }
 
       const payloadData = {
@@ -543,7 +546,7 @@ export default function CustomAdminPage() {
     setPostExcerpt('')
     setPostImageUrl('')
     setPostImageId(null)
-    setPostImagePreview('')
+    setUploadedImagePreview('')
     setImageMode('upload')
     setPostLanguage('both')
     setPostStatus('published')
@@ -572,25 +575,31 @@ export default function CustomAdminPage() {
       // Kompyuterdan yuklangan media
       setImageMode('upload')
       setPostImageId(mediaId ?? null)
-      setPostImageUrl(mediaUrl || '')
-      setPostImagePreview(mediaUrl || '')
+      setUploadedImagePreview(mediaUrl || '')
+      setPostImageUrl('') // MUHIM: Internet URL maydoni bo'sh qolishi shart!
     } else if (post.coverImageUrl) {
-      if (post.coverImageUrl.startsWith('data:')) {
+      const isLocalOrData =
+        post.coverImageUrl.startsWith('data:') ||
+        post.coverImageUrl.startsWith('/api/media/')
+
+      if (isLocalOrData) {
+        // Oldin yuklangan fayl yoki data URL
         setImageMode('upload')
         setPostImageId(null)
-        setPostImageUrl(post.coverImageUrl)
-        setPostImagePreview(post.coverImageUrl)
+        setUploadedImagePreview(post.coverImageUrl)
+        setPostImageUrl('') // MUHIM: Internet URL maydoni bo'sh qolishi shart!
       } else {
+        // Haqiqiy Internet URL
         setImageMode('url')
         setPostImageId(null)
+        setUploadedImagePreview('')
         setPostImageUrl(post.coverImageUrl)
-        setPostImagePreview(post.coverImageUrl)
       }
     } else {
       setImageMode('upload')
       setPostImageId(null)
+      setUploadedImagePreview('')
       setPostImageUrl('')
-      setPostImagePreview('')
     }
 
     setPostLanguage((post.language as 'both' | 'uz' | 'kaa') || 'both')
@@ -1556,10 +1565,7 @@ export default function CustomAdminPage() {
                     <div className="flex bg-surface-2 border border-border rounded-lg p-0.5 text-[11px]">
                       <button
                         type="button"
-                        onClick={() => {
-                          setImageMode('upload')
-                          setPostImagePreview(postImageId ? postImagePreview : '')
-                        }}
+                        onClick={() => setImageMode('upload')}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
                           imageMode === 'upload'
                             ? 'bg-card text-primary font-bold shadow-xs'
@@ -1571,10 +1577,7 @@ export default function CustomAdminPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          setImageMode('url')
-                          setPostImagePreview(postImageUrl)
-                        }}
+                        onClick={() => setImageMode('url')}
                         className={`px-2.5 py-1 rounded-md cursor-pointer transition-all flex items-center gap-1 ${
                           imageMode === 'url'
                             ? 'bg-card text-primary font-bold shadow-xs'
@@ -1626,11 +1629,11 @@ export default function CustomAdminPage() {
                             <RefreshCw className="w-5 h-5 animate-spin" />
                             <span>Rasm yuklanmoqda...</span>
                           </div>
-                        ) : postImagePreview ? (
+                        ) : uploadedImagePreview ? (
                           <div className="flex items-center justify-between gap-3 p-2 bg-card rounded-lg border border-border">
                             <div className="flex items-center gap-3">
                               <div className="relative w-16 h-12 rounded-lg overflow-hidden border border-border shrink-0">
-                                <Image src={postImagePreview} alt="Preview" fill className="object-cover" unoptimized />
+                                <Image src={uploadedImagePreview} alt="Preview" fill className="object-cover" unoptimized />
                               </div>
                               <div className="text-left">
                                 <div className="text-xs text-teal font-semibold">✓ Rasm yuklandi</div>
@@ -1641,8 +1644,7 @@ export default function CustomAdminPage() {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setPostImagePreview('')
-                                setPostImageUrl('')
+                                setUploadedImagePreview('')
                                 setPostImageId(null)
                                 if (fileInputRef.current) fileInputRef.current.value = ''
                               }}
@@ -1671,21 +1673,14 @@ export default function CustomAdminPage() {
                         <input
                           type="url"
                           value={postImageUrl}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            setPostImageUrl(val)
-                            setPostImagePreview(val)
-                          }}
+                          onChange={(e) => setPostImageUrl(e.target.value)}
                           placeholder="https://example.com/rasm.jpg"
                           className="w-full px-3.5 py-2.5 bg-bg border border-border focus:border-primary rounded-xl text-xs text-fg outline-none font-mono pr-8"
                         />
                         {postImageUrl && (
                           <button
                             type="button"
-                            onClick={() => {
-                              setPostImageUrl('')
-                              setPostImagePreview('')
-                            }}
+                            onClick={() => setPostImageUrl('')}
                             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-p-brick transition-colors"
                             title="Havolani tozalash"
                           >
@@ -1693,10 +1688,10 @@ export default function CustomAdminPage() {
                           </button>
                         )}
                       </div>
-                      {postImagePreview && (
+                      {postImageUrl && (
                         <div className="flex items-center gap-2">
                           <div className="relative w-12 h-10 rounded-md overflow-hidden border border-border shrink-0">
-                            <Image src={postImagePreview} alt="Preview" fill className="object-cover" unoptimized />
+                            <Image src={postImageUrl} alt="Preview" fill className="object-cover" unoptimized />
                           </div>
                           <span className="text-xs text-teal font-medium">✓ Rasm havolasi kiritildi</span>
                         </div>
