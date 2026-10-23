@@ -8,7 +8,6 @@ import { seedUsers } from './users'
 import { seedPersons } from './persons'
 import { seedPlaces } from './places'
 import { seedEvents } from './events'
-import { seedArchive } from './archive'
 import { seedPosts } from './posts'
 import { seedGlobals } from './globals'
 
@@ -63,10 +62,7 @@ export async function runSeed(payload: Payload): Promise<void> {
   // 7. Events
   await seedEvents(payload, periodMap, placeMap, users.author)
 
-  // 8. Archive
-  await seedArchive(payload, periodMap, taxonomy.regions, users.author, Number(mediaId))
-
-  // 9. Posts
+  // 8. Posts
   await seedPosts(payload, periodMap, taxonomy.categories, users.author, Number(mediaId))
 
   // 10. Globals

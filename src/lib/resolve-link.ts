@@ -14,7 +14,6 @@ export const ROUTE_MAP: Record<string, string> = {
   posts: '/maqolalar',
   timeline: '/xronologiya',
   persons: '/shaxslar',
-  archive: '/arxiv',
   map: '/xarita',
   search: '/qidiruv',
   authors: '/mualliflar',

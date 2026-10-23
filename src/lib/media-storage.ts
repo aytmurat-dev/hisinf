@@ -76,8 +76,11 @@ export async function getMediaFile(
       mimeType: res.rows[0].mime_type || 'image/webp',
       data: res.rows[0].data,
     }
-  } catch (err) {
-    console.error('Error fetching media file from DB:', err)
+  } catch (err: unknown) {
+    const pgErr = err as { code?: string }
+    if (pgErr?.code === '42P01') {
+      await initMediaStorageTable()
+    }
     return null
   }
 }

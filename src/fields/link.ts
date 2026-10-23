@@ -27,7 +27,6 @@ export function linkField(name = 'link', label = 'Havola'): Field {
           { label: 'Maqolalar', value: 'posts' },
           { label: 'Xronologiya', value: 'timeline' },
           { label: 'Tarixiy shaxslar', value: 'persons' },
-          { label: 'Media arxiv', value: 'archive' },
           { label: 'Xarita', value: 'map' },
           { label: 'Qidiruv', value: 'search' },
           { label: 'Mualliflar', value: 'authors' },

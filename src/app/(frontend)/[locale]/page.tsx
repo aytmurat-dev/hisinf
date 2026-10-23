@@ -14,7 +14,6 @@ import {
   Star,
   Award,
   Eye,
-  FolderArchive,
 } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
 import { SmartImage } from '@/components/SmartImage'
@@ -145,15 +144,6 @@ export default async function HomePage({
             >
               <User className="w-4 h-4 text-amber-500" />
               <span>{isKaa ? 'Tariyxıy Tulǵalar' : 'Tarixiy Shaxslar'}</span>
-            </Link>
-
-            <Link
-              href="/arxiv"
-              prefetch={true}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] hover:border-amber-400 active:scale-95 font-medium text-sm transition-all shadow-xs cursor-pointer"
-            >
-              <FolderArchive className="w-4 h-4 text-amber-500" />
-              <span>{isKaa ? 'Media Arxiv' : 'Media Arxiv'}</span>
             </Link>
           </div>
         </div>

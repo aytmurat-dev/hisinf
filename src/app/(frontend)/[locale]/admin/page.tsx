@@ -34,6 +34,7 @@ import {
 } from 'lucide-react'
 import { resolveCoverUrl } from '@/lib/resolve-cover-image'
 import { SmartImage } from '@/components/SmartImage'
+import { extractPlainText } from '@/lib/lexical-text'
 
 interface AdminUser {
   id: number
@@ -50,6 +51,7 @@ interface PostItem {
   title?: string | null
   slug?: string | null
   content?: string | null
+  body?: unknown
   excerpt?: string | null
   coverImageUrl?: string | null
   coverImage?: { id?: number; url?: string; filename?: string } | number | null
@@ -155,6 +157,10 @@ export default function CustomAdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const docInputRef = useRef<HTMLInputElement>(null)
 
+  // --- Post Delete Confirmation Modal State ---
+  const [deletingPostItem, setDeletingPostItem] = useState<PostItem | null>(null)
+  const [isDeletingPost, setIsDeletingPost] = useState(false)
+
   // --- Password Change Card State ---
   const [pwdTarget, setPwdTarget] = useState<string>('')
   const [pwdNewValue, setPwdNewValue] = useState('')
@@ -234,8 +240,9 @@ export default function CustomAdminPage() {
   const fetchPosts = useCallback(async (q = '') => {
     try {
       setPostsLoading(true)
-      const url = q ? `/api/admin/posts?q=${encodeURIComponent(q)}` : '/api/admin/posts'
-      const res = await fetch(url)
+      const base = q ? `/api/admin/posts?q=${encodeURIComponent(q)}` : '/api/admin/posts'
+      const url = `${base}${base.includes('?') ? '&' : '?'}_t=${Date.now()}`
+      const res = await fetch(url, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setPosts(data.docs || [])
@@ -559,8 +566,8 @@ export default function CustomAdminPage() {
       if (res.ok) {
         showToast(editingPostId ? 'Post muvaffaqiyatli yangilandi!' : 'Yangi post chop etildi!')
         resetPostForm()
-        fetchPosts()
-        fetchStats()
+        await fetchPosts()
+        await fetchStats()
       } else {
         showToast(data.error || 'Postni saqlashda xatolik yuz berdi', 'error')
       }
@@ -593,7 +600,11 @@ export default function CustomAdminPage() {
   const handleEditPost = (post: PostItem) => {
     setEditingPostId(post.id)
     setPostTitle(post.title || '')
-    setPostContent(post.content || '')
+    const plainText =
+      (post.content && post.content.trim()) ||
+      (post.body ? extractPlainText(post.body) : '') ||
+      ''
+    setPostContent(plainText)
     setPostExcerpt(post.excerpt || '')
 
     const mediaId =
@@ -645,20 +656,25 @@ export default function CustomAdminPage() {
     window.scrollTo({ top: 380, behavior: 'smooth' })
   }
 
-  const handleDeletePost = async (id: number) => {
-    if (!window.confirm('Haqiqatan ham bu postni oʻchirmoqchimisiz?')) return
+  const confirmDeletePost = async () => {
+    if (!deletingPostItem) return
+    setIsDeletingPost(true)
     try {
-      const res = await fetch(`/api/admin/posts/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/admin/posts/${deletingPostItem.id}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => ({}))
       if (res.ok) {
         showToast('Post muvaffaqiyatli oʻchirildi')
-        fetchPosts()
-        fetchStats()
-        if (editingPostId === id) resetPostForm()
+        if (editingPostId === deletingPostItem.id) resetPostForm()
+        setDeletingPostItem(null)
+        await fetchPosts()
+        await fetchStats()
       } else {
-        showToast('Oʻchirishda xatolik yuz berdi', 'error')
+        showToast(data.error || 'Oʻchirishda xatolik yuz berdi', 'error')
       }
     } catch {
-      showToast('Oʻchirishda xatolik', 'error')
+      showToast('Oʻchirishda server bilan aloqa uzildi', 'error')
+    } finally {
+      setIsDeletingPost(false)
     }
   }
 
@@ -1819,24 +1835,35 @@ export default function CustomAdminPage() {
                   />
                 </div>
 
-                {/* Saqlash tugmasi */}
-                <button
-                  type="submit"
-                  disabled={savingPost}
-                  className="w-full py-3.5 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 mt-4"
-                >
-                  {savingPost ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Saqlanmoqda...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>{editingPostId ? 'Postni Yangilash' : 'Postni Chop Etish (Saytga Joylash)'}</span>
-                    </>
+                {/* Saqlash va Bekor qilish tugmalari */}
+                <div className="flex items-center gap-3 mt-4">
+                  <button
+                    type="submit"
+                    disabled={savingPost}
+                    className="flex-1 py-3.5 bg-primary text-primary-fg font-semibold text-xs rounded-xl shadow-btn transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
+                  >
+                    {savingPost ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Saqlanmoqda...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>{editingPostId ? 'Postni Yangilash' : 'Postni Chop Etish (Saytga Joylash)'}</span>
+                      </>
+                    )}
+                  </button>
+                  {editingPostId && (
+                    <button
+                      type="button"
+                      onClick={resetPostForm}
+                      className="px-4 py-3.5 bg-surface-2 hover:bg-card border border-border text-fg font-semibold text-xs rounded-xl transition-all cursor-pointer"
+                    >
+                      Bekor qilish
+                    </button>
                   )}
-                </button>
+                </div>
               </form>
             </div>
 
@@ -1910,7 +1937,7 @@ export default function CustomAdminPage() {
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeletePost(post.id)}
+                            onClick={() => setDeletingPostItem(post)}
                             className="p-1.5 text-p-brick hover:bg-p-brick/10 rounded-lg cursor-pointer transition-colors"
                             title="Oʻchirish"
                           >
@@ -2621,6 +2648,55 @@ export default function CustomAdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL: POSTNI O'CHIRISHNI TASDIQLASH */}
+      {deletingPostItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-p-brick/15 text-p-brick flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-fg font-serif">Maqolani oʻchirish</h3>
+                <p className="text-xs text-muted">Ushbu amalni ortga qaytarib boʻlmaydi.</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-surface-2 rounded-xl text-xs text-fg font-medium border border-border">
+              «{deletingPostItem.title || 'Nomsiz maqola'}»
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                disabled={isDeletingPost}
+                onClick={() => setDeletingPostItem(null)}
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-muted hover:text-fg hover:bg-surface-2 cursor-pointer transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingPost}
+                onClick={confirmDeletePost}
+                className="px-4 py-2.5 bg-p-brick text-white rounded-xl text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+              >
+                {isDeletingPost ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Oʻchirilmoqda...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Ha, oʻchirilsin</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

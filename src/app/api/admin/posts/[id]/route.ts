@@ -24,9 +24,12 @@ export async function GET(
       collection: 'posts',
       id: postId,
       depth: 1,
+      draft: true,
       overrideAccess: true,
     })
-    return NextResponse.json(post)
+    return NextResponse.json(post, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    })
   } catch {
     return NextResponse.json({ error: 'Post topilmadi' }, { status: 404 })
   }
@@ -94,49 +97,57 @@ export async function PUT(
     if (language) {
       updateData.language = language
     }
-    if (status) {
-      const isPublished = status === 'published'
-      updateData.workflowStatus = isPublished ? 'published' : 'draft'
-      updateData._status = isPublished ? 'published' : 'draft'
-      if (isPublished) {
-        updateData.publishedAt = new Date().toISOString()
-      }
+
+    const isPublished = status !== 'draft'
+    updateData.workflowStatus = isPublished ? 'published' : 'draft'
+    updateData._status = isPublished ? 'published' : 'draft'
+    if (isPublished) {
+      updateData.publishedAt = new Date().toISOString()
     }
 
-    // 1. Update uz locale
+    // 1. Update uz locale (main doc) with proper draft flag
     const updated = await payload.update({
       collection: 'posts',
       id: postId,
       locale: 'uz',
       data: updateData,
+      draft: !isPublished,
       overrideAccess: true,
       context: {
         skipSyncLocales: true,
       },
     })
 
-    // 2. Also update kaa locale if post is both or kaa
+    // 2. Fast SQL sync for kaa locale if post is 'both' or 'kaa'
     const postLang =
       language ||
       (updated && typeof updated === 'object' && 'language' in updated
         ? (updated as { language?: string }).language
         : 'both')
-    if (postLang !== 'uz') {
+
+    if (postLang !== 'uz' && process.env.DATABASE_URI) {
       try {
-        await payload.update({
-          collection: 'posts',
-          id: postId,
-          locale: 'kaa',
-          data: updateData,
-          overrideAccess: true,
-          context: {
-            disableRevalidate: true,
-            skipWorkflow: true,
-            skipSyncLocales: true,
-          },
+        const { Pool } = await import('pg')
+        const pool = new Pool({
+          connectionString: process.env.DATABASE_URI,
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 4000,
         })
+        const safeBody = updateData.body ? JSON.stringify(updateData.body) : null
+        await pool.query(
+          `INSERT INTO posts_locales (_parent_id, _locale, title, excerpt, content, body)
+           VALUES ($1, 'kaa', $2, $3, $4, $5)
+           ON CONFLICT (_locale, _parent_id)
+           DO UPDATE SET
+             title = COALESCE(EXCLUDED.title, posts_locales.title),
+             excerpt = COALESCE(EXCLUDED.excerpt, posts_locales.excerpt),
+             content = COALESCE(EXCLUDED.content, posts_locales.content),
+             body = COALESCE(EXCLUDED.body, posts_locales.body)`,
+          [postId, updateData.title || null, updateData.excerpt || null, updateData.content || null, safeBody],
+        )
+        await pool.end()
       } catch (kaaErr) {
-        console.warn('Sync kaa on update warning:', kaaErr)
+        console.warn('Fast kaa sync warning:', kaaErr)
       }
     }
 
@@ -167,29 +178,59 @@ export async function DELETE(
   }
 
   try {
-    const payload = await getPayloadClient()
-    await payload.delete({
-      collection: 'posts',
-      id: postId,
-      overrideAccess: true,
-    })
+    // 1. Direct cascade delete in Neon Postgres ensures references in home_page, comments, daily_stats, readers_rels, etc. are cleanly removed
+    if (process.env.DATABASE_URI) {
+      const { Pool } = await import('pg')
+      const pool = new Pool({
+        connectionString: process.env.DATABASE_URI,
+        ssl: { rejectUnauthorized: false },
+        connectionTimeoutMillis: 5000,
+      })
+      const client = await pool.connect()
+      try {
+        await client.query('BEGIN')
+        // Clean foreign key relations pointing to posts(id)
+        await client.query('UPDATE home_page SET featured_post_id = NULL WHERE featured_post_id = $1', [postId])
+        await client.query('DELETE FROM home_page_rels WHERE posts_id = $1', [postId])
+        await client.query('DELETE FROM header_rels WHERE posts_id = $1', [postId])
+        await client.query('DELETE FROM footer_rels WHERE posts_id = $1', [postId])
+        await client.query('DELETE FROM comments WHERE post_id = $1', [postId])
+        await client.query('DELETE FROM daily_stats WHERE post_id = $1', [postId])
+        await client.query('DELETE FROM readers_rels WHERE posts_id = $1', [postId])
+        await client.query('DELETE FROM payload_locked_documents_rels WHERE posts_id = $1', [postId])
+        await client.query('DELETE FROM posts_rels WHERE parent_id = $1', [postId])
+        await client.query('DELETE FROM _posts_v_locales WHERE _parent_id IN (SELECT id FROM _posts_v WHERE parent_id = $1)', [postId])
+        await client.query('DELETE FROM _posts_v WHERE parent_id = $1', [postId])
+        await client.query('DELETE FROM posts_locales WHERE _parent_id = $1', [postId])
+        await client.query('DELETE FROM posts WHERE id = $1', [postId])
+        await client.query('COMMIT')
+      } catch (dbErr) {
+        await client.query('ROLLBACK')
+        throw dbErr
+      } finally {
+        client.release()
+        await pool.end()
+      }
+    } else {
+      const payload = await getPayloadClient()
+      await payload.delete({
+        collection: 'posts',
+        id: postId,
+        overrideAccess: true,
+      })
+    }
+
+    try {
+      const { revalidatePath } = await import('next/cache')
+      revalidatePath('/[locale]', 'page')
+      revalidatePath('/[locale]/maqolalar', 'page')
+    } catch {
+      // non-blocking
+    }
+
     return NextResponse.json({ success: true })
   } catch (err: unknown) {
-    console.warn('Payload post delete threw, falling back to direct DB cascade delete:', err)
-    if (process.env.DATABASE_URI) {
-      try {
-        const { Pool } = await import('pg')
-        const pool = new Pool({ connectionString: process.env.DATABASE_URI })
-        await pool.query('DELETE FROM _posts_v_locales WHERE _parent_id IN (SELECT id FROM _posts_v WHERE parent_id = $1)', [postId])
-        await pool.query('DELETE FROM _posts_v WHERE parent_id = $1', [postId])
-        await pool.query('DELETE FROM posts_locales WHERE _parent_id = $1', [postId])
-        await pool.query('DELETE FROM posts WHERE id = $1', [postId])
-        await pool.end()
-        return NextResponse.json({ success: true })
-      } catch (dbErr) {
-        console.error('Direct DB cascade delete also failed:', dbErr)
-      }
-    }
+    console.error('*** POST DELETE ERROR ***', err)
     const message = err instanceof Error ? err.message : 'Oʻchirishda xatolik yuz berdi'
     return NextResponse.json({ error: message }, { status: 500 })
   }

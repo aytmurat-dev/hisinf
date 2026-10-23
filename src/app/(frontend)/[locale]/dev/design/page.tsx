@@ -367,7 +367,6 @@ export default function DesignSystemPage() {
                   <a href="#" className="hover:text-primary transition-colors">Maqolalar</a>
                   <a href="#" className="hover:text-primary transition-colors">Xronologiya</a>
                   <a href="#" className="hover:text-primary transition-colors">Tarixiy shaxslar</a>
-                  <a href="#" className="hover:text-primary transition-colors">Media arxiv</a>
                 </nav>
               </SheetContent>
             </Sheet>

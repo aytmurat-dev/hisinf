@@ -57,11 +57,6 @@ export function Footer() {
                   {tNav('map')}
                 </Link>
               </li>
-              <li>
-                <Link href="/arxiv" prefetch={true} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
-                  {tNav('archive')}
-                </Link>
-              </li>
             </ul>
           </div>
 

@@ -2,7 +2,7 @@ import 'server-only'
 import { getPayloadClient } from './payload'
 
 export async function hasTranslation(
-  collection: 'posts' | 'persons' | 'events' | 'places' | 'archive-items' | 'pages',
+  collection: 'posts' | 'persons' | 'events' | 'places' | 'pages',
   id: number,
   locale: 'uz' | 'kaa',
 ): Promise<boolean> {

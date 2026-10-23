@@ -18,7 +18,6 @@ import { Periods } from './collections/Periods'
 import { Persons } from './collections/Persons'
 import { Events } from './collections/Events'
 import { Places } from './collections/Places'
-import { ArchiveItems } from './collections/ArchiveItems'
 import { Categories } from './collections/Categories'
 import { Tags } from './collections/Tags'
 import { Regions } from './collections/Regions'
@@ -99,7 +98,7 @@ plugins.push(
     generateURL: (docs) => docs.reduce((u, doc) => `${u}/${(doc as { slug?: string }).slug ?? ''}`, ''),
   }),
   seoPlugin({
-    collections: ['posts', 'pages', 'persons', 'events', 'places', 'archive-items'],
+    collections: ['posts', 'pages', 'persons', 'events', 'places'],
     uploadsCollection: 'media',
     tabbedUI: true,
     generateTitle: ({ doc }) => {
@@ -202,7 +201,6 @@ export default buildConfig({
     Persons,
     Events,
     Places,
-    ArchiveItems,
     Categories,
     Tags,
     Regions,

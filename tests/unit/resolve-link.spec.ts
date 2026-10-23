@@ -7,7 +7,6 @@ describe('resolveLink', () => {
     expect(resolveLink({ type: 'route', route: 'posts' })).toEqual({ href: '/maqolalar', external: false })
     expect(resolveLink({ type: 'route', route: 'timeline' })).toEqual({ href: '/xronologiya', external: false })
     expect(resolveLink({ type: 'route', route: 'persons' })).toEqual({ href: '/shaxslar', external: false })
-    expect(resolveLink({ type: 'route', route: 'archive' })).toEqual({ href: '/arxiv', external: false })
     expect(resolveLink({ type: 'route', route: 'map' })).toEqual({ href: '/xarita', external: false })
     expect(resolveLink({ type: 'route', route: 'search' })).toEqual({ href: '/qidiruv', external: false })
     expect(resolveLink({ type: 'route', route: 'contact' })).toEqual({ href: '/aloqa', external: false })

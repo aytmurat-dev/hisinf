@@ -8,7 +8,6 @@ import { YouTubeBlock } from './YouTube'
 import { PersonCardBlock } from './PersonCard'
 import { EventsTimelineBlock } from './EventsTimeline'
 import { MapEmbedBlock } from './MapEmbed'
-import { ArchiveItemBlock } from './ArchiveItem'
 
 export {
   QuoteBlock,
@@ -21,7 +20,6 @@ export {
   PersonCardBlock,
   EventsTimelineBlock,
   MapEmbedBlock,
-  ArchiveItemBlock,
 }
 
 export const postBlocks = [
@@ -34,7 +32,6 @@ export const postBlocks = [
   PersonCardBlock,
   EventsTimelineBlock,
   MapEmbedBlock,
-  ArchiveItemBlock,
 ]
 
 export const inlineBlocks = [FootnoteBlock]

@@ -76,7 +76,6 @@ export interface Config {
     persons: Person;
     events: Event;
     places: Place;
-    'archive-items': ArchiveItem;
     categories: Category;
     tags: Tag;
     regions: Region;
@@ -119,7 +118,6 @@ export interface Config {
     persons: PersonsSelect<false> | PersonsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     places: PlacesSelect<false> | PlacesSelect<true>;
-    'archive-items': ArchiveItemsSelect<false> | ArchiveItemsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     regions: RegionsSelect<false> | RegionsSelect<true>;
@@ -782,50 +780,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "archive-items".
- */
-export interface ArchiveItem {
-  id: number;
-  title: string;
-  /**
-   * Avtomatik. Chop etilgandan keyin o'zgartirmang.
-   */
-  slug?: string | null;
-  kind: 'photo' | 'document' | 'map' | 'engraving' | 'video' | 'manuscript' | 'newspaper';
-  files?: (number | Media)[] | null;
-  /**
-   * Faqat "video" turi tanlanganda toʻldiriladi
-   */
-  videoUrl?: string | null;
-  /**
-   * Miloddan avvalgi yil manfiy: −329
-   */
-  year?: number | null;
-  yearText?: string | null;
-  description?: string | null;
-  provenance: string;
-  license: 'public-domain' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'permission' | 'own' | 'unknown';
-  period?: (number | null) | Period;
-  region?: (number | null) | Region;
-  persons?: (number | Person)[] | null;
-  places?: (number | Place)[] | null;
-  relatedPost?: (number | null) | Post;
-  author?: (number | null) | User;
-  searchText?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "comments".
  */
 export interface Comment {
@@ -995,10 +949,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'places';
         value: number | Place;
-      } | null)
-    | ({
-        relationTo: 'archive-items';
-        value: number | ArchiveItem;
       } | null)
     | ({
         relationTo: 'categories';
@@ -1354,39 +1304,6 @@ export interface PlacesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "archive-items_select".
- */
-export interface ArchiveItemsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  kind?: T;
-  files?: T;
-  videoUrl?: T;
-  year?: T;
-  yearText?: T;
-  description?: T;
-  provenance?: T;
-  license?: T;
-  period?: T;
-  region?: T;
-  persons?: T;
-  places?: T;
-  relatedPost?: T;
-  author?: T;
-  searchText?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
@@ -1640,18 +1557,7 @@ export interface Header {
         link?: {
           type?: ('route' | 'internal' | 'custom') | null;
           route?:
-            | (
-                | 'home'
-                | 'posts'
-                | 'timeline'
-                | 'persons'
-                | 'archive'
-                | 'map'
-                | 'search'
-                | 'authors'
-                | 'contact'
-                | 'become-author'
-              )
+            | ('home' | 'posts' | 'timeline' | 'persons' | 'map' | 'search' | 'authors' | 'contact' | 'become-author')
             | null;
           reference?:
             | ({
@@ -1681,7 +1587,6 @@ export interface Header {
                       | 'posts'
                       | 'timeline'
                       | 'persons'
-                      | 'archive'
                       | 'map'
                       | 'search'
                       | 'authors'
@@ -1735,7 +1640,6 @@ export interface Footer {
                       | 'posts'
                       | 'timeline'
                       | 'persons'
-                      | 'archive'
                       | 'map'
                       | 'search'
                       | 'authors'
@@ -1817,19 +1721,7 @@ export interface HomePage {
     cta1Link?: {
       type?: ('route' | 'internal' | 'custom') | null;
       route?:
-        | (
-            | 'home'
-            | 'posts'
-            | 'timeline'
-            | 'persons'
-            | 'archive'
-            | 'map'
-            | 'search'
-            | 'authors'
-            | 'contact'
-            | 'become-author'
-          )
-        | null;
+        ('home' | 'posts' | 'timeline' | 'persons' | 'map' | 'search' | 'authors' | 'contact' | 'become-author') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1850,19 +1742,7 @@ export interface HomePage {
     cta2Link?: {
       type?: ('route' | 'internal' | 'custom') | null;
       route?:
-        | (
-            | 'home'
-            | 'posts'
-            | 'timeline'
-            | 'persons'
-            | 'archive'
-            | 'map'
-            | 'search'
-            | 'authors'
-            | 'contact'
-            | 'become-author'
-          )
-        | null;
+        ('home' | 'posts' | 'timeline' | 'persons' | 'map' | 'search' | 'authors' | 'contact' | 'become-author') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -2238,16 +2118,6 @@ export interface MapEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'map-embed';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveItemBlock".
- */
-export interface ArchiveItemBlock {
-  item: number | ArchiveItem;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'archive-item';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

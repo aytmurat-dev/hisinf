@@ -35,12 +35,15 @@ export async function GET(req: NextRequest) {
       limit,
       sort: '-createdAt',
       depth: 1,
+      draft: true,
       overrideAccess: true,
     })
 
-    if (result && result.docs && result.docs.length > 0) {
-      return NextResponse.json(result)
-    }
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      },
+    })
   } catch (_err) {
     // Database offline fallback
   }

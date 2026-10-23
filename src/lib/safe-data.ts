@@ -450,7 +450,7 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
         // Double-check strict language match in memory:
         // 'both' appears in both, 'uz' only in 'uz', 'kaa' only in 'kaa'
         const filteredDocs = docs.filter((doc) => {
-          const l = (doc as any).language
+          const l = (doc as { language?: string }).language
           return !l || l === 'both' || l === targetLang
         })
 
@@ -520,8 +520,8 @@ export async function getSafePostBySlug(slug: string, locale: string = 'uz'): Pr
   const posts = await getSafePosts(locale)
   const found = posts.find((p) => p.slug === slug)
   if (found) {
-    const l = (found as any).language
-    if (l && l !== 'both' && l !== targetLang) return null
+    const l = found.language
+    if (l && l !== targetLang) return null
     return found
   }
 

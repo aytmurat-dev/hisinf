@@ -18,7 +18,7 @@ export const postEditor = lexicalEditor({
     FixedToolbarFeature(),
     HeadingFeature({ enabledHeadingSizes: ['h2', 'h3'] }),
     LinkFeature({
-      enabledCollections: ['posts', 'persons', 'events', 'places', 'pages', 'archive-items'],
+      enabledCollections: ['posts', 'persons', 'events', 'places', 'pages'],
     }),
     UploadFeature({
       collections: {

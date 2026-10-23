@@ -104,15 +104,6 @@ export function Header() {
             >
               {t('map')}
             </Link>
-            <Link
-              href="/arxiv"
-              prefetch={true}
-              className={`text-xs uppercase tracking-wider font-medium transition-colors ${
-                pathname.startsWith('/arxiv') ? 'text-[var(--gold)] font-semibold' : 'text-[var(--foreground)] hover:text-[var(--gold)]'
-              }`}
-            >
-              {t('archive')}
-            </Link>
 
             {/* Admin bo'lsa, ichki admin panel tugmasi */}
             {isAdmin && (
@@ -222,14 +213,6 @@ export function Header() {
               className="px-3 py-2 rounded-md text-sm font-medium hover:bg-[var(--secondary)]"
             >
               {t('map')}
-            </Link>
-            <Link
-              href="/arxiv"
-              prefetch={true}
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-md text-sm font-medium hover:bg-[var(--secondary)]"
-            >
-              {t('archive')}
             </Link>
             {isAdmin && (
               <Link

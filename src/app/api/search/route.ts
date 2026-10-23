@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { normalizeSearch } from '@/lib/normalize-search'
-import { getSafePosts, type FallbackPost } from '@/lib/safe-data'
+import { getSafePosts } from '@/lib/safe-data'
 
 export async function GET(req: NextRequest) {
   try {
