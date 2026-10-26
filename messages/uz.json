@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "Asosiy",
-    "posts": "Maqolalar",
+    "posts": "Interaktiv Tarix",
     "timeline": "Xronologiya",
     "persons": "Shaxslar",
     "map": "Xarita",
@@ -221,5 +221,32 @@
     "parsingDoc": "Hujjat matni oʻqilmoqda...",
     "submitPost": "Postni chop etish",
     "success": "Post muvaffaqiyatli chop etildi!"
+  },
+  "interactive": {
+    "badge": "1920–1940 Tarixiy Manbalar",
+    "title": "Interaktiv Tarixiy Modul (1920–1940)",
+    "subtitle": "Tarixiy kitob manbalari asosida yaratilgan interaktiv darslik, xronologiya, arxiv koʻrsatkichlari va test sinovlari",
+    "modeReading": "Darslik & Konspekt",
+    "modeTimeline": "Voqealar Lentasi",
+    "modeStats": "Arxiv Raqamlari",
+    "modePersons": "Tarixiy Shaxslar",
+    "modeQuiz": "Bilimni Tekshirish (Test)",
+    "readChapter": "Mavzuni toʻliq oʻrganish",
+    "quizQuestion": "Savol",
+    "checkAnswer": "Javobni tekshirish",
+    "nextQuestion": "Keyingi savol",
+    "quizCompleted": "Viktorina yakunlandi!",
+    "yourScore": "Sizning natijangiz:",
+    "tryAgain": "Qaytadan urinib koʻrish",
+    "correct": "Toʻgʻri javob!",
+    "incorrect": "Notoʻgʻri javob",
+    "keyMetricsTitle": "Tarixiy dalillar va arxiv koʻrsatkichlari",
+    "sourcesTitle": "Tarixiy manbalar va iqtiboslar",
+    "allChapters": "Barcha 5 ta mavzu",
+    "searchPlaceholder": "Mavzular yoki faktlardan qidirish...",
+    "listenDossier": "Ovozli konspekt",
+    "startExploring": "Oʻrganishni boshlash",
+    "chaptersCount": "5 ta tarixiy boʻlim",
+    "verifiedSource": "Akademik manba asosida tekshirilgan"
   }
 }

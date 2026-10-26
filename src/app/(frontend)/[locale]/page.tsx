@@ -12,7 +12,6 @@ import {
   Clock,
   User,
   Star,
-  Award,
   Eye,
 } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
@@ -223,33 +222,33 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Eng ko'p yulduzli maqolalar (Star-sorted Top Articles) */}
+      {/* Interaktiv Tarixiy Modullar (1920-1940 Interactive History Modules) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-[var(--border)] gap-4">
           <div>
-            <div className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
-              <Award className="w-4 h-4" />
+            <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
+              <Sparkles className="w-4 h-4" />
               <span>
-                {isKaa ? 'Juldızlar boyınsha reyting' : 'Yulduzlar boʻyicha reyting'}
+                {isKaa ? '1920–1940 Interaktiv Modul' : '1920–1940 Interaktiv Modul'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--foreground)]">
               {isKaa
-                ? 'Eń kóp juldızlı maqalalar'
-                : 'Eng koʻp yulduzli maqolalar'}
+                ? 'Tariyxıy Modullar hám Ilimiy Derekler'
+                : 'Tarixiy Modullar va Ilmiy Manbalar'}
             </h2>
-            <p className="text-xs text-[var(--muted-foreground)] mt-1">
+            <p className="text-xs text-[var(--muted-foreground)] mt-1 max-w-2xl">
               {isKaa
-                ? 'Eń kóp dawıs hám juldız alǵan maqalalar birinshi orında turadı'
-                : 'Eng koʻp ovoz va yulduz toʻplagan maqolalar eng birinchi oʻrinda turadi'}
+                ? 'Kitap maǵlıwmatları tiykarındaǵı 5 tiykarǵı tariyxıy bólim: XXSR hám BXSR, shegaralanıw, ekonomikalıq siyasat, mádeniyat hám qataǵanlıq'
+                : 'Kitob maʼlumotlari asosidagi 5 ta asosiy tarixiy boʻlim: XXSR va BXSR, chegaralanish, sovet iqtisodiy siyosati, madaniyat va qatagʻonlik'}
             </p>
           </div>
           <Link
-            href="/maqolalar?saralash=stars"
+            href="/maqolalar"
             prefetch={true}
             className="text-xs font-semibold text-amber-500 hover:underline active:scale-95 flex items-center gap-1 transition-transform"
           >
-            <span>{isKaa ? 'Barlıq maqalalar' : 'Barcha maqolalar'}</span>
+            <span>{isKaa ? 'Interaktiv oraydı ashıw' : 'Interaktiv markazni ochish'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

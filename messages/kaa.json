@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "Bas bet",
-    "posts": "Maqalalar",
+    "posts": "Interaktiv Tariyx",
     "timeline": "1924 Xronologiyası",
     "persons": "Tariyxıy tulǵalar",
     "map": "Karta",
@@ -221,5 +221,32 @@
     "parsingDoc": "Hújjet teksti oqılmaqta...",
     "submitPost": "Posttı baspalaw",
     "success": "Post tabıslı baspalandı!"
+  },
+  "interactive": {
+    "badge": "1920–1940 Tariyxıy Derekler",
+    "title": "Interaktiv Tariyxıy Modul (1920–1940)",
+    "subtitle": "Kitap maǵlıwmatları tiykarında tayarlanǵan interaktiv sabaqlıq, xronologiya, arxiv sanları hám testler",
+    "modeReading": "Sabaqlıq & Konspekt",
+    "modeTimeline": "Waqıyalar Dizbegi",
+    "modeStats": "Arxiv Sanları",
+    "modePersons": "Tariyxıy Tulǵalar",
+    "modeQuiz": "Bilimdi Tekseriw (Test)",
+    "readChapter": "Temanı tolıq úyreniw",
+    "quizQuestion": "Soraw",
+    "checkAnswer": "Juwaptı tekseriw",
+    "nextQuestion": "Keyingi soraw",
+    "quizCompleted": "Viktorina tamamlandı!",
+    "yourScore": "Sizdiń nátiyjeńiz:",
+    "tryAgain": "Qaytadan urinip kóriw",
+    "correct": "Durıs juwap!",
+    "incorrect": "Qáte juwap",
+    "keyMetricsTitle": "Tariyxıy faktler hám arxiv statistikası",
+    "sourcesTitle": "Tariyxıy derekler hám úzindiler",
+    "allChapters": "Barlıq 5 tema",
+    "searchPlaceholder": "Temalardan yamasa faktlerden izlew...",
+    "listenDossier": "Dawıslı konspekt",
+    "startExploring": "Úyreniwdi baslaw",
+    "chaptersCount": "5 tariyxıy bólim",
+    "verifiedSource": "Akademiyalıq derek tiykarında tekserilgen"
   }
 }
