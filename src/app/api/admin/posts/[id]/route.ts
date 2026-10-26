@@ -145,10 +145,23 @@ export async function PUT(
              body = COALESCE(EXCLUDED.body, posts_locales.body)`,
           [postId, updateData.title || null, updateData.excerpt || null, updateData.content || null, safeBody],
         )
-        await pool.end()
       } catch (kaaErr) {
         console.warn('Fast kaa sync warning:', kaaErr)
       }
+    }
+
+    try {
+      const { revalidatePath, revalidateTag } = await import('next/cache')
+      revalidatePath('/[locale]', 'page')
+      revalidatePath('/[locale]/maqolalar', 'page')
+      revalidateTag('posts')
+      const docSlug = (updated as { slug?: string })?.slug
+      if (docSlug) {
+        revalidatePath(`/[locale]/maqolalar/${docSlug}`, 'page')
+        revalidateTag(`post-${docSlug}`)
+      }
+    } catch {
+      // non-blocking
     }
 
     return NextResponse.json({ success: true, doc: updated })

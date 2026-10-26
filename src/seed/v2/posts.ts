@@ -52,6 +52,7 @@ export interface PostSeedItem {
   excerptKaa: string
   periodSlug: string
   categorySlug: string
+  coverImageUrl?: string
   featured?: boolean
   paragraphsUz: string[]
   paragraphsKaa: string[]
@@ -68,6 +69,7 @@ export const POSTS_DATA: PostSeedItem[] = [
     excerptKaa: '1924-jılda Oraylıq Aziyada milliy-aymaqlıq shegaralanıw ótkerilip, Ózbekstan SSR hám Qaraqalpaqstan Avtonomiyalı Wálayatı dúzildi.',
     periodSlug: 'sovet-davri',
     categorySlug: 'siyosiy-tarix',
+    coverImageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop',
     featured: true,
     paragraphsUz: [
       '1924-yilgi milliy-hududiy chegaralanish Oʻzbekiston va Qoraqalpogʻiston tarixidagi eng muhim va burilish nuqtalaridan biri boʻldi. Bu jarayon Turkiston ASSR, Buxoro XSR va Xorazm XSR hududlarida yashovchi xalqlarning milliy oʻzligini maʼmuriy-hududiy jihatdan shakllantirdi.',
@@ -90,6 +92,7 @@ export const POSTS_DATA: PostSeedItem[] = [
     excerptKaa: 'Ámir Temur Mawarannahrda kúshli saltanat dúzip, ilim-pán hám arxitekturanı rawajlandırdı.',
     periodSlug: 'temuriylar-davri',
     categorySlug: 'madaniyat',
+    coverImageUrl: 'https://images.unsplash.com/photo-1599818815525-4c07c6f017ad?q=80&w=1200&auto=format&fit=crop',
     featured: true,
     paragraphsUz: [
       'Amir Temur XIV asrning ikkinchi yarmida Markaziy Osiyoda tarqoqlikka chek qoʻyib, qudratli markazlashgan davlatga asos soldi. Uning davrida Samarqand jahonning eng goʻzal va madaniy shaharlaridan biriga aylandi.',
@@ -112,6 +115,7 @@ export const POSTS_DATA: PostSeedItem[] = [
     excerptKaa: 'Ámiwdáryanıń tómengi aǵımındaǵı Topıraqqala áyyemgi Xorezm mámleketshiliginiń ullı esteligi bolıp tabıladı.',
     periodSlug: 'antik-davr',
     categorySlug: 'arxeologiya',
+    coverImageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1200&auto=format&fit=crop',
     paragraphsUz: [
       'Qadimgi Xorazm Markaziy Osiyoning eng qadimgi madaniy oʻchoqlaridan biri hisoblanadi. Miloddan avvalgi I mingyillikda bu yerda rivojlangan sugʻorma dehqonchilik va shahar madaniyati mavjud edi.',
       'S.P. Tolstov boshchiligidagi Xorazm arxeologik-etnografik ekspeditsiyasi Tuproqqalʼa yodgorligini tadqiq qilib, hukmdorlar saroyi va noyob xorazmiy hujjatlarni topdi.',
@@ -133,6 +137,7 @@ export const POSTS_DATA: PostSeedItem[] = [
     excerptKaa: 'XI ásirdiń ullı alımı Beruniy Jer radiusın ólshew hám xronologiya boyınsha teńsiz jańalıqlar ashqan.',
     periodSlug: 'musulmon-renessansi',
     categorySlug: 'ilm-fan',
+    coverImageUrl: 'https://images.unsplash.com/photo-1532012164546-f432f2e3dd78?q=80&w=1200&auto=format&fit=crop',
     paragraphsUz: [
       'Abu Rayhon Beruniy 973-yilda Qadimgi Xorazmning Kat shahrida tavallud topgan. U matematika, astronomiya, geografiya va tarix fanlarida inqilobiy yutuqlarga erishdi.',
       'Uning "Osorul-boqiya" (Qadimgi xalqlardan qolgan yodgorliklar) asari taqvimlar va xronologiya boʻyicha eng mukammal ilmiy manbalardan biridir.',
@@ -154,6 +159,7 @@ export const POSTS_DATA: PostSeedItem[] = [
     excerptKaa: 'XIX ásir qaraqalpaq shayırı Berdaq óziniń "Shejire", "Xalıq ushın" dástanları menen xalıq tariyxın jırladı.',
     periodSlug: 'xonliklar-davri',
     categorySlug: 'adabiyot',
+    coverImageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200&auto=format&fit=crop',
     paragraphsUz: [
       'Berdaq Gʻargʻaboy oʻgʻli XIX asrda Orol boʻyi hududida yashab ijod qilgan qoraqalpoq adabiyotining eng yorqin namoyandasidir.',
       'Shoirning "Shejire" dostoni qoraqalpoq va boshqa turkiy xalqlarning kelib chiqishi, urugʻ-aymoqlari va qadimiy tarixi haqida qimmatli maʼlumot beradi.',
@@ -205,6 +211,7 @@ export async function seedPosts(
           categories: catId ? [catId] : [],
           author: authorId,
           coverImage: mediaId,
+          coverImageUrl: p.coverImageUrl ?? null,
           workflowStatus: 'published',
           featured: p.featured ?? false,
           commentsEnabled: true,
@@ -226,6 +233,19 @@ export async function seedPosts(
         overrideAccess: true,
         context: { disableRevalidate: true, disableNotifications: true, skipWorkflow: true },
       })
+    } else if (p.coverImageUrl && existing.docs[0]) {
+      const existingDoc = existing.docs[0]
+      if (!existingDoc.coverImageUrl) {
+        await payload.update({
+          collection: 'posts',
+          id: existingDoc.id,
+          data: {
+            coverImageUrl: p.coverImageUrl,
+          },
+          overrideAccess: true,
+          context: { disableRevalidate: true, disableNotifications: true, skipWorkflow: true },
+        })
+      }
     }
   }
 }

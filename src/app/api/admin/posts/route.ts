@@ -224,6 +224,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    try {
+      const { revalidatePath, revalidateTag } = await import('next/cache')
+      revalidatePath('/[locale]', 'page')
+      revalidatePath('/[locale]/maqolalar', 'page')
+      revalidateTag('posts')
+      if (uniqueSlug) {
+        revalidatePath(`/[locale]/maqolalar/${uniqueSlug}`, 'page')
+        revalidateTag(`post-${uniqueSlug}`)
+      }
+    } catch {
+      // non-blocking
+    }
+
     return NextResponse.json({ success: true, doc: created })
   } catch (err: unknown) {
     console.error('*** POST CREATE ERROR DETAILED ***', err)

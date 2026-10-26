@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { resolveCoverUrl } from '@/lib/resolve-cover-image'
+import { extractPlainText } from '@/lib/lexical-text'
 
 export interface FallbackPost {
   id: number
@@ -467,7 +468,7 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
               title: doc.title ?? '',
               slug: doc.slug ?? '',
               excerpt: doc.excerpt || '',
-              content: doc.content || '',
+              content: doc.content || extractPlainText(doc.body) || '',
               publishedAt: doc.publishedAt || new Date().toISOString(),
               stars: starsVal,
               ratingsCount: countVal,
@@ -475,6 +476,10 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
               views: (doc.views as number) || 0,
               coverImageUrl: coverImg,
               language: (doc.language as 'uz' | 'kaa') || (isKaa ? 'kaa' : 'uz'),
+              period:
+                typeof doc.period === 'object' && doc.period && 'title' in doc.period
+                  ? { id: (doc.period as { id: number }).id, title: String(doc.period.title) }
+                  : undefined,
             }
           })
         }
@@ -513,17 +518,78 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
 export async function getSafePostBySlug(slug: string, locale: string = 'uz'): Promise<FallbackPost | null> {
   const isKaa = locale === 'kaa'
   const targetLang = isKaa ? 'kaa' : 'uz'
-  const posts = await getSafePosts(locale)
-  const found = posts.find((p) => p.slug === slug)
-  if (found) {
-    const l = found.language
-    if (l && l !== targetLang) return null
-    return found
+
+  try {
+    const payload = await getSafePayload()
+    if (payload) {
+      const { docs } = await payload.find({
+        collection: 'posts',
+        locale: locale as 'uz' | 'kaa',
+        where: {
+          and: [
+            { slug: { equals: slug } },
+            { _status: { equals: 'published' } },
+            {
+              or: [
+                { language: { equals: targetLang } },
+                { language: { equals: 'both' } },
+                { language: { exists: false } },
+              ],
+            },
+          ],
+        },
+        limit: 1,
+        depth: 1,
+        overrideAccess: true,
+      })
+
+      if (docs && docs[0]) {
+        const doc = docs[0]
+        const coverImg = resolveCoverUrl(doc.coverImage, doc.coverImageUrl)
+        return {
+          id: doc.id,
+          title: doc.title ?? '',
+          slug: doc.slug ?? '',
+          excerpt: doc.excerpt || '',
+          content: doc.content || extractPlainText(doc.body) || '',
+          publishedAt: doc.publishedAt || new Date().toISOString(),
+          stars: (doc.stars as number) || 0,
+          ratingsCount: (doc.ratingsCount as number) || 0,
+          ratingAverage: (doc.ratingAverage as number) || 0,
+          views: (doc.views as number) || 0,
+          coverImageUrl: coverImg,
+          language: (doc.language as 'uz' | 'kaa') || (isKaa ? 'kaa' : 'uz'),
+          period:
+            typeof doc.period === 'object' && doc.period && 'title' in doc.period
+              ? { id: (doc.period as { id: number }).id, title: String(doc.period.title) }
+              : undefined,
+        }
+      }
+    }
+  } catch {
+    // DB unreachable, check fallback
   }
 
-  // If not found in DB posts, check fallbacks strictly for requested locale
+  // Fallback to in-memory list
   const fallbackList = isKaa ? FALLBACK_POSTS_KAA : FALLBACK_POSTS_UZ
-  return fallbackList.find((p) => p.slug === slug) || null
+  const found = fallbackList.find((p) => p.slug === slug)
+  if (!found) return null
+
+  const mem = inMemoryRatings[found.id]
+  const currentViews = inMemoryViews[found.id] ?? found.views ?? 0
+  if (mem) {
+    return {
+      ...found,
+      stars: mem.stars,
+      ratingsCount: mem.ratingsCount,
+      ratingAverage: mem.ratingAverage,
+      views: currentViews,
+    }
+  }
+  return {
+    ...found,
+    views: currentViews,
+  }
 }
 
 // Get periods safely

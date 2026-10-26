@@ -58,7 +58,7 @@ export const Posts: CollectionConfig = {
               id: data.coverImage,
               overrideAccess: true,
             })
-            if (mediaDoc && mediaDoc.url) {
+            if (mediaDoc && mediaDoc.url && !mediaDoc.url.toLowerCase().includes('placeholder')) {
               data.coverImageUrl = mediaDoc.url
             }
           } catch {

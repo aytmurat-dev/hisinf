@@ -1,128 +1,15 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Calendar, ArrowLeft, Compass, Eye } from 'lucide-react'
 import { PostComments } from '@/components/PostComments'
-import { extractPlainText } from '@/lib/lexical-text'
-import { unstable_cache } from 'next/cache'
 import { SmartImage } from '@/components/SmartImage'
-import { resolveCoverUrl } from '@/lib/resolve-cover-image'
 import { StarRating } from '@/components/StarRating'
 import { ViewTracker } from '@/components/ViewTracker'
+import { getSafePostBySlug, getSafePayload } from '@/lib/safe-data'
 
-import { getSafePostBySlug, type FallbackPost } from '@/lib/safe-data'
-
-export const revalidate = 3600
-
-export async function generateStaticParams() {
-  try {
-    const payload = await getPayload({ config })
-    const { docs } = await payload.find({
-      collection: 'posts',
-      where: { _status: { equals: 'published' } },
-      limit: 100,
-      select: { slug: true },
-      overrideAccess: true,
-    })
-    const params: { locale: string; slug: string }[] = []
-    for (const p of docs) {
-      if (p.slug) {
-        params.push({ locale: 'uz', slug: p.slug })
-        params.push({ locale: 'kaa', slug: p.slug })
-      }
-    }
-    return params
-  } catch {
-    return [
-      { locale: 'uz', slug: 'orta-osiyoda-milliy-hududiy-chegaralanish-sabablari' },
-      { locale: 'kaa', slug: 'orta-osiyoda-milliy-hududiy-chegaralanish-sabablari' },
-      { locale: 'uz', slug: 'ozbekiston-ssr-tashkil-topishi-1924' },
-      { locale: 'kaa', slug: 'ozbekiston-ssr-tashkil-topishi-1924' },
-      { locale: 'uz', slug: 'qoraqalpogiston-muxtor-viloyatining-tashkil-topishi' },
-      { locale: 'kaa', slug: 'qoraqalpogiston-muxtor-viloyatining-tashkil-topishi' },
-      { locale: 'uz', slug: 'samarqand-birinchi-poytaxt' },
-      { locale: 'kaa', slug: 'samarqand-birinchi-poytaxt' },
-    ]
-  }
-}
-
-const getCachedPost = (slug: string, locale: 'uz' | 'kaa'): Promise<FallbackPost | null> =>
-  unstable_cache(
-    async () => {
-      try {
-        const payload = await getPayload({ config })
-        const { docs } = await payload.find({
-          collection: 'posts',
-          locale,
-          where: { slug: { equals: slug } },
-          depth: 1,
-          overrideAccess: true,
-        })
-        if (docs && docs[0]) {
-          const doc = docs[0]
-          const postLang = (doc.language as string) || 'both'
-          if (postLang !== 'both' && postLang !== locale) {
-            return null
-          }
-
-          const coverImg = resolveCoverUrl(doc.coverImage, doc.coverImageUrl)
-
-          return {
-            id: doc.id,
-            title: doc.title ?? '',
-            slug: doc.slug ?? '',
-            excerpt: doc.excerpt || '',
-            content: doc.content || extractPlainText(doc.body) || '',
-            publishedAt: doc.publishedAt || new Date().toISOString(),
-            stars: (doc.stars as number) || 0,
-            ratingsCount: (doc.ratingsCount as number) || 0,
-            ratingAverage: (doc.ratingAverage as number) || 0,
-            views: (doc.views as number) || 0,
-            coverImageUrl: coverImg,
-            language: (doc.language as 'uz' | 'kaa') || locale,
-            period:
-              typeof doc.period === 'object' && doc.period && 'title' in doc.period
-                ? { id: (doc.period as { id: number }).id, title: String(doc.period.title) }
-                : undefined,
-          }
-        }
-      } catch {
-        // Postgres offline fallback
-      }
-      return await getSafePostBySlug(slug, locale)
-    },
-    [`post-${locale}-${slug}`],
-    { revalidate: 3600, tags: [`post-${slug}`, 'posts'] },
-  )()
-
-const getCachedComments = (postId: number) =>
-  unstable_cache(
-    async () => {
-      try {
-        const payload = await getPayload({ config })
-        const { docs: comments } = await payload.find({
-          collection: 'comments',
-          where: { post: { equals: postId } },
-          sort: '-createdAt',
-          depth: 0,
-          overrideAccess: true,
-        })
-        return comments.map((c) => ({
-          id: c.id,
-          authorName: c.authorName,
-          body: c.body,
-          createdAt: c.createdAt || new Date().toISOString(),
-        }))
-      } catch {
-        return []
-      }
-    },
-    [`comments-${postId}`],
-    { revalidate: 60, tags: [`comments-${postId}`] },
-  )()
+export const dynamic = 'force-dynamic'
 
 export default async function PostDetailPage({
   params,
@@ -133,16 +20,41 @@ export default async function PostDetailPage({
   setRequestLocale(locale)
   const tNav = await getTranslations({ locale, namespace: 'nav' })
 
-  const post = await getCachedPost(slug, locale as 'uz' | 'kaa')
+  const post = await getSafePostBySlug(slug, locale)
 
   if (!post) {
     notFound()
   }
 
-  const formattedComments = await getCachedComments(post.id)
+  let formattedComments: Array<{
+    id: number
+    authorName: string
+    body: string
+    createdAt: string
+  }> = []
+
+  try {
+    const payload = await getSafePayload()
+    if (payload) {
+      const { docs: comments } = await payload.find({
+        collection: 'comments',
+        where: { post: { equals: post.id } },
+        sort: '-createdAt',
+        depth: 0,
+        overrideAccess: true,
+      })
+      formattedComments = comments.map((c) => ({
+        id: c.id,
+        authorName: c.authorName,
+        body: c.body,
+        createdAt: c.createdAt || new Date().toISOString(),
+      }))
+    }
+  } catch {
+    // Graceful fallback for comments
+  }
 
   const coverUrl = post.coverImageUrl || '/placeholder.jpg'
-
   const periodTitle = post.period?.title || null
 
   return (

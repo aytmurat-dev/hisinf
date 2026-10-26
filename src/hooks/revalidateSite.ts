@@ -2,7 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, GlobalAfterC
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 export const revalidateSite: CollectionAfterChangeHook = ({ req, doc }) => {
-  if (req.context?.disableRevalidate || process.env.NODE_ENV === 'development') return doc
+  if (req.context?.disableRevalidate) return doc
   try {
     revalidatePath('/[locale]', 'page')
     revalidatePath('/[locale]/maqolalar', 'page')
@@ -19,7 +19,7 @@ export const revalidateSite: CollectionAfterChangeHook = ({ req, doc }) => {
 }
 
 export const revalidateSiteDelete: CollectionAfterDeleteHook = ({ req, doc }) => {
-  if (req.context?.disableRevalidate || process.env.NODE_ENV === 'development') return doc
+  if (req.context?.disableRevalidate) return doc
   try {
     revalidatePath('/[locale]', 'page')
     revalidatePath('/[locale]/maqolalar', 'page')
@@ -36,7 +36,7 @@ export const revalidateSiteDelete: CollectionAfterDeleteHook = ({ req, doc }) =>
 }
 
 export const revalidateSiteGlobal: GlobalAfterChangeHook = ({ req, doc }) => {
-  if (req.context?.disableRevalidate || process.env.NODE_ENV === 'development') return doc
+  if (req.context?.disableRevalidate) return doc
   try {
     revalidatePath('/[locale]', 'page')
     revalidateTag('posts')

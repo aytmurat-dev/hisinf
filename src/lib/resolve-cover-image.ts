@@ -33,12 +33,30 @@ function sanitizeUrl(rawUrl?: string | null): string | null {
   return null
 }
 
+export function isPlaceholderUrl(url?: string | null): boolean {
+  if (!url) return true
+  const lower = url.toLowerCase().trim()
+  return (
+    lower === '/placeholder.jpg' ||
+    lower === '/placeholder.png' ||
+    lower === 'placeholder.jpg' ||
+    lower === 'placeholder.png' ||
+    lower.endsWith('/placeholder.jpg') ||
+    lower.endsWith('/placeholder.png') ||
+    lower.endsWith('/placeholder.webp') ||
+    lower.includes('placeholder.png') ||
+    lower.includes('placeholder.jpg')
+  )
+}
+
 /**
  * Resolves the cover image URL for a post.
  *
  * Rules:
- * 1. Uploaded `coverImage` (Payload Media relationship) ALWAYS takes priority over external `coverImageUrl`.
- * 2. If `coverImage` is absent or has no valid URL, fallback to `coverImageUrl`.
+ * 1. Uploaded `coverImage` (Payload Media relationship) takes priority over external `coverImageUrl`,
+ *    UNLESS the uploaded media is a dummy placeholder (e.g. placeholder.png from initial seed)
+ *    and a real external `coverImageUrl` is provided.
+ * 2. If `coverImage` is absent, invalid, or a placeholder, fallback to real `coverImageUrl`.
  * 3. If neither is valid, fallback to `DEFAULT_COVER` (`/placeholder.jpg`).
  *
  * Can be called flexibly as:
@@ -79,20 +97,27 @@ export function resolveCoverUrl(
     }
   }
 
-  // 1. Primary: Uploaded Media object URL always takes precedence
-  if (mediaObj && mediaObj.url) {
-    const sanitizedMedia = sanitizeUrl(mediaObj.url)
-    if (sanitizedMedia) {
-      return sanitizedMedia
-    }
+  const sanitizedMedia = mediaObj?.url ? sanitizeUrl(mediaObj.url) : null
+  const sanitizedText = textUrl ? sanitizeUrl(textUrl) : null
+
+  // 1. Primary: If uploaded Media object has a real, non-placeholder URL, it takes top precedence
+  if (sanitizedMedia && !isPlaceholderUrl(sanitizedMedia)) {
+    return sanitizedMedia
   }
 
-  // 2. Secondary: external URL string
-  if (textUrl) {
-    const sanitizedText = sanitizeUrl(textUrl)
-    if (sanitizedText) {
-      return sanitizedText
-    }
+  // 2. Secondary: If external URL string is valid and not a placeholder, use it
+  if (sanitizedText && !isPlaceholderUrl(sanitizedText)) {
+    return sanitizedText
+  }
+
+  // 3. Fallback: If media had a placeholder URL, return it
+  if (sanitizedMedia) {
+    return sanitizedMedia
+  }
+
+  // 4. Fallback: If external URL was a placeholder, return it
+  if (sanitizedText) {
+    return sanitizedText
   }
 
   return DEFAULT_COVER

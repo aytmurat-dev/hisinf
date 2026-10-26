@@ -50,4 +50,14 @@ describe('resolveCoverUrl', () => {
     const relativePath = '/images/history.jpg'
     expect(resolveCoverUrl(null, relativePath)).toBe(relativePath)
   })
+
+  it('prefers a real coverImageUrl when coverImage is a placeholder', () => {
+    const placeholderMedia = { id: 1, url: '/api/media/file/placeholder.png' }
+    const externalUrl = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c'
+
+    expect(resolveCoverUrl(placeholderMedia, externalUrl)).toBe(externalUrl)
+    expect(resolveCoverUrl(externalUrl, placeholderMedia)).toBe(externalUrl)
+    expect(resolveCoverUrl({ coverImage: placeholderMedia, coverImageUrl: externalUrl })).toBe(externalUrl)
+  })
 })
+
