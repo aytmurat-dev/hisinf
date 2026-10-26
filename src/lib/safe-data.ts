@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { resolveCoverUrl } from '@/lib/resolve-cover-image'
 
 export interface FallbackPost {
   id: number
@@ -459,12 +460,7 @@ export async function getSafePosts(locale: string = 'uz', sortField: string = '-
             const starsVal = (doc.stars as number) || 0
             const countVal = (doc.ratingsCount as number) || 0
             const avgVal = (doc.ratingAverage as number) || 0
-            const coverImg =
-              (doc.coverImageUrl as string) ||
-              (typeof doc.coverImage === 'object' && doc.coverImage && 'url' in doc.coverImage
-                ? (doc.coverImage.url as string)
-                : '') ||
-              ''
+            const coverImg = resolveCoverUrl(doc.coverImage, doc.coverImageUrl)
 
             return {
               id: doc.id,

@@ -9,6 +9,7 @@ import { PostComments } from '@/components/PostComments'
 import { extractPlainText } from '@/lib/lexical-text'
 import { unstable_cache } from 'next/cache'
 import { SmartImage } from '@/components/SmartImage'
+import { resolveCoverUrl } from '@/lib/resolve-cover-image'
 import { StarRating } from '@/components/StarRating'
 import { ViewTracker } from '@/components/ViewTracker'
 
@@ -67,12 +68,7 @@ const getCachedPost = (slug: string, locale: 'uz' | 'kaa'): Promise<FallbackPost
             return null
           }
 
-          const coverImg =
-            (typeof doc.coverImage === 'object' && doc.coverImage && 'url' in doc.coverImage
-              ? (doc.coverImage.url as string)
-              : null) ||
-            (doc.coverImageUrl as string) ||
-            ''
+          const coverImg = resolveCoverUrl(doc.coverImage, doc.coverImageUrl)
 
           return {
             id: doc.id,

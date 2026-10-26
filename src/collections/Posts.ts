@@ -42,13 +42,28 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      ({ data, req }) => {
+      async ({ data, req }) => {
         // Agar author tanlanmagan bo'lsa, joriy userga bog'laymiz
         if (!data.author && req.user?.id) {
           data.author = req.user.id
         }
         if (!data.publishedAt && data._status === 'published') {
           data.publishedAt = new Date().toISOString()
+        }
+        // Agar coverImage yuklangan bo'lsa, uning URL'ini coverImageUrl maydoniga ham sinxronlashtiramiz
+        if (data.coverImage && typeof data.coverImage === 'number' && req.payload) {
+          try {
+            const mediaDoc = await req.payload.findByID({
+              collection: 'media',
+              id: data.coverImage,
+              overrideAccess: true,
+            })
+            if (mediaDoc && mediaDoc.url) {
+              data.coverImageUrl = mediaDoc.url
+            }
+          } catch {
+            // non-blocking
+          }
         }
         return data
       },
